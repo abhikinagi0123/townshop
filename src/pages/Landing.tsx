@@ -29,7 +29,7 @@ const featuredCategories = [
 ];
 
 const quickActions = [
-  { title: "10-Minute Delivery", icon: "⚡", desc: "Lightning fast" },
+  { title: "10-Min Delivery", icon: "⚡", desc: "Lightning fast" },
   { title: "Fresh Produce", icon: "🌿", desc: "Farm to home" },
   { title: "Best Prices", icon: "💰", desc: "Save more" },
   { title: "24/7 Available", icon: "🌙", desc: "Always open" },
@@ -56,12 +56,11 @@ export default function Landing() {
         },
         (error) => {
           console.error("Error getting location:", error);
-          // Default to a location if geolocation fails
-          setUserLocation({ lat: 28.6139, lng: 77.2090 }); // Delhi
+          setUserLocation({ lat: 28.6139, lng: 77.2090 });
         }
       );
     } else {
-      setUserLocation({ lat: 28.6139, lng: 77.2090 }); // Delhi
+      setUserLocation({ lat: 28.6139, lng: 77.2090 });
     }
   }, [user]);
 
@@ -71,294 +70,184 @@ export default function Landing() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Sticky Navbar */}
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <motion.div 
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate("/")}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
-            <span className="font-bold text-xl tracking-tight">QuickDeliver</span>
-          </motion.div>
-          <div className="flex items-center gap-3">
-            {!isLoading && (
-              <>
-                {isAuthenticated ? (
-                  <Button onClick={() => navigate("/stores")} size="sm">
-                    Browse Stores
-                  </Button>
-                ) : (
-                  <Button onClick={() => navigate("/auth")} size="sm">
-                    Get Started
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section with Search */}
-      <div className="bg-gradient-to-b from-primary/5 via-background to-background">
-        <div className="container mx-auto px-4 pt-8 pb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            {/* Location Display */}
-            {userLocation && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground"
-              >
-                <MapPin className="h-4 w-4 text-primary" />
-                <span className="font-medium">Delivering to your location</span>
-              </motion.div>
-            )}
-
-            {/* Main Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 leading-tight"
-            >
-              Your Local Stores,
-              <br />
-              <span className="text-primary">Delivered in Minutes</span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
-            >
-              Get groceries, food, medicines, and more delivered to your doorstep
-            </motion.p>
-
-            {/* Prominent Search Bar */}
+    <div className="min-h-screen bg-background pb-20">
+      {/* App Header - Compact */}
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
+        <div className="px-4 py-3">
+          {/* Location Display */}
+          {userLocation && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="relative max-w-2xl mx-auto mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center gap-2 mb-3"
             >
-              <div className="relative">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  placeholder="Search for stores, products, or categories..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-14 pr-4 h-14 text-base shadow-lg border-2 focus:border-primary rounded-xl"
-                />
+              <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">Delivering to</p>
+                <p className="text-sm font-semibold truncate">Your Location</p>
               </div>
-            </motion.div>
-
-            {/* Category Pills */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex gap-2 justify-center flex-wrap"
-            >
-              {categories.map((cat) => (
-                <Button
-                  key={cat.id}
-                  variant={category === cat.id ? "default" : "outline"}
+              {!isLoading && (
+                <Button 
+                  onClick={() => isAuthenticated ? navigate("/stores") : navigate("/auth")} 
                   size="sm"
-                  onClick={() => setCategory(cat.id)}
-                  className="gap-2 rounded-full px-4 h-10"
+                  className="flex-shrink-0"
                 >
-                  <span className="text-base">{cat.emoji}</span>
-                  <span>{cat.label}</span>
+                  {isAuthenticated ? "Browse" : "Login"}
                 </Button>
-              ))}
+              )}
             </motion.div>
-          </motion.div>
-        </div>
-      </div>
+          )}
 
-      {/* Quick Actions Banner */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickActions.map((action, index) => (
-            <motion.div
-              key={action.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 * index }}
-            >
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/50">
-                <CardContent className="p-4 text-center">
-                  <div className="text-3xl mb-2">{action.icon}</div>
-                  <h3 className="font-bold text-sm mb-1">{action.title}</h3>
-                  <p className="text-xs text-muted-foreground">{action.desc}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* Featured Categories */}
-      <div className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="flex items-center gap-2 mb-6">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <h2 className="text-2xl md:text-3xl font-bold">Shop by Category</h2>
+          {/* Search Bar - Compact */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search stores or products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 h-10 text-sm"
+            />
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {featuredCategories.map((cat, index) => (
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="px-4">
+        {/* Category Pills - Horizontal Scroll */}
+        <div className="py-3 -mx-4 px-4">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {categories.map((cat) => (
+              <Button
+                key={cat.id}
+                variant={category === cat.id ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCategory(cat.id)}
+                className="gap-1.5 rounded-full px-3 h-8 whitespace-nowrap flex-shrink-0"
+              >
+                <span className="text-sm">{cat.emoji}</span>
+                <span className="text-xs">{cat.label}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Actions - Compact Grid */}
+        <div className="py-3">
+          <div className="grid grid-cols-4 gap-2">
+            {quickActions.map((action, index) => (
               <motion.div
-                key={cat.name}
+                key={action.title}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.05 * index }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2, delay: 0.05 * index }}
+                className="text-center"
               >
-                <Card className="cursor-pointer overflow-hidden group">
-                  <CardContent className={`p-6 bg-gradient-to-br ${cat.color} text-white`}>
-                    <div className="text-center">
-                      <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform">
-                        {cat.emoji}
-                      </div>
-                      <h3 className="font-bold text-sm">{cat.name}</h3>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="bg-card border rounded-xl p-3 hover:shadow-md transition-shadow">
+                  <div className="text-2xl mb-1">{action.icon}</div>
+                  <p className="text-[10px] font-semibold leading-tight">{action.title}</p>
+                </div>
               </motion.div>
             ))}
           </div>
-        </motion.div>
-      </div>
+        </div>
 
-      {/* Nearby Shops Section */}
-      {nearbyShops && nearbyShops.length > 0 && (
-        <div className="container mx-auto px-4 py-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-6 w-6 text-primary" />
-                  <h2 className="text-2xl md:text-3xl font-bold">Stores Near You</h2>
+        {/* Featured Categories - Horizontal Scroll */}
+        <div className="py-3">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-bold">Shop by Category</h2>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+            {featuredCategories.map((cat, index) => (
+              <motion.div
+                key={cat.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2, delay: 0.03 * index }}
+                className="flex-shrink-0 w-24"
+              >
+                <div className={`bg-gradient-to-br ${cat.color} rounded-2xl p-4 text-white text-center h-24 flex flex-col items-center justify-center shadow-md`}>
+                  <div className="text-3xl mb-1">{cat.emoji}</div>
+                  <p className="text-[10px] font-semibold leading-tight">{cat.name}</p>
                 </div>
-                <p className="text-muted-foreground">
-                  {nearbyShops.length} {nearbyShops.length === 1 ? "store" : "stores"} available
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Nearby Shops Section */}
+        {nearbyShops && nearbyShops.length > 0 && (
+          <div className="py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="text-base font-bold">Stores Near You</h2>
+                <p className="text-xs text-muted-foreground">
+                  {nearbyShops.length} {nearbyShops.length === 1 ? "store" : "stores"}
                 </p>
               </div>
-              {nearbyShops.length > 8 && (
+              {nearbyShops.length > 6 && (
                 <Button
                   variant="ghost"
+                  size="sm"
                   onClick={() => navigate("/stores")}
-                  className="gap-2"
+                  className="gap-1 h-8 text-xs"
                 >
                   View All
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3 w-3" />
                 </Button>
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {nearbyShops.slice(0, 8).map((shop, index) => (
+            <div className="grid grid-cols-1 gap-3">
+              {nearbyShops.slice(0, 6).map((shop, index) => (
                 <motion.div
                   key={shop._id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.05 * index }}
+                  transition={{ duration: 0.2, delay: 0.03 * index }}
                 >
                   <StoreCard store={shop} />
                 </motion.div>
               ))}
             </div>
-          </motion.div>
-        </div>
-      )}
+          </div>
+        )}
 
-      {/* Features Section */}
-      <div className="bg-muted/30 py-16">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-3">Why Choose Us?</h2>
-            <p className="text-muted-foreground text-lg">Fast, reliable, and quality assured</p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-center"
-            >
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4 mx-auto shadow-lg">
-                <Zap className="h-8 w-8 text-white" />
+        {/* Features Section - Compact */}
+        <div className="py-6 mt-4">
+          <h2 className="text-base font-bold mb-4 text-center">Why Choose Us?</h2>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-2 mx-auto shadow-md">
+                <Zap className="h-6 w-6 text-white" />
               </div>
-              <h3 className="font-bold text-xl mb-2">Lightning Fast</h3>
-              <p className="text-muted-foreground">
-                Get your orders delivered in 10-30 minutes
-              </p>
-            </motion.div>
+              <p className="text-xs font-semibold mb-1">Lightning Fast</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">10-30 min delivery</p>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-center"
-            >
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-4 mx-auto shadow-lg">
-                <MapPin className="h-8 w-8 text-white" />
+            <div className="text-center">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-2 mx-auto shadow-md">
+                <MapPin className="h-6 w-6 text-white" />
               </div>
-              <h3 className="font-bold text-xl mb-2">Local Stores</h3>
-              <p className="text-muted-foreground">
-                Support your neighborhood businesses
-              </p>
-            </motion.div>
+              <p className="text-xs font-semibold mb-1">Local Stores</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">Support local</p>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="text-center"
-            >
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center mb-4 mx-auto shadow-lg">
-                <Star className="h-8 w-8 text-white" />
+            <div className="text-center">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center mb-2 mx-auto shadow-md">
+                <Star className="h-6 w-6 text-white" />
               </div>
-              <h3 className="font-bold text-xl mb-2">Quality Assured</h3>
-              <p className="text-muted-foreground">
-                Fresh products, every single time
-              </p>
-            </motion.div>
+              <p className="text-xs font-semibold mb-1">Quality</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">Fresh products</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t py-8 bg-background">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+      {/* Footer - Compact */}
+      <footer className="border-t py-4 mt-6 bg-muted/30">
+        <div className="px-4 text-center text-[10px] text-muted-foreground">
           <p>© 2024 QuickDeliver. All rights reserved.</p>
-          <p className="mt-2">
+          <p className="mt-1">
             Powered by{" "}
             <a
               href="https://vly.ai"

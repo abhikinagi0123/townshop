@@ -24,72 +24,67 @@ export function StoreCard({ store }: StoreCardProps) {
 
   return (
     <motion.div
-      whileHover={{ y: -6, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.1 }}
     >
       <Card 
-        className="overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 border group bg-card"
+        className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 border bg-card"
         onClick={() => navigate(`/store/${store._id}`)}
       >
-        <div className="relative h-44 overflow-hidden bg-muted">
-          <motion.img
-            src={store.image}
-            alt={store.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          
-          {/* Category Badge */}
-          <Badge className="absolute top-3 right-3 bg-background/95 backdrop-blur-sm text-foreground border-0 shadow-md font-medium">
-            {store.category}
-          </Badge>
-          
-          {/* Rating */}
-          <div className="absolute top-3 left-3 flex items-center gap-1 bg-background/95 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-md">
-            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-bold">{store.rating}</span>
+        <div className="flex gap-3 p-3">
+          {/* Store Image - Compact */}
+          <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+            <img
+              src={store.image}
+              alt={store.name}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            {/* Rating Badge */}
+            <div className="absolute top-1 left-1 flex items-center gap-0.5 bg-background/95 backdrop-blur-sm px-1.5 py-0.5 rounded-md shadow-sm">
+              <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+              <span className="text-[10px] font-bold">{store.rating}</span>
+            </div>
           </div>
 
-          {/* Open/Closed Status */}
-          {store.isOpen !== undefined && (
-            <div className="absolute bottom-3 left-3">
-              <Badge 
-                variant={store.isOpen ? "default" : "secondary"} 
-                className={`text-xs font-semibold shadow-md ${
-                  store.isOpen 
-                    ? "bg-green-500 hover:bg-green-600 text-white" 
-                    : "bg-gray-500 text-white"
-                }`}
-              >
-                {store.isOpen ? "Open" : "Closed"}
-              </Badge>
+          {/* Store Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <h3 className="font-bold text-sm leading-tight truncate">
+                {store.name}
+              </h3>
+              {store.isOpen !== undefined && (
+                <Badge 
+                  variant={store.isOpen ? "default" : "secondary"} 
+                  className={`text-[9px] px-1.5 py-0 h-4 flex-shrink-0 ${
+                    store.isOpen 
+                      ? "bg-green-500 hover:bg-green-600 text-white" 
+                      : "bg-gray-400 text-white"
+                  }`}
+                >
+                  {store.isOpen ? "Open" : "Closed"}
+                </Badge>
+              )}
             </div>
-          )}
-        </div>
-
-        <CardContent className="p-4">
-          <h3 className="font-bold text-lg mb-1.5 tracking-tight group-hover:text-primary transition-colors line-clamp-1">
-            {store.name}
-          </h3>
-          <p className="text-sm text-muted-foreground mb-3 line-clamp-2 min-h-[40px]">
-            {store.description}
-          </p>
-          
-          <div className="flex items-center justify-between text-sm pt-3 border-t">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span className="font-medium">{store.deliveryTime}</span>
-            </div>
-            {store.distance !== undefined && (
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span className="font-medium">{store.distance.toFixed(1)} km</span>
+            
+            <p className="text-[11px] text-muted-foreground line-clamp-1 mb-2">
+              {store.description}
+            </p>
+            
+            <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                <span>{store.deliveryTime}</span>
               </div>
-            )}
+              {store.distance !== undefined && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  <span>{store.distance.toFixed(1)} km</span>
+                </div>
+              )}
+            </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
     </motion.div>
   );
