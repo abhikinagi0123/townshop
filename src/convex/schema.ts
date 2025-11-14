@@ -122,6 +122,39 @@ const schema = defineSchema(
       validUntil: v.number(),
       isActive: v.boolean(),
     }).index("by_store", ["storeId"]),
+
+    reviews: defineTable({
+      userId: v.id("users"),
+      userName: v.string(),
+      productId: v.optional(v.id("products")),
+      storeId: v.optional(v.id("stores")),
+      rating: v.number(),
+      comment: v.string(),
+      orderId: v.id("orders"),
+      isVerified: v.boolean(),
+    })
+      .index("by_product", ["productId"])
+      .index("by_store", ["storeId"])
+      .index("by_user", ["userId"]),
+
+    favorites: defineTable({
+      userId: v.id("users"),
+      productId: v.optional(v.id("products")),
+      storeId: v.optional(v.id("stores")),
+    }).index("by_user", ["userId"]),
+
+    notifications: defineTable({
+      userId: v.id("users"),
+      title: v.string(),
+      message: v.string(),
+      type: v.union(
+        v.literal("order_update"),
+        v.literal("promotion"),
+        v.literal("system")
+      ),
+      orderId: v.optional(v.id("orders")),
+      isRead: v.boolean(),
+    }).index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

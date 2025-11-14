@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search } from "lucide-react";
+import { MapPin, Search, Bell } from "lucide-react";
 import { useNavigate } from "react-router";
+import { Badge } from "@/components/ui/badge";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 interface MobileHeaderProps {
   userLocation?: { lat: number; lng: number } | null;
@@ -22,54 +25,95 @@ export function MobileHeader({
   showSearch = true
 }: MobileHeaderProps) {
   const navigate = useNavigate();
+  const unreadCount = useQuery(api.notifications.getUnreadCount);
 
   return (
-    <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
+    <motion.header
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm"
+      role="banner"
+    >
       <div className="px-4 py-3">
-        {userLocation && (
+        <div className="flex items-center justify-between mb-3">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-2 mb-3"
+            initial={{ x: -10, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="flex items-center gap-2 flex-1"
           >
-            <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground">Delivering to</p>
-              <p className="text-sm font-semibold truncate">Your Location</p>
+            <img src="/logo.svg" alt="TownShop Logo" className="h-8 w-8" />
+            <div className="flex-1">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <MapPin className="h-3 w-3" aria-hidden="true" />
+                <span className="truncate max-w-[150px]">
+                  {userLocation ? "Current Location" : "Loading..."}
+                </span>
+              </div>
+              <p className="text-sm font-semibold truncate max-w-[200px]">
+                Delivering now
+              </p>
             </div>
-            {!isLoading && (
-              <Button 
-                onClick={() => isAuthenticated ? navigate("/stores") : navigate("/auth")} 
+          </motion.div>
+
+          <div className="flex items-center gap-2">
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
                 size="sm"
-                className="flex-shrink-0"
-                aria-label={isAuthenticated ? "Browse stores" : "Login to browse"}
+                className="relative h-9 w-9 p-0"
+                onClick={() => navigate("/notifications")}
+                aria-label={`Notifications${unreadCount ? ` (${unreadCount} unread)` : ""}`}
               >
-                {isAuthenticated ? "Browse" : "Login"}
+                <Bell className="h-5 w-5" aria-hidden="true" />
+                {unreadCount && unreadCount > 0 ? (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+                  >
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </Badge>
+                ) : null}
               </Button>
             )}
-          </motion.div>
-        )}
+            <Button
+              variant={isAuthenticated ? "outline" : "default"}
+              size="sm"
+              onClick={() => navigate(isAuthenticated ? "/profile" : "/auth")}
+              className="h-9"
+              aria-label={isAuthenticated ? "Go to profile" : "Login"}
+            >
+              {isAuthenticated ? "Profile" : "Login"}
+            </Button>
+          </div>
+        </div>
 
         {showSearch && (
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Search stores or products..."
-              value={search}
-              onChange={(e) => onSearchChange?.(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && search.trim()) {
-                  navigate(`/search?q=${encodeURIComponent(search.trim())}`);
-                }
-              }}
-              onClick={() => navigate('/search')}
-              className="pl-10 h-10 text-sm cursor-pointer"
-              readOnly
-              aria-label="Search stores or products"
-            />
-          </div>
+          <motion.div
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <Input
+                placeholder="Search stores, products..."
+                className="pl-10 h-10 bg-muted/50"
+                readOnly
+                onClick={() => navigate("/search")}
+                aria-label="Search for stores and products"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    navigate("/search");
+                  }
+                }}
+              />
+            </div>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.header>
   );
 }

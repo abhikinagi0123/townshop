@@ -15,6 +15,7 @@ import { HeroSection } from "@/components/HeroSection";
 import { CategoryPills } from "@/components/CategoryPills";
 import { QuickActions } from "@/components/QuickActions";
 import { ProductSection } from "@/components/ProductSection";
+import { ProductSectionSkeleton } from "@/components/LoadingStates";
 import { FeaturedCategories } from "@/components/FeaturedCategories";
 import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { StoreCard } from "@/components/StoreCard";
@@ -125,7 +126,9 @@ export default function Landing() {
 
         <QuickActions actions={quickActions} />
 
-        {trendingProducts && trendingProducts.length > 0 && (
+        {trendingProducts === undefined ? (
+          <ProductSectionSkeleton />
+        ) : trendingProducts && trendingProducts.length > 0 ? (
           <ProductSection
             title="Trending Now"
             icon={<Flame className="h-4 w-4 text-orange-500" />}
@@ -140,9 +143,11 @@ export default function Landing() {
               storeName: (item as any).storeName,
             }))}
           />
-        )}
+        ) : null}
 
-        {topRatedProducts && topRatedProducts.length > 0 && (
+        {topRatedProducts === undefined ? (
+          <ProductSectionSkeleton />
+        ) : topRatedProducts && topRatedProducts.length > 0 ? (
           <ProductSection
             title="Top Rated"
             icon={<Award className="h-4 w-4 text-yellow-500" />}
@@ -159,7 +164,7 @@ export default function Landing() {
             }))}
             showRating
           />
-        )}
+        ) : null}
 
         {featuredProducts && featuredProducts.length > 0 && (
           <ProductSection
