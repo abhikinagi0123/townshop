@@ -2,13 +2,14 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { ShoppingBag, Zap, MapPin, Star, Search, ChevronRight } from "lucide-react";
+import { ShoppingBag, Zap, MapPin, Star, Search, ChevronRight, Clock, TrendingUp, Sparkles } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { StoreCard } from "@/components/StoreCard";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 const categories = [
   { id: "all", label: "All", emoji: "🏪" },
@@ -16,6 +17,22 @@ const categories = [
   { id: "Food", label: "Food", emoji: "🍕" },
   { id: "Pharmacy", label: "Pharmacy", emoji: "💊" },
   { id: "Electronics", label: "Electronics", emoji: "📱" },
+];
+
+const featuredCategories = [
+  { name: "Vegetables & Fruits", emoji: "🥬", color: "from-green-500 to-emerald-600" },
+  { name: "Dairy & Breakfast", emoji: "🥛", color: "from-blue-500 to-cyan-600" },
+  { name: "Munchies", emoji: "🍿", color: "from-orange-500 to-amber-600" },
+  { name: "Cold Drinks", emoji: "🥤", color: "from-red-500 to-pink-600" },
+  { name: "Instant Food", emoji: "🍜", color: "from-purple-500 to-violet-600" },
+  { name: "Tea & Coffee", emoji: "☕", color: "from-yellow-500 to-orange-600" },
+];
+
+const quickActions = [
+  { title: "10-Minute Delivery", icon: "⚡", desc: "Lightning fast" },
+  { title: "Fresh Produce", icon: "🌿", desc: "Farm to home" },
+  { title: "Best Prices", icon: "💰", desc: "Save more" },
+  { title: "24/7 Available", icon: "🌙", desc: "Always open" },
 ];
 
 export default function Landing() {
@@ -170,6 +187,65 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* Quick Actions Banner */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {quickActions.map((action, index) => (
+            <motion.div
+              key={action.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 * index }}
+            >
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/50">
+                <CardContent className="p-4 text-center">
+                  <div className="text-3xl mb-2">{action.icon}</div>
+                  <h3 className="font-bold text-sm mb-1">{action.title}</h3>
+                  <p className="text-xs text-muted-foreground">{action.desc}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured Categories */}
+      <div className="container mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex items-center gap-2 mb-6">
+            <Sparkles className="h-6 w-6 text-primary" />
+            <h2 className="text-2xl md:text-3xl font-bold">Shop by Category</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {featuredCategories.map((cat, index) => (
+              <motion.div
+                key={cat.name}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.05 * index }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Card className="cursor-pointer overflow-hidden group">
+                  <CardContent className={`p-6 bg-gradient-to-br ${cat.color} text-white`}>
+                    <div className="text-center">
+                      <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform">
+                        {cat.emoji}
+                      </div>
+                      <h3 className="font-bold text-sm">{cat.name}</h3>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
       {/* Nearby Shops Section */}
       {nearbyShops && nearbyShops.length > 0 && (
         <div className="container mx-auto px-4 py-8">
@@ -180,7 +256,10 @@ export default function Landing() {
           >
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-1">Stores Near You</h2>
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="h-6 w-6 text-primary" />
+                  <h2 className="text-2xl md:text-3xl font-bold">Stores Near You</h2>
+                </div>
                 <p className="text-muted-foreground">
                   {nearbyShops.length} {nearbyShops.length === 1 ? "store" : "stores"} available
                 </p>
