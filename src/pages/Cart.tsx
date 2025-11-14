@@ -3,7 +3,7 @@ import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Minus, Trash2, IndianRupee, ShoppingBag } from "lucide-react";
+import { Plus, Minus, Trash2, IndianRupee, ShoppingBag, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -19,6 +19,8 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -42,6 +44,13 @@ export default function Cart() {
     state: "",
     zipCode: "",
   });
+
+  // Order scheduling states
+  const [scheduleOrder, setScheduleOrder] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringFrequency, setRecurringFrequency] = useState<"daily" | "weekly" | "monthly">("weekly");
 
   const subtotal = cartItems?.reduce((sum, item) => 
     sum + (item.product?.price || 0) * item.quantity, 0
@@ -88,6 +97,12 @@ export default function Cart() {
       return;
     }
 
+    // Validate scheduling if enabled
+    if (scheduleOrder && (!scheduledDate || !scheduledTime)) {
+      toast.error("Please select date and time for scheduled delivery");
+      return;
+    }
+
     const address = addresses?.find(a => a._id === selectedAddress);
     if (!address) return;
 
@@ -97,6 +112,19 @@ export default function Cart() {
     if (!storeId || !storeName) {
       toast.error("Invalid cart data");
       return;
+    }
+
+    // Calculate scheduled timestamp if scheduling is enabled
+    let scheduledFor: number | undefined;
+    if (scheduleOrder && scheduledDate && scheduledTime) {
+      const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+      scheduledFor = scheduledDateTime.getTime();
+      
+      // Validate that scheduled time is in the future
+      if (scheduledFor <= Date.now()) {
+        toast.error("Scheduled time must be in the future");
+        return;
+      }
     }
 
     try {
@@ -111,10 +139,19 @@ export default function Cart() {
         storeName,
         totalAmount: total,
         deliveryAddress: `${address.street}, ${address.city}, ${address.state} ${address.zipCode}`,
+        scheduledFor,
+        isRecurring: scheduleOrder && isRecurring ? isRecurring : undefined,
+        recurringFrequency: scheduleOrder && isRecurring ? recurringFrequency : undefined,
       });
       
       await clearCart();
-      toast.success("Order placed successfully!");
+      
+      if (scheduleOrder) {
+        toast.success(isRecurring ? "Recurring order scheduled successfully!" : "Order scheduled successfully!");
+      } else {
+        toast.success("Order placed successfully!");
+      }
+      
       navigate("/orders");
     } catch (error) {
       toast.error("Failed to place order");
@@ -129,6 +166,13 @@ export default function Cart() {
       </div>
     );
   }
+
+  // Get minimum date (today) and time for scheduling
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const minTime = scheduledDate === today ? 
+    `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` : 
+    "00:00";
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -254,41 +298,124 @@ export default function Cart() {
       </div>
 
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Select Delivery Address</DialogTitle>
+            <DialogTitle>Checkout</DialogTitle>
             <DialogDescription>
-              Choose where you want your order delivered
+              Complete your order details
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            {addresses?.map((address) => (
-              <Card
-                key={address._id}
-                className={`cursor-pointer ${selectedAddress === address._id ? 'border-primary' : ''}`}
-                onClick={() => setSelectedAddress(address._id)}
-              >
-                <CardContent className="p-4">
-                  <div className="font-semibold">{address.label}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {address.street}, {address.city}, {address.state} {address.zipCode}
+          <div className="space-y-6">
+            {/* Address Selection */}
+            <div>
+              <h3 className="font-semibold mb-3">Delivery Address</h3>
+              <div className="space-y-2">
+                {addresses?.map((address) => (
+                  <Card
+                    key={address._id}
+                    className={`cursor-pointer transition-colors ${selectedAddress === address._id ? 'border-primary bg-primary/5' : ''}`}
+                    onClick={() => setSelectedAddress(address._id)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="font-semibold">{address.label}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {address.street}, {address.city}, {address.state} {address.zipCode}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowAddAddress(true)}
+                >
+                  Add New Address
+                </Button>
+              </div>
+            </div>
+
+            {/* Order Scheduling */}
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-primary" />
+                  <h3 className="font-semibold">Schedule Delivery</h3>
+                </div>
+                <Switch
+                  checked={scheduleOrder}
+                  onCheckedChange={setScheduleOrder}
+                />
+              </div>
+
+              {scheduleOrder && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="space-y-4"
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Date</Label>
+                      <Input
+                        type="date"
+                        min={today}
+                        value={scheduledDate}
+                        onChange={(e) => setScheduledDate(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Time</Label>
+                      <Input
+                        type="time"
+                        min={minTime}
+                        value={scheduledTime}
+                        onChange={(e) => setScheduledTime(e.target.value)}
+                      />
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowAddAddress(true)}
-            >
-              Add New Address
-            </Button>
+
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Make this a recurring order</span>
+                    </div>
+                    <Switch
+                      checked={isRecurring}
+                      onCheckedChange={setIsRecurring}
+                    />
+                  </div>
+
+                  {isRecurring && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                    >
+                      <Label>Frequency</Label>
+                      <Select
+                        value={recurringFrequency}
+                        onValueChange={(value: "daily" | "weekly" | "monthly") => setRecurringFrequency(value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+
             <Button
               className="w-full"
               onClick={handleCheckout}
               disabled={!selectedAddress}
             >
-              Place Order
+              {scheduleOrder ? (isRecurring ? "Schedule Recurring Order" : "Schedule Order") : "Place Order"}
             </Button>
           </div>
         </DialogContent>
