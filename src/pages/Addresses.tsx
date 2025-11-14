@@ -299,7 +299,7 @@ export default function Addresses() {
                   onClick={() => setFormData({ ...formData, label: "Home" })}
                   className="flex-1"
                 >
-                  🏠 Home
+                  Home
                 </Button>
                 <Button
                   type="button"
@@ -308,7 +308,7 @@ export default function Addresses() {
                   onClick={() => setFormData({ ...formData, label: "Work" })}
                   className="flex-1"
                 >
-                  💼 Work
+                  Work
                 </Button>
               </div>
             </div>
