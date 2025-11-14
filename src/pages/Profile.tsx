@@ -1,12 +1,14 @@
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User, Package, MapPin, LogOut } from "lucide-react";
+import { User, Package, MapPin, LogOut, Phone, Mail, Edit } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { ProfileCompletionDialog } from "@/components/ProfileCompletionDialog";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ export default function Profile() {
   const cartItems = useQuery(api.cart.get);
   const orders = useQuery(api.orders.list);
   const addresses = useQuery(api.addresses.list);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
@@ -36,18 +39,37 @@ export default function Profile() {
 
           <Card className="mb-6">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="h-8 w-8 text-primary" />
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">
+                      {user?.name || "Guest User"}
+                    </h2>
+                    {user?.email && (
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                        <Mail className="h-3 w-3" />
+                        <span>{user.email}</span>
+                      </div>
+                    )}
+                    {user?.phone && (
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                        <Phone className="h-3 w-3" />
+                        <span>{user.phone}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold">
-                    {user?.name || user?.email || "Guest User"}
-                  </h2>
-                  {user?.email && (
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                  )}
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowEditDialog(true)}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
               </div>
               <Button variant="outline" onClick={handleSignOut} className="w-full">
                 <LogOut className="h-4 w-4 mr-2" />
@@ -109,6 +131,13 @@ export default function Profile() {
           </div>
         </motion.div>
       </div>
+
+      <ProfileCompletionDialog
+        open={showEditDialog}
+        onComplete={() => setShowEditDialog(false)}
+        currentName={user?.name}
+        currentPhone={user?.phone}
+      />
     </div>
   );
 }

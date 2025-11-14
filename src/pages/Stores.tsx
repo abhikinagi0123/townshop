@@ -5,8 +5,10 @@ import { StoreCard } from "@/components/StoreCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Loader2, Store } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ProfileCompletionDialog } from "@/components/ProfileCompletionDialog";
+import { useAuth } from "@/hooks/use-auth";
 
 const categories = [
   { id: "all", label: "All", emoji: "🏪" },
@@ -19,11 +21,24 @@ const categories = [
 export default function Stores() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
   
+  const { user, isAuthenticated } = useAuth();
   const cartItems = useQuery(api.cart.get);
   const stores = useQuery(api.stores.list, { category, search });
 
   const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+  // Check if profile needs completion
+  useEffect(() => {
+    if (isAuthenticated && user && (!user.name || !user.phone)) {
+      setShowProfileDialog(true);
+    }
+  }, [isAuthenticated, user]);
+
+  const handleProfileComplete = () => {
+    setShowProfileDialog(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -162,6 +177,13 @@ export default function Stores() {
           </motion.div>
         )}
       </div>
+
+      <ProfileCompletionDialog
+        open={showProfileDialog}
+        onComplete={handleProfileComplete}
+        currentName={user?.name}
+        currentPhone={user?.phone}
+      />
     </div>
   );
 }
