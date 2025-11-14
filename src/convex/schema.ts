@@ -34,74 +34,6 @@ const schema = defineSchema(
       role: v.optional(roleValidator), // role of the user. do not remove
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
-    // Admin-managed categories
-    categories: defineTable({
-      name: v.string(),
-      emoji: v.string(),
-      slug: v.string(),
-      isActive: v.boolean(),
-      sortOrder: v.number(),
-    }).index("by_slug", ["slug"]),
-
-    // Admin-managed featured categories for homepage
-    featuredCategories: defineTable({
-      name: v.string(),
-      emoji: v.string(),
-      color: v.string(), // gradient color classes
-      isActive: v.boolean(),
-      sortOrder: v.number(),
-    }),
-
-    // Admin-managed quick actions
-    quickActions: defineTable({
-      title: v.string(),
-      icon: v.string(), // emoji
-      description: v.string(),
-      isActive: v.boolean(),
-      sortOrder: v.number(),
-    }),
-
-    // Admin-managed banners/promotions
-    banners: defineTable({
-      title: v.string(),
-      subtitle: v.optional(v.string()),
-      description: v.optional(v.string()),
-      image: v.optional(v.string()),
-      buttonText: v.optional(v.string()),
-      buttonLink: v.optional(v.string()),
-      backgroundColor: v.optional(v.string()),
-      textColor: v.optional(v.string()),
-      type: v.union(
-        v.literal("hero"),
-        v.literal("promotional"),
-        v.literal("special_offer")
-      ),
-      isActive: v.boolean(),
-      sortOrder: v.number(),
-    }),
-
-    // Theme configuration
-    themeConfig: defineTable({
-      key: v.string(), // unique key for the setting
-      value: v.string(), // JSON stringified value
-      category: v.string(), // colors, layout, branding, etc.
-      description: v.optional(v.string()),
-    }).index("by_key", ["key"]),
-
-    // App settings
-    appSettings: defineTable({
-      appName: v.string(),
-      logo: v.optional(v.string()),
-      primaryColor: v.optional(v.string()),
-      secondaryColor: v.optional(v.string()),
-      deliveryRadius: v.optional(v.number()), // default delivery radius in km
-      minOrderAmount: v.optional(v.number()),
-      deliveryFee: v.optional(v.number()),
-      contactEmail: v.optional(v.string()),
-      contactPhone: v.optional(v.string()),
-      aboutText: v.optional(v.string()),
-    }),
-
     stores: defineTable({
       name: v.string(),
       description: v.string(),
@@ -113,9 +45,7 @@ const schema = defineSchema(
       lat: v.number(),
       lng: v.number(),
       isOpen: v.optional(v.boolean()),
-      isActive: v.boolean(), // admin can activate/deactivate
-      isFeatured: v.optional(v.boolean()), // featured stores
-    }).index("by_category", ["category"]),
+    }),
 
     products: defineTable({
       storeId: v.id("stores"),
@@ -125,10 +55,7 @@ const schema = defineSchema(
       price: v.number(),
       category: v.string(),
       inStock: v.boolean(),
-      isFeatured: v.optional(v.boolean()), // admin can feature products
-      discount: v.optional(v.number()), // discount percentage
-    }).index("by_store", ["storeId"])
-      .index("by_category", ["category"]),
+    }).index("by_store", ["storeId"]),
 
     cart: defineTable({
       userId: v.id("users"),

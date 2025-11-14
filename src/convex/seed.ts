@@ -3,71 +3,6 @@ import { mutation } from "./_generated/server";
 export const seedData = mutation({
   args: {},
   handler: async (ctx) => {
-    // Seed app settings
-    await ctx.db.insert("appSettings", {
-      appName: "TownShop",
-      deliveryRadius: 10,
-      minOrderAmount: 0,
-      deliveryFee: 40,
-      contactEmail: "support@townshop.com",
-      contactPhone: "+91 1234567890",
-      aboutText: "Your local delivery partner",
-    });
-
-    // Seed categories
-    const categories = [
-      { name: "All", emoji: "🏪", slug: "all", sortOrder: 0 },
-      { name: "Grocery", emoji: "🛒", slug: "grocery", sortOrder: 1 },
-      { name: "Food", emoji: "🍕", slug: "food", sortOrder: 2 },
-      { name: "Pharmacy", emoji: "💊", slug: "pharmacy", sortOrder: 3 },
-      { name: "Electronics", emoji: "📱", slug: "electronics", sortOrder: 4 },
-    ];
-
-    for (const cat of categories) {
-      await ctx.db.insert("categories", { ...cat, isActive: true });
-    }
-
-    // Seed featured categories
-    const featuredCategories = [
-      { name: "Vegetables & Fruits", emoji: "🥬", color: "from-green-500 to-emerald-600", sortOrder: 0 },
-      { name: "Dairy & Breakfast", emoji: "🥛", color: "from-blue-500 to-cyan-600", sortOrder: 1 },
-      { name: "Munchies", emoji: "🍿", color: "from-orange-500 to-amber-600", sortOrder: 2 },
-      { name: "Cold Drinks", emoji: "🥤", color: "from-red-500 to-pink-600", sortOrder: 3 },
-      { name: "Instant Food", emoji: "🍜", color: "from-purple-500 to-violet-600", sortOrder: 4 },
-      { name: "Tea & Coffee", emoji: "☕", color: "from-yellow-500 to-orange-600", sortOrder: 5 },
-      { name: "Bakery & Biscuits", emoji: "🍪", color: "from-pink-500 to-rose-600", sortOrder: 6 },
-      { name: "Sauces & Spreads", emoji: "🍯", color: "from-amber-500 to-yellow-600", sortOrder: 7 },
-    ];
-
-    for (const cat of featuredCategories) {
-      await ctx.db.insert("featuredCategories", { ...cat, isActive: true });
-    }
-
-    // Seed quick actions
-    const quickActions = [
-      { title: "10-Min Delivery", icon: "⚡", description: "Lightning fast", sortOrder: 0 },
-      { title: "Fresh Produce", icon: "🌿", description: "Farm to home", sortOrder: 1 },
-      { title: "Best Prices", icon: "💰", description: "Save more", sortOrder: 2 },
-      { title: "24/7 Available", icon: "🌙", description: "Always open", sortOrder: 3 },
-    ];
-
-    for (const action of quickActions) {
-      await ctx.db.insert("quickActions", { ...action, isActive: true });
-    }
-
-    // Seed banners
-    await ctx.db.insert("banners", {
-      title: "Up to 50% OFF",
-      subtitle: "🔥 Hot Deals",
-      description: "On selected items",
-      buttonText: "Shop Now",
-      backgroundColor: "from-orange-500 to-pink-500",
-      textColor: "text-white",
-      type: "special_offer",
-      isActive: true,
-      sortOrder: 0,
-    });
-
     // Seed stores
     const store1 = await ctx.db.insert("stores", {
       name: "Fresh Mart",
@@ -80,8 +15,6 @@ export const seedData = mutation({
       lat: 28.6139,
       lng: 77.2090,
       isOpen: true,
-      isActive: true,
-      isFeatured: true,
     });
 
     const store2 = await ctx.db.insert("stores", {
@@ -95,8 +28,6 @@ export const seedData = mutation({
       lat: 28.6189,
       lng: 77.2150,
       isOpen: true,
-      isActive: true,
-      isFeatured: true,
     });
 
     const store3 = await ctx.db.insert("stores", {
@@ -110,7 +41,6 @@ export const seedData = mutation({
       lat: 28.6100,
       lng: 77.2050,
       isOpen: true,
-      isActive: true,
     });
 
     const store4 = await ctx.db.insert("stores", {
@@ -124,7 +54,6 @@ export const seedData = mutation({
       lat: 28.6200,
       lng: 77.2100,
       isOpen: true,
-      isActive: true,
     });
 
     // Seed products for Fresh Mart
@@ -136,7 +65,6 @@ export const seedData = mutation({
       price: 65,
       category: "Dairy",
       inStock: true,
-      isFeatured: true,
     });
 
     await ctx.db.insert("products", {
@@ -168,7 +96,6 @@ export const seedData = mutation({
       price: 299,
       category: "Pizza",
       inStock: true,
-      isFeatured: true,
     });
 
     await ctx.db.insert("products", {
@@ -212,6 +139,6 @@ export const seedData = mutation({
       inStock: true,
     });
 
-    return { success: true, message: "Database seeded successfully with admin-managed content!" };
+    return { success: true, message: "Database seeded successfully!" };
   },
 });

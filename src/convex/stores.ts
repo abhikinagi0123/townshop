@@ -96,17 +96,11 @@ export const create = mutation({
     lat: v.number(),
     lng: v.number(),
     isOpen: v.optional(v.boolean()),
-    isActive: v.optional(v.boolean()),
-    isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
     if (!user) throw new Error("Unauthorized");
     
-    return await ctx.db.insert("stores", {
-      ...args,
-      isActive: args.isActive ?? true,
-      isFeatured: args.isFeatured ?? false,
-    });
+    return await ctx.db.insert("stores", args);
   },
 });
