@@ -14,6 +14,8 @@ interface StoreCardProps {
     rating: number;
     deliveryTime: string;
     minOrder: number;
+    distance?: number;
+    isOpen?: boolean;
   };
 }
 
@@ -58,13 +60,19 @@ export function StoreCard({ store }: StoreCardProps) {
               <Clock className="h-4 w-4" />
               <span className="font-medium">{store.deliveryTime}</span>
             </div>
-            {store.minOrder > 0 && (
+            {store.distance !== undefined && (
               <div className="flex items-center gap-1 text-muted-foreground">
-                <IndianRupee className="h-3 w-3" />
-                <span className="font-medium">{store.minOrder} min</span>
+                <span className="font-medium">{store.distance.toFixed(1)} km</span>
               </div>
             )}
           </div>
+          {store.isOpen !== undefined && (
+            <div className="mt-2 text-center">
+              <Badge variant={store.isOpen ? "default" : "secondary"} className="text-xs">
+                {store.isOpen ? "Open" : "Closed"}
+              </Badge>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>

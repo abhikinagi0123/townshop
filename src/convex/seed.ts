@@ -12,6 +12,9 @@ export const seedData = mutation({
       rating: 4.5,
       deliveryTime: "15-20 min",
       minOrder: 99,
+      lat: 28.6139,
+      lng: 77.2090,
+      isOpen: true,
     });
 
     const store2 = await ctx.db.insert("stores", {
@@ -22,6 +25,9 @@ export const seedData = mutation({
       rating: 4.7,
       deliveryTime: "25-30 min",
       minOrder: 199,
+      lat: 28.6189,
+      lng: 77.2150,
+      isOpen: true,
     });
 
     const store3 = await ctx.db.insert("stores", {
@@ -32,6 +38,9 @@ export const seedData = mutation({
       rating: 4.3,
       deliveryTime: "20-25 min",
       minOrder: 149,
+      lat: 28.6100,
+      lng: 77.2050,
+      isOpen: true,
     });
 
     const store4 = await ctx.db.insert("stores", {
@@ -42,6 +51,9 @@ export const seedData = mutation({
       rating: 4.8,
       deliveryTime: "10-15 min",
       minOrder: 0,
+      lat: 28.6200,
+      lng: 77.2100,
+      isOpen: true,
     });
 
     // Seed products for Fresh Mart

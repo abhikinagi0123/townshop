@@ -42,6 +42,9 @@ const schema = defineSchema(
       rating: v.number(),
       deliveryTime: v.string(),
       minOrder: v.number(),
+      lat: v.number(),
+      lng: v.number(),
+      isOpen: v.optional(v.boolean()),
     }),
 
     products: defineTable({
