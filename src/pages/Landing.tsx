@@ -21,14 +21,14 @@ const categories = [
 ];
 
 const featuredCategories = [
-  { name: "Vegetables & Fruits", emoji: "🥬", color: "from-primary/80 to-primary" },
-  { name: "Dairy & Breakfast", emoji: "🥛", color: "from-primary/70 to-primary/90" },
-  { name: "Munchies", emoji: "🍿", color: "from-primary/60 to-primary/80" },
-  { name: "Cold Drinks", emoji: "🥤", color: "from-primary to-primary/70" },
-  { name: "Instant Food", emoji: "🍜", color: "from-primary/90 to-primary" },
-  { name: "Tea & Coffee", emoji: "☕", color: "from-primary/75 to-primary/95" },
-  { name: "Bakery & Biscuits", emoji: "🍪", color: "from-primary/85 to-primary" },
-  { name: "Sauces & Spreads", emoji: "🍯", color: "from-primary/65 to-primary/85" },
+  { name: "Vegetables & Fruits", emoji: "🥬", color: "from-green-400 to-green-500" },
+  { name: "Dairy & Breakfast", emoji: "🥛", color: "from-blue-400 to-blue-500" },
+  { name: "Munchies", emoji: "🍿", color: "from-orange-400 to-orange-500" },
+  { name: "Cold Drinks", emoji: "🥤", color: "from-cyan-400 to-cyan-500" },
+  { name: "Instant Food", emoji: "🍜", color: "from-red-400 to-red-500" },
+  { name: "Tea & Coffee", emoji: "☕", color: "from-amber-400 to-amber-500" },
+  { name: "Bakery & Biscuits", emoji: "🍪", color: "from-yellow-400 to-yellow-500" },
+  { name: "Sauces & Spreads", emoji: "🍯", color: "from-purple-400 to-purple-500" },
 ];
 
 const quickActions = [
@@ -626,7 +626,7 @@ export default function Landing() {
           <h2 className="text-base font-bold mb-4 text-center">Why Choose Us?</h2>
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-2 mx-auto shadow-md">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mb-2 mx-auto shadow-md">
                 <Zap className="h-6 w-6 text-white" />
               </div>
               <p className="text-xs font-semibold mb-1">Lightning Fast</p>
@@ -634,7 +634,7 @@ export default function Landing() {
             </div>
 
             <div className="text-center">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-2 mx-auto shadow-md">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/90 to-primary/70 flex items-center justify-center mb-2 mx-auto shadow-md">
                 <MapPin className="h-6 w-6 text-white" />
               </div>
               <p className="text-xs font-semibold mb-1">Local Stores</p>
@@ -642,7 +642,7 @@ export default function Landing() {
             </div>
 
             <div className="text-center">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center mb-2 mx-auto shadow-md">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center mb-2 mx-auto shadow-md">
                 <Star className="h-6 w-6 text-white" />
               </div>
               <p className="text-xs font-semibold mb-1">Quality</p>
