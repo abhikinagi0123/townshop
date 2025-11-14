@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, Bell } from "lucide-react";
+import { MapPin, Search, Bell, ShoppingCart, Heart } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "convex/react";
@@ -26,6 +26,11 @@ export function MobileHeader({
 }: MobileHeaderProps) {
   const navigate = useNavigate();
   const unreadCount = useQuery(api.notifications.getUnreadCount);
+  const cartItems = useQuery(api.cart.get);
+  const favorites = useQuery(api.favorites.list);
+
+  const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const favoritesCount = favorites?.length || 0;
 
   return (
     <motion.header
@@ -56,25 +61,61 @@ export function MobileHeader({
             </div>
           </motion.div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {isAuthenticated && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="relative h-9 w-9 p-0"
-                onClick={() => navigate("/notifications")}
-                aria-label={`Notifications${unreadCount ? ` (${unreadCount} unread)` : ""}`}
-              >
-                <Bell className="h-5 w-5" aria-hidden="true" />
-                {unreadCount && unreadCount > 0 ? (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
-                  >
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </Badge>
-                ) : null}
-              </Button>
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative h-9 w-9 p-0"
+                  onClick={() => navigate("/favorites")}
+                  aria-label={`Favorites${favoritesCount ? ` (${favoritesCount} items)` : ""}`}
+                >
+                  <Heart className="h-5 w-5" aria-hidden="true" />
+                  {favoritesCount > 0 && (
+                    <Badge
+                      variant="secondary"
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+                    >
+                      {favoritesCount > 9 ? "9+" : favoritesCount}
+                    </Badge>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative h-9 w-9 p-0"
+                  onClick={() => navigate("/cart")}
+                  aria-label={`Cart${cartCount ? ` (${cartCount} items)` : ""}`}
+                >
+                  <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+                  {cartCount > 0 && (
+                    <Badge
+                      variant="default"
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+                    >
+                      {cartCount > 9 ? "9+" : cartCount}
+                    </Badge>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative h-9 w-9 p-0"
+                  onClick={() => navigate("/notifications")}
+                  aria-label={`Notifications${unreadCount ? ` (${unreadCount} unread)` : ""}`}
+                >
+                  <Bell className="h-5 w-5" aria-hidden="true" />
+                  {unreadCount && unreadCount > 0 ? (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+                    >
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </Badge>
+                  ) : null}
+                </Button>
+              </>
             )}
             <Button
               variant={isAuthenticated ? "outline" : "default"}
