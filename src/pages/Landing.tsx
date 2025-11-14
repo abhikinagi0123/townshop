@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { ShoppingBag, Zap, MapPin, Star, Search, ChevronRight, Clock, TrendingUp, Sparkles, Flame, Award, Package, RefreshCw } from "lucide-react";
+import { Home, Zap, MapPin, Star, Search, ChevronRight, Clock, TrendingUp, Sparkles, Flame, Award, Package, RefreshCw, User } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { StoreCard } from "@/components/StoreCard";
@@ -176,7 +176,7 @@ export default function Landing() {
                 onClick={() => isAuthenticated ? navigate("/stores") : navigate("/auth")}
                 className="gap-2"
               >
-                <ShoppingBag className="h-4 w-4" />
+                <Star className="h-4 w-4" />
                 Start Shopping
               </Button>
               <Button 
@@ -653,7 +653,7 @@ export default function Landing() {
             className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
             onClick={() => navigate("/")}
           >
-            <ShoppingBag className="h-5 w-5" />
+            <Home className="h-5 w-5" />
             <span className="text-xs">Home</span>
           </Button>
           <Button
@@ -677,7 +677,7 @@ export default function Landing() {
             className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
             onClick={() => isAuthenticated ? navigate("/profile") : navigate("/auth")}
           >
-            <MapPin className="h-5 w-5" />
+            <User className="h-5 w-5" />
             <span className="text-xs">Profile</span>
           </Button>
         </div>
