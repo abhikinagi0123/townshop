@@ -40,6 +40,13 @@ export const create = mutation({
     storeName: v.string(),
     totalAmount: v.number(),
     deliveryAddress: v.string(),
+    scheduledFor: v.optional(v.number()),
+    isRecurring: v.optional(v.boolean()),
+    recurringFrequency: v.optional(v.union(
+      v.literal("daily"),
+      v.literal("weekly"),
+      v.literal("monthly")
+    )),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
@@ -52,7 +59,10 @@ export const create = mutation({
       storeName: args.storeName,
       totalAmount: args.totalAmount,
       deliveryAddress: args.deliveryAddress,
-      status: "pending",
+      status: args.scheduledFor ? "pending" : "pending",
+      scheduledFor: args.scheduledFor,
+      isRecurring: args.isRecurring,
+      recurringFrequency: args.recurringFrequency,
     });
   },
 });
@@ -100,5 +110,45 @@ export const getRecentOrders = query({
       .take(limit);
     
     return orders;
+  },
+});
+
+export const getScheduledOrders = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return [];
+    
+    const now = Date.now();
+    const orders = await ctx.db
+      .query("orders")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .filter((q) => q.and(
+        q.neq(q.field("scheduledFor"), undefined),
+        q.gt(q.field("scheduledFor"), now)
+      ))
+      .order("desc")
+      .collect();
+    
+    return orders;
+  },
+});
+
+export const cancelScheduledOrder = mutation({
+  args: { orderId: v.id("orders") },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Unauthorized");
+    
+    const order = await ctx.db.get(args.orderId);
+    if (!order || order.userId !== user._id) {
+      throw new Error("Unauthorized");
+    }
+    
+    if (!order.scheduledFor || order.scheduledFor < Date.now()) {
+      throw new Error("Cannot cancel order that has already started");
+    }
+    
+    await ctx.db.patch(args.orderId, { status: "cancelled" });
   },
 });

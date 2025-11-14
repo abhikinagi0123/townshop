@@ -32,6 +32,13 @@ const schema = defineSchema(
       lat: v.optional(v.number()), // latitude of the user's location
       lng: v.optional(v.number()), // longitude of the user's location
       role: v.optional(roleValidator), // role of the user. do not remove
+      loyaltyPoints: v.optional(v.number()), // loyalty points
+      loyaltyTier: v.optional(v.union(
+        v.literal("bronze"),
+        v.literal("silver"),
+        v.literal("gold"),
+        v.literal("platinum")
+      )),
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
     stores: defineTable({
@@ -90,6 +97,21 @@ const schema = defineSchema(
         phone: v.string(),
         vehicleNumber: v.optional(v.string()),
       })),
+      scheduledFor: v.optional(v.number()),
+      isRecurring: v.optional(v.boolean()),
+      recurringFrequency: v.optional(v.union(
+        v.literal("daily"),
+        v.literal("weekly"),
+        v.literal("monthly")
+      )),
+      paymentMethod: v.optional(v.string()),
+      paymentStatus: v.optional(v.union(
+        v.literal("pending"),
+        v.literal("completed"),
+        v.literal("failed"),
+        v.literal("refunded")
+      )),
+      loyaltyPointsEarned: v.optional(v.number()),
     }).index("by_user", ["userId"]),
 
     addresses: defineTable({
@@ -154,6 +176,94 @@ const schema = defineSchema(
       ),
       orderId: v.optional(v.id("orders")),
       isRead: v.boolean(),
+    }).index("by_user", ["userId"]),
+
+    payments: defineTable({
+      userId: v.id("users"),
+      orderId: v.id("orders"),
+      amount: v.number(),
+      method: v.union(
+        v.literal("card"),
+        v.literal("upi"),
+        v.literal("wallet"),
+        v.literal("cod")
+      ),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("completed"),
+        v.literal("failed"),
+        v.literal("refunded")
+      ),
+      transactionId: v.optional(v.string()),
+      cardLast4: v.optional(v.string()),
+      upiId: v.optional(v.string()),
+    }).index("by_user", ["userId"])
+      .index("by_order", ["orderId"]),
+
+    savedPaymentMethods: defineTable({
+      userId: v.id("users"),
+      type: v.union(
+        v.literal("card"),
+        v.literal("upi"),
+        v.literal("wallet")
+      ),
+      cardLast4: v.optional(v.string()),
+      cardBrand: v.optional(v.string()),
+      upiId: v.optional(v.string()),
+      walletProvider: v.optional(v.string()),
+      isDefault: v.boolean(),
+    }).index("by_user", ["userId"]),
+
+    loyaltyTransactions: defineTable({
+      userId: v.id("users"),
+      points: v.number(),
+      type: v.union(
+        v.literal("earned"),
+        v.literal("redeemed"),
+        v.literal("expired"),
+        v.literal("bonus")
+      ),
+      orderId: v.optional(v.id("orders")),
+      description: v.string(),
+    }).index("by_user", ["userId"]),
+
+    referrals: defineTable({
+      referrerId: v.id("users"),
+      referredUserId: v.optional(v.id("users")),
+      referralCode: v.string(),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("completed"),
+        v.literal("expired")
+      ),
+      bonusPoints: v.optional(v.number()),
+    }).index("by_referrer", ["referrerId"])
+      .index("by_code", ["referralCode"]),
+
+    chatMessages: defineTable({
+      userId: v.id("users"),
+      orderId: v.optional(v.id("orders")),
+      storeId: v.optional(v.id("stores")),
+      message: v.string(),
+      sender: v.union(
+        v.literal("user"),
+        v.literal("support"),
+        v.literal("store")
+      ),
+      isRead: v.boolean(),
+    }).index("by_user", ["userId"])
+      .index("by_order", ["orderId"]),
+
+    chatSessions: defineTable({
+      userId: v.id("users"),
+      orderId: v.optional(v.id("orders")),
+      storeId: v.optional(v.id("stores")),
+      status: v.union(
+        v.literal("active"),
+        v.literal("resolved"),
+        v.literal("closed")
+      ),
+      lastMessageAt: v.number(),
     }).index("by_user", ["userId"]),
   },
   {
