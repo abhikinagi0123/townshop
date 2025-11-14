@@ -82,3 +82,23 @@ export const updateStatus = mutation({
     await ctx.db.patch(args.orderId, updates);
   },
 });
+
+export const getRecentOrders = query({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return [];
+    
+    const limit = args.limit || 3;
+    
+    const orders = await ctx.db
+      .query("orders")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .order("desc")
+      .take(limit);
+    
+    return orders;
+  },
+});

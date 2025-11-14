@@ -118,3 +118,57 @@ export const search = query({
     );
   },
 });
+
+export const getRecommendedStores = query({
+  args: {
+    lat: v.number(),
+    lng: v.number(),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit || 6;
+    
+    // Get user's order history to find preferred stores
+    const user = await ctx.auth.getUserIdentity();
+    let preferredStoreIds = new Set<string>();
+    
+    if (user) {
+      const userId = user.subject as any;
+      const recentOrders = await ctx.db
+        .query("orders")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .order("desc")
+        .take(10);
+      
+      for (const order of recentOrders) {
+        preferredStoreIds.add(order.storeId);
+      }
+    }
+    
+    // Get all stores and calculate distance
+    const stores = await ctx.db.query("stores").collect();
+    const storesWithDistance = stores.map(store => ({
+      ...store,
+      distance: calculateDistance(args.lat, args.lng, store.lat, store.lng),
+    }));
+    
+    // Prioritize previously ordered stores that are nearby and open
+    const recommended = storesWithDistance
+      .filter(s => s.isOpen && s.distance <= 10)
+      .sort((a, b) => {
+        // Prioritize stores user has ordered from
+        const aOrdered = preferredStoreIds.has(a._id) ? -1 : 0;
+        const bOrdered = preferredStoreIds.has(b._id) ? -1 : 0;
+        if (aOrdered !== bOrdered) return aOrdered - bOrdered;
+        
+        // Then by rating
+        if (Math.abs(a.rating - b.rating) > 0.3) return b.rating - a.rating;
+        
+        // Then by distance
+        return a.distance - b.distance;
+      })
+      .slice(0, limit);
+    
+    return recommended;
+  },
+});

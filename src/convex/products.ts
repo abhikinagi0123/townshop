@@ -34,13 +34,11 @@ export const getTrendingProducts = query({
   handler: async (ctx, args) => {
     const limit = args.limit || 10;
     
-    // Get all recent orders (last 30 days simulation - using recent orders)
     const recentOrders = await ctx.db
       .query("orders")
       .order("desc")
       .take(100);
     
-    // Count product occurrences in orders
     const productCounts = new Map<string, number>();
     
     for (const order of recentOrders) {
@@ -50,16 +48,14 @@ export const getTrendingProducts = query({
       }
     }
     
-    // Sort by count and get top products
     const sortedProducts = Array.from(productCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, limit);
     
-    // Fetch full product details
     const trendingProducts = await Promise.all(
       sortedProducts.map(async ([productId, orderCount]) => {
         const product = await ctx.db.get(productId as any);
-        if (!product || !("storeId" in product) || !product.storeId) return null;
+        if (!product || !(("storeId" in product) && product.storeId)) return null;
         const store = await ctx.db.get(product.storeId);
         return {
           ...product,
@@ -80,10 +76,8 @@ export const getTopRatedProducts = query({
   handler: async (ctx, args) => {
     const limit = args.limit || 10;
     
-    // Get all products
     const allProducts = await ctx.db.query("products").collect();
     
-    // Get stores with ratings
     const productsWithStoreRating = await Promise.all(
       allProducts.map(async (product) => {
         const store = await ctx.db.get(product.storeId);
@@ -95,7 +89,6 @@ export const getTopRatedProducts = query({
       })
     );
     
-    // Sort by store rating and return top products
     return productsWithStoreRating
       .sort((a, b) => b.storeRating - a.storeRating)
       .slice(0, limit);
@@ -109,7 +102,6 @@ export const getFeaturedProducts = query({
   handler: async (ctx, args) => {
     const limit = args.limit || 8;
     
-    // Get products from highly rated stores that are open
     const stores = await ctx.db.query("stores").collect();
     const topStores = stores
       .filter(s => s.isOpen && s.rating >= 4.5)
@@ -163,6 +155,116 @@ export const search = query({
     );
     
     return productsWithStore;
+  },
+});
+
+export const getRecommendedProducts = query({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit || 8;
+    
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) {
+      const products = await ctx.db.query("products")
+        .filter((q) => q.eq(q.field("inStock"), true))
+        .take(limit);
+      
+      return await Promise.all(
+        products.map(async (product) => {
+          const store = await ctx.db.get(product.storeId);
+          return {
+            ...product,
+            storeName: store?.name || "Unknown Store",
+          };
+        })
+      );
+    }
+    
+    const userId = user.subject as any;
+    const recentOrders = await ctx.db
+      .query("orders")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .take(5);
+    
+    const orderedProductIds = new Set<string>();
+    for (const order of recentOrders) {
+      for (const item of order.items) {
+        orderedProductIds.add(item.productId);
+      }
+    }
+    
+    const orderedProducts = await Promise.all(
+      Array.from(orderedProductIds).map(id => ctx.db.get(id as any))
+    );
+    
+    const preferredCategories = new Set(
+      orderedProducts.filter((p): p is NonNullable<typeof p> & { category: string } => 
+        p !== null && 'category' in p
+      ).map(p => p.category)
+    );
+    
+    const allProducts = await ctx.db.query("products")
+      .filter((q) => q.eq(q.field("inStock"), true))
+      .collect();
+    
+    const recommended = allProducts
+      .filter(p => preferredCategories.has(p.category) && !orderedProductIds.has(p._id))
+      .slice(0, limit);
+    
+    return await Promise.all(
+      recommended.map(async (product) => {
+        const store = await ctx.db.get(product.storeId);
+        return {
+          ...product,
+          storeName: store?.name || "Unknown Store",
+        };
+      })
+    );
+  },
+});
+
+export const getRecentlyViewedProducts = query({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit || 6;
+    
+    const user = await ctx.auth.getUserIdentity();
+    if (!user) return [];
+    
+    const userId = user.subject as any;
+    const recentOrders = await ctx.db
+      .query("orders")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .take(3);
+    
+    const productIds = new Set<string>();
+    for (const order of recentOrders) {
+      for (const item of order.items) {
+        productIds.add(item.productId);
+        if (productIds.size >= limit) break;
+      }
+      if (productIds.size >= limit) break;
+    }
+    
+    const products = await Promise.all(
+      Array.from(productIds).map(async (id) => {
+        const product = await ctx.db.get(id as any);
+        if (!product || !('storeId' in product) || !product.storeId) return null;
+        const store = await ctx.db.get(product.storeId);
+        return {
+          ...product,
+          storeName: store?.name || "Unknown Store",
+        };
+      })
+    );
+    
+    return products.filter(p => p !== null);
   },
 });
 

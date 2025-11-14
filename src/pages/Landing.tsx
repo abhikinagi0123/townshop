@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { ShoppingBag, Zap, MapPin, Star, Search, ChevronRight, Clock, TrendingUp, Sparkles, Flame, Award } from "lucide-react";
+import { ShoppingBag, Zap, MapPin, Star, Search, ChevronRight, Clock, TrendingUp, Sparkles, Flame, Award, Package, RefreshCw } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { StoreCard } from "@/components/StoreCard";
@@ -77,6 +77,24 @@ export default function Landing() {
   const topRatedProducts = useQuery(api.products.getTopRatedProducts, { limit: 4 });
   const featuredProducts = useQuery(api.products.getFeaturedProducts, { limit: 8 });
   const activeOffers = useQuery(api.offers.getActiveOffers);
+  
+  // New personalized sections
+  const recentOrders = useQuery(
+    api.orders.getRecentOrders,
+    isAuthenticated ? { limit: 3 } : "skip"
+  );
+  const recommendedProducts = useQuery(
+    api.products.getRecommendedProducts,
+    { limit: 8 }
+  );
+  const recentlyViewedProducts = useQuery(
+    api.products.getRecentlyViewedProducts,
+    isAuthenticated ? { limit: 6 } : "skip"
+  );
+  const recommendedStores = useQuery(
+    api.stores.getRecommendedStores,
+    userLocation ? { lat: userLocation.lat, lng: userLocation.lng, limit: 6 } : "skip"
+  );
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -359,6 +377,80 @@ export default function Landing() {
           </div>
         )}
 
+        {/* Recommended Products - Personalized */}
+        {recommendedProducts && recommendedProducts.length > 0 && (
+          <div className="py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-purple-500" />
+                <h2 className="text-base font-bold">Recommended for You</h2>
+              </div>
+              <Badge variant="secondary" className="text-[10px]">Personalized</Badge>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+              {recommendedProducts.filter((item): item is NonNullable<typeof item> & { image: string; name: string; price: number; storeName: string } => 
+                item !== null && 'image' in item && 'name' in item && 'price' in item && 'storeName' in item
+              ).map((item, index) => (
+                <motion.div
+                  key={item._id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: 0.03 * index }}
+                  className="flex-shrink-0 w-28"
+                >
+                  <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="relative">
+                      <img src={item.image} alt={item.name} className="w-full h-24 object-cover" />
+                    </div>
+                    <CardContent className="p-2">
+                      <p className="text-[11px] font-semibold line-clamp-1">{item.name}</p>
+                      <p className="text-[9px] text-muted-foreground line-clamp-1">{item.storeName}</p>
+                      <p className="text-[10px] text-primary font-bold">₹{item.price}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recently Viewed Products */}
+        {isAuthenticated && recentlyViewedProducts && recentlyViewedProducts.length > 0 && (
+          <div className="py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4 text-blue-500" />
+                <h2 className="text-base font-bold">Buy Again</h2>
+              </div>
+              <Badge variant="secondary" className="text-[10px]">From Your Orders</Badge>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+              {recentlyViewedProducts.filter((item): item is NonNullable<typeof item> & { image: string; name: string; price: number } => 
+                item !== null && 'image' in item && 'name' in item && 'price' in item
+              ).map((item, index) => (
+                <motion.div
+                  key={item._id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: 0.03 * index }}
+                  className="flex-shrink-0 w-28"
+                >
+                  <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="relative">
+                      <img src={item.image} alt={item.name} className="w-full h-24 object-cover" />
+                    </div>
+                    <CardContent className="p-2">
+                      <p className="text-[11px] font-semibold line-clamp-1">{item.name}</p>
+                      <p className="text-[9px] text-muted-foreground line-clamp-1">{item.storeName}</p>
+                      <p className="text-[10px] text-primary font-bold">₹{item.price}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Featured Categories - Horizontal Scroll */}
         <div className="py-3">
           <div className="flex items-center justify-between mb-3">
@@ -382,6 +474,31 @@ export default function Landing() {
           </div>
         </div>
 
+        {/* Recommended Stores - Personalized */}
+        {recommendedStores && recommendedStores.length > 0 && (
+          <div className="py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-yellow-500" />
+                <h2 className="text-base font-bold">Recommended Stores</h2>
+              </div>
+              <Badge variant="secondary" className="text-[10px]">For You</Badge>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              {recommendedStores.slice(0, 4).map((shop, index) => (
+                <motion.div
+                  key={shop._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.03 * index }}
+                >
+                  <StoreCard store={shop} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Active Offers Section */}
         {activeOffers && activeOffers.length > 0 && (
           <div className="py-3">
@@ -392,6 +509,68 @@ export default function Landing() {
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
               {activeOffers.slice(0, 5).map((offer, index) => (
                 <OfferCard key={offer._id} offer={offer} compact />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recent Orders */}
+        {isAuthenticated && recentOrders && recentOrders.length > 0 && (
+          <div className="py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-green-500" />
+                <h2 className="text-base font-bold">Recent Orders</h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/orders")}
+                className="gap-1 h-8 text-xs"
+              >
+                View All
+                <ChevronRight className="h-3 w-3" />
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {recentOrders.map((order, index) => (
+                <motion.div
+                  key={order._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: 0.03 * index }}
+                >
+                  <Card 
+                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => navigate(`/order/${order._id}`)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-semibold text-sm">{order.storeName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {order.items.length} {order.items.length === 1 ? "item" : "items"}
+                          </p>
+                        </div>
+                        <Badge className={
+                          order.status === "delivered" ? "bg-green-500" :
+                          order.status === "out_for_delivery" ? "bg-blue-500" :
+                          "bg-yellow-500"
+                        }>
+                          {order.status.split("_").map(word => 
+                            word.charAt(0).toUpperCase() + word.slice(1)
+                          ).join(" ")}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(order._creationTime).toLocaleDateString()}
+                        </p>
+                        <p className="text-sm font-bold">₹{order.totalAmount}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </div>
