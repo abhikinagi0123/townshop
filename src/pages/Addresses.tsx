@@ -43,7 +43,7 @@ export default function Addresses() {
     isDefault: false,
   });
 
-  const handleGetLocation = () => {
+  const handleGetLocation = async () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
       return;
@@ -51,13 +51,46 @@ export default function Addresses() {
 
     setIsGettingLocation(true);
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setFormData({
-          ...formData,
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        toast.success("Location captured successfully!");
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        // Try to reverse geocode the location
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+          );
+          const data = await response.json();
+          
+          if (data && data.address) {
+            setFormData({
+              ...formData,
+              lat,
+              lng,
+              street: data.address.road || data.address.neighbourhood || "",
+              city: data.address.city || data.address.town || data.address.village || "",
+              state: data.address.state || "",
+              zipCode: data.address.postcode || "",
+            });
+            toast.success("Location captured and address auto-filled!");
+          } else {
+            setFormData({
+              ...formData,
+              lat,
+              lng,
+            });
+            toast.success("Location captured successfully!");
+          }
+        } catch (error) {
+          console.error("Reverse geocoding failed:", error);
+          setFormData({
+            ...formData,
+            lat,
+            lng,
+          });
+          toast.success("Location captured successfully!");
+        }
+        
         setIsGettingLocation(false);
       },
       (error) => {
@@ -258,6 +291,26 @@ export default function Addresses() {
                 placeholder="e.g., Home"
                 required
               />
+              <div className="flex gap-2 mt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFormData({ ...formData, label: "Home" })}
+                  className="flex-1"
+                >
+                  🏠 Home
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFormData({ ...formData, label: "Work" })}
+                  className="flex-1"
+                >
+                  💼 Work
+                </Button>
+              </div>
             </div>
             <div>
               <Label>Street Address</Label>
