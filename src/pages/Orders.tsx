@@ -69,7 +69,10 @@ export default function Orders() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card>
+                <Card 
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => navigate(`/order/${order._id}`)}
+                >
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>

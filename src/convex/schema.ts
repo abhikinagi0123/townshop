@@ -85,6 +85,11 @@ const schema = defineSchema(
         v.literal("delivered"),
         v.literal("cancelled")
       ),
+      deliveryPartner: v.optional(v.object({
+        name: v.string(),
+        phone: v.string(),
+        vehicleNumber: v.optional(v.string()),
+      })),
     }).index("by_user", ["userId"]),
 
     addresses: defineTable({

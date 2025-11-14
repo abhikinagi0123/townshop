@@ -14,6 +14,7 @@ import Stores from "./pages/Stores.tsx";
 import StoreDetail from "./pages/StoreDetail.tsx";
 import Cart from "./pages/Cart.tsx";
 import Orders from "./pages/Orders.tsx";
+import OrderTracking from "./pages/OrderTracking.tsx";
 import Profile from "./pages/Profile.tsx";
 import "./types/global.d.ts";
 
@@ -56,6 +57,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/store/:storeId" element={<StoreDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/order/:orderId" element={<OrderTracking />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

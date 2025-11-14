@@ -68,8 +68,17 @@ export const updateStatus = mutation({
       v.literal("delivered"),
       v.literal("cancelled")
     ),
+    deliveryPartner: v.optional(v.object({
+      name: v.string(),
+      phone: v.string(),
+      vehicleNumber: v.optional(v.string()),
+    })),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.orderId, { status: args.status });
+    const updates: any = { status: args.status };
+    if (args.deliveryPartner) {
+      updates.deliveryPartner = args.deliveryPartner;
+    }
+    await ctx.db.patch(args.orderId, updates);
   },
 });
