@@ -21,14 +21,14 @@ const categories = [
 ];
 
 const featuredCategories = [
-  { name: "Vegetables & Fruits", emoji: "🥬", color: "from-green-500 to-emerald-600" },
-  { name: "Dairy & Breakfast", emoji: "🥛", color: "from-blue-500 to-cyan-600" },
-  { name: "Munchies", emoji: "🍿", color: "from-orange-500 to-amber-600" },
-  { name: "Cold Drinks", emoji: "🥤", color: "from-red-500 to-pink-600" },
-  { name: "Instant Food", emoji: "🍜", color: "from-purple-500 to-violet-600" },
-  { name: "Tea & Coffee", emoji: "☕", color: "from-yellow-500 to-orange-600" },
-  { name: "Bakery & Biscuits", emoji: "🍪", color: "from-pink-500 to-rose-600" },
-  { name: "Sauces & Spreads", emoji: "🍯", color: "from-amber-500 to-yellow-600" },
+  { name: "Vegetables & Fruits", emoji: "🥬", color: "from-primary/80 to-primary" },
+  { name: "Dairy & Breakfast", emoji: "🥛", color: "from-primary/70 to-primary/90" },
+  { name: "Munchies", emoji: "🍿", color: "from-primary/60 to-primary/80" },
+  { name: "Cold Drinks", emoji: "🥤", color: "from-primary to-primary/70" },
+  { name: "Instant Food", emoji: "🍜", color: "from-primary/90 to-primary" },
+  { name: "Tea & Coffee", emoji: "☕", color: "from-primary/75 to-primary/95" },
+  { name: "Bakery & Biscuits", emoji: "🍪", color: "from-primary/85 to-primary" },
+  { name: "Sauces & Spreads", emoji: "🍯", color: "from-primary/65 to-primary/85" },
 ];
 
 const quickActions = [
