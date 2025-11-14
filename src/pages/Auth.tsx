@@ -311,7 +311,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             onClick={() => navigate("/stores")}
           >
             <Star className="h-5 w-5" />
-            <span className="text-xs">Rewards</span>
+            <span className="text-xs">Stores</span>
           </Button>
           <Button
             variant="ghost"
