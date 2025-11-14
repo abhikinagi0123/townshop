@@ -21,14 +21,14 @@ const categories = [
 ];
 
 const featuredCategories = [
-  { name: "Vegetables & Fruits", emoji: "🥬", color: "from-green-400 to-green-500" },
-  { name: "Dairy & Breakfast", emoji: "🥛", color: "from-blue-400 to-blue-500" },
-  { name: "Munchies", emoji: "🍿", color: "from-orange-400 to-orange-500" },
-  { name: "Cold Drinks", emoji: "🥤", color: "from-cyan-400 to-cyan-500" },
-  { name: "Instant Food", emoji: "🍜", color: "from-red-400 to-red-500" },
-  { name: "Tea & Coffee", emoji: "☕", color: "from-amber-400 to-amber-500" },
-  { name: "Bakery & Biscuits", emoji: "🍪", color: "from-yellow-400 to-yellow-500" },
-  { name: "Sauces & Spreads", emoji: "🍯", color: "from-purple-400 to-purple-500" },
+  { name: "Vegetables & Fruits", emoji: "🥬", color: "from-primary/90 to-primary/70" },
+  { name: "Dairy & Breakfast", emoji: "🥛", color: "from-primary/80 to-primary/60" },
+  { name: "Munchies", emoji: "🍿", color: "from-primary/70 to-primary/50" },
+  { name: "Cold Drinks", emoji: "🥤", color: "from-primary to-primary/80" },
+  { name: "Instant Food", emoji: "🍜", color: "from-primary/85 to-primary/65" },
+  { name: "Tea & Coffee", emoji: "☕", color: "from-primary/75 to-primary/55" },
+  { name: "Bakery & Biscuits", emoji: "🍪", color: "from-primary/95 to-primary/75" },
+  { name: "Sauces & Spreads", emoji: "🍯", color: "from-primary/65 to-primary" },
 ];
 
 const quickActions = [
@@ -159,7 +159,7 @@ export default function Landing() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Badge className="mb-3 bg-primary/20 text-primary border-primary/30">
+              <Badge className="mb-3 bg-primary text-primary-foreground">
                 🚀 Fast Delivery
               </Badge>
               <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight">
@@ -290,7 +290,7 @@ export default function Landing() {
                   <Card className="overflow-hidden hover:shadow-md transition-shadow">
                     <div className="relative">
                       <img src={item.image} alt={item.name} className="w-full h-24 object-cover" />
-                      <Badge className="absolute top-1 right-1 text-[9px] px-1.5 py-0 h-4 bg-orange-500">
+                      <Badge className="absolute top-1 right-1 text-[9px] px-1.5 py-0 h-4 bg-primary">
                         Trending
                       </Badge>
                     </div>
