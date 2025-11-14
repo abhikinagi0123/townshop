@@ -103,6 +103,25 @@ const schema = defineSchema(
       lng: v.optional(v.number()),
       isDefault: v.boolean(),
     }).index("by_user", ["userId"]),
+
+    offers: defineTable({
+      title: v.string(),
+      description: v.string(),
+      code: v.optional(v.string()),
+      discountPercent: v.optional(v.number()),
+      discountAmount: v.optional(v.number()),
+      minOrderAmount: v.optional(v.number()),
+      maxDiscount: v.optional(v.number()),
+      type: v.union(
+        v.literal("shop_discount"),
+        v.literal("delivery_deal"),
+        v.literal("site_wide")
+      ),
+      storeId: v.optional(v.id("stores")),
+      validFrom: v.number(),
+      validUntil: v.number(),
+      isActive: v.boolean(),
+    }).index("by_store", ["storeId"]),
   },
   {
     schemaValidation: false,

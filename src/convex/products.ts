@@ -59,7 +59,7 @@ export const getTrendingProducts = query({
     const trendingProducts = await Promise.all(
       sortedProducts.map(async ([productId, orderCount]) => {
         const product = await ctx.db.get(productId as any);
-        if (!product || !("storeId" in product)) return null;
+        if (!product || !("storeId" in product) || !product.storeId) return null;
         const store = await ctx.db.get(product.storeId);
         return {
           ...product,

@@ -6,6 +6,7 @@ import { ShoppingBag, Zap, MapPin, Star, Search, ChevronRight, Clock, TrendingUp
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { StoreCard } from "@/components/StoreCard";
+import { OfferCard } from "@/components/OfferCard";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -75,6 +76,7 @@ export default function Landing() {
   const trendingProducts = useQuery(api.products.getTrendingProducts, { limit: 6 });
   const topRatedProducts = useQuery(api.products.getTopRatedProducts, { limit: 4 });
   const featuredProducts = useQuery(api.products.getFeaturedProducts, { limit: 8 });
+  const activeOffers = useQuery(api.offers.getActiveOffers);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -380,27 +382,20 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Trending Now Section */}
-        <div className="py-3">
-          <div className="flex items-center gap-2 mb-3">
-            <TrendingUp className="h-4 w-4 text-orange-500" />
-            <h2 className="text-base font-bold">Special Offers</h2>
+        {/* Active Offers Section */}
+        {activeOffers && activeOffers.length > 0 && (
+          <div className="py-3">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="h-4 w-4 text-orange-500" />
+              <h2 className="text-base font-bold">Active Offers</h2>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+              {activeOffers.slice(0, 5).map((offer, index) => (
+                <OfferCard key={offer._id} offer={offer} compact />
+              ))}
+            </div>
           </div>
-          <Card className="bg-gradient-to-r from-orange-500 to-pink-500 text-white border-0">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold mb-1">🔥 Hot Deals</p>
-                  <p className="text-lg font-bold mb-1">Up to 50% OFF</p>
-                  <p className="text-[10px] opacity-90">On selected items</p>
-                </div>
-                <Button size="sm" variant="secondary" className="h-8 text-xs">
-                  Shop Now
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        )}
 
         {/* Nearby Shops Section */}
         {nearbyShops && nearbyShops.length > 0 && (

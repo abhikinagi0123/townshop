@@ -18,9 +18,11 @@ import type * as auth_emailOtp from "../auth/emailOtp.js";
 import type * as auth from "../auth.js";
 import type * as cart from "../cart.js";
 import type * as http from "../http.js";
+import type * as offers from "../offers.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
 import type * as seed from "../seed.js";
+import type * as seedOffers from "../seedOffers.js";
 import type * as stores from "../stores.js";
 import type * as users from "../users.js";
 
@@ -38,9 +40,11 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   cart: typeof cart;
   http: typeof http;
+  offers: typeof offers;
   orders: typeof orders;
   products: typeof products;
   seed: typeof seed;
+  seedOffers: typeof seedOffers;
   stores: typeof stores;
   users: typeof users;
 }>;

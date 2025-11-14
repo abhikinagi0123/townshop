@@ -9,6 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import { motion } from "framer-motion";
+import { OfferCard } from "@/components/OfferCard";
 
 export default function StoreDetail() {
   const { storeId } = useParams();
@@ -23,6 +24,9 @@ export default function StoreDetail() {
     category: productCategory,
   });
   const cartItems = useQuery(api.cart.get);
+  const storeOffers = useQuery(api.offers.list, {
+    storeId: storeId as Id<"stores">,
+  });
   
   const addToCart = useMutation(api.cart.addItem);
   const updateQuantity = useMutation(api.cart.updateQuantity);
@@ -136,6 +140,17 @@ export default function StoreDetail() {
               </div>
             </div>
           </div>
+
+          {storeOffers && storeOffers.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-lg font-bold mb-3">Available Offers</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {storeOffers.map((offer) => (
+                  <OfferCard key={offer._id} offer={offer} />
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
             {productCategories.map((cat) => (
