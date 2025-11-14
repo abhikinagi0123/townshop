@@ -31,7 +31,7 @@ export default function Stores() {
 
   // Check if profile needs completion
   useEffect(() => {
-    if (isAuthenticated && user && (!user.name || !user.phone)) {
+    if (isAuthenticated && user && (!user.name || !user.phone || user.lat === undefined || user.lng === undefined)) {
       setShowProfileDialog(true);
     }
   }, [isAuthenticated, user]);
@@ -183,6 +183,8 @@ export default function Stores() {
         onComplete={handleProfileComplete}
         currentName={user?.name}
         currentPhone={user?.phone}
+        currentLat={user?.lat}
+        currentLng={user?.lng}
       />
     </div>
   );

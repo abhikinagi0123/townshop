@@ -37,14 +37,18 @@ export const updateProfile = mutation({
   args: {
     name: v.optional(v.string()),
     phone: v.optional(v.string()),
+    lat: v.optional(v.number()),
+    lng: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Unauthorized");
     
-    const updates: { name?: string; phone?: string } = {};
+    const updates: { name?: string; phone?: string; lat?: number; lng?: number } = {};
     if (args.name !== undefined) updates.name = args.name;
     if (args.phone !== undefined) updates.phone = args.phone;
+    if (args.lat !== undefined) updates.lat = args.lat;
+    if (args.lng !== undefined) updates.lng = args.lng;
     
     await ctx.db.patch(userId, updates);
     return { success: true };

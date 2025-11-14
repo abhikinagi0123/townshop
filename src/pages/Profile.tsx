@@ -137,6 +137,8 @@ export default function Profile() {
         onComplete={() => setShowEditDialog(false)}
         currentName={user?.name}
         currentPhone={user?.phone}
+        currentLat={user?.lat}
+        currentLng={user?.lng}
       />
     </div>
   );
