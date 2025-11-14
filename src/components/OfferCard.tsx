@@ -44,11 +44,11 @@ export function OfferCard({ offer, compact = false }: OfferCardProps) {
   const getGradient = () => {
     switch (offer.type) {
       case "shop_discount":
-        return "from-primary to-primary/80";
+        return "from-primary to-secondary";
       case "delivery_deal":
-        return "from-primary/90 to-primary/70";
+        return "from-secondary to-primary";
       case "site_wide":
-        return "from-primary/80 to-primary";
+        return "from-primary to-accent";
     }
   };
 
