@@ -1,10 +1,9 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
-import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, MapPin, Plus, Edit, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, Plus, Edit, Trash2, Loader2, Home, Search, Star, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import {
@@ -19,11 +18,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Addresses() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const addresses = useQuery(api.addresses.list);
-  const cartItems = useQuery(api.cart.get);
   
   const createAddress = useMutation(api.addresses.create);
   const updateAddress = useMutation(api.addresses.update);
@@ -42,8 +42,6 @@ export default function Addresses() {
     lng: undefined as number | undefined,
     isDefault: false,
   });
-
-  const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
@@ -138,25 +136,33 @@ export default function Addresses() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar cartCount={cartCount} />
+    <div className="min-h-screen bg-background pb-20">
+      {/* Mobile Header */}
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/profile")}
+              className="h-8 w-8 p-0"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
+              <span className="font-bold text-lg tracking-tight">Addresses</span>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/profile")}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Profile
-        </Button>
-
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Saved Addresses</h1>
+          <h1 className="text-2xl font-bold">Saved Addresses</h1>
           <Button onClick={() => handleOpenDialog()}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Address
+            Add
           </Button>
         </div>
 
@@ -336,6 +342,44 @@ export default function Addresses() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
+        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/")}
+          >
+            <Home className="h-5 w-5" />
+            <span className="text-xs">Home</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/search")}
+          >
+            <Search className="h-5 w-5" />
+            <span className="text-xs">Search</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/stores")}
+          >
+            <Star className="h-5 w-5" />
+            <span className="text-xs">Rewards</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => isAuthenticated ? navigate("/profile") : navigate("/auth")}
+          >
+            <User className="h-5 w-5" />
+            <span className="text-xs">Profile</span>
+          </Button>
+        </div>
+      </nav>
     </div>
   );
 }
