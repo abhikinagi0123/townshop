@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/input-otp";
 
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowRight, Loader2, Mail, UserX } from "lucide-react";
+import { ArrowRight, Loader2, Mail, UserX, Home, Search, Star, User } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
@@ -97,8 +97,16 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-
+    <div className="min-h-screen flex flex-col bg-background pb-20">
+      {/* Mobile Header */}
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-2">
+            <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
+            <span className="font-bold text-lg tracking-tight">QuickDeliver</span>
+          </div>
+        </div>
+      </div>
       
       {/* Auth Content */}
       <div className="flex-1 flex items-center justify-center">
@@ -201,7 +209,6 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                       disabled={isLoading}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && otp.length === 6 && !isLoading) {
-                          // Find the closest form and submit it
                           const form = (e.target as HTMLElement).closest("form");
                           if (form) {
                             form.requestSubmit();
@@ -278,6 +285,44 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
         </Card>
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
+        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/")}
+          >
+            <Home className="h-5 w-5" />
+            <span className="text-xs">Home</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/search")}
+          >
+            <Search className="h-5 w-5" />
+            <span className="text-xs">Search</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/stores")}
+          >
+            <Star className="h-5 w-5" />
+            <span className="text-xs">Rewards</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => isAuthenticated ? navigate("/profile") : navigate("/auth")}
+          >
+            <User className="h-5 w-5" />
+            <span className="text-xs">Profile</span>
+          </Button>
+        </div>
+      </nav>
     </div>
   );
 }
