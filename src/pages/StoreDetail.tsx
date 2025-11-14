@@ -1,10 +1,9 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams, useNavigate } from "react-router";
-import { Navbar } from "@/components/Navbar";
+import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Clock, IndianRupee, Loader2 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Star, Clock, IndianRupee, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
@@ -82,7 +81,16 @@ export default function StoreDetail() {
   if (!store || !products) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar cartCount={cartCount} />
+        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
+                <span className="font-bold text-xl tracking-tight">QuickDeliver</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
@@ -93,8 +101,18 @@ export default function StoreDetail() {
   const productCategories = ["all", ...new Set(products.map(p => p.category))];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar cartCount={cartCount} />
+    <div className="min-h-screen bg-background pb-20">
+      {/* App Header */}
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
+              <span className="font-bold text-xl tracking-tight">QuickDeliver</span>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <div className="container mx-auto px-4 py-6">
         <Button
@@ -184,7 +202,7 @@ export default function StoreDetail() {
           <motion.div
             initial={{ y: 100 }}
             animate={{ y: 0 }}
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md"
+            className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md"
           >
             <Button
               size="lg"
@@ -196,6 +214,44 @@ export default function StoreDetail() {
           </motion.div>
         )}
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
+        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/")}
+          >
+            <ShoppingBag className="h-5 w-5" />
+            <span className="text-xs">Home</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/search")}
+          >
+            <Search className="h-5 w-5" />
+            <span className="text-xs">Search</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/stores")}
+          >
+            <Star className="h-5 w-5" />
+            <span className="text-xs">Rewards</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/profile")}
+          >
+            <MapPin className="h-5 w-5" />
+            <span className="text-xs">Profile</span>
+          </Button>
+        </div>
+      </nav>
     </div>
   );
 }

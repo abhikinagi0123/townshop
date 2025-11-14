@@ -1,11 +1,10 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams, useNavigate } from "react-router";
-import { Navbar } from "@/components/Navbar";
+import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, CheckCircle2, Clock, Truck, Phone, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Package, CheckCircle2, Clock, Truck, MapPin, Phone, IndianRupee } from "lucide-react";
 import { motion } from "framer-motion";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -34,7 +33,16 @@ export default function OrderTracking() {
   if (!order) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar cartCount={cartCount} />
+        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
+                <span className="font-bold text-xl tracking-tight">QuickDeliver</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
           <p className="text-muted-foreground">Loading order details...</p>
         </div>
@@ -43,8 +51,18 @@ export default function OrderTracking() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar cartCount={cartCount} />
+    <div className="min-h-screen bg-background pb-20">
+      {/* App Header */}
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
+              <span className="font-bold text-xl tracking-tight">QuickDeliver</span>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <Button
@@ -198,6 +216,44 @@ export default function OrderTracking() {
           </Card>
         </motion.div>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
+        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/")}
+          >
+            <ShoppingBag className="h-5 w-5" />
+            <span className="text-xs">Home</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/search")}
+          >
+            <Search className="h-5 w-5" />
+            <span className="text-xs">Search</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/stores")}
+          >
+            <Star className="h-5 w-5" />
+            <span className="text-xs">Rewards</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
+            onClick={() => navigate("/profile")}
+          >
+            <MapPin className="h-5 w-5" />
+            <span className="text-xs">Profile</span>
+          </Button>
+        </div>
+      </nav>
     </div>
   );
 }
