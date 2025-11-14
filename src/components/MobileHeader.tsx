@@ -62,7 +62,7 @@ export function MobileHeader({
           </motion.div>
 
           <div className="flex items-center gap-1">
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <>
                 <Button
                   variant="ghost"
@@ -116,16 +116,17 @@ export function MobileHeader({
                   ) : null}
                 </Button>
               </>
+            ) : (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate("/auth")}
+                className="h-9"
+                aria-label="Login"
+              >
+                Login
+              </Button>
             )}
-            <Button
-              variant={isAuthenticated ? "outline" : "default"}
-              size="sm"
-              onClick={() => navigate(isAuthenticated ? "/profile" : "/auth")}
-              className="h-9"
-              aria-label={isAuthenticated ? "Go to profile" : "Login"}
-            >
-              {isAuthenticated ? "Profile" : "Login"}
-            </Button>
           </div>
         </div>
 
