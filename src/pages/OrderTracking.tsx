@@ -1,18 +1,28 @@
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams, useNavigate } from "react-router";
-import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, CheckCircle2, Clock, Truck, Phone, IndianRupee } from "lucide-react";
+import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, CheckCircle2, Clock, Truck, Phone, IndianRupee, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Id } from "@/convex/_generated/dataModel";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 export default function OrderTracking() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const order = useQuery(api.orders.getById, { orderId: orderId as Id<"orders"> });
   const cartItems = useQuery(api.cart.get);
+  const createReview = useMutation(api.reviews.create);
+
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [hoveredRating, setHoveredRating] = useState(0);
 
   const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
@@ -29,6 +39,28 @@ export default function OrderTracking() {
   };
 
   const currentStatusIndex = order ? getStatusIndex(order.status) : -1;
+
+  const handleSubmitReview = async () => {
+    if (!order || rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+
+    try {
+      await createReview({
+        storeId: order.storeId,
+        rating,
+        comment,
+        orderId: order._id,
+      });
+      toast.success("Review submitted successfully!");
+      setReviewDialogOpen(false);
+      setRating(0);
+      setComment("");
+    } catch (error) {
+      toast.error("Failed to submit review");
+    }
+  };
 
   if (!order) {
     return (
@@ -97,6 +129,69 @@ export default function OrderTracking() {
               ).join(" ")}
             </Badge>
           </div>
+
+          {/* Review Button for Delivered Orders */}
+          {order.status === "delivered" && (
+            <Card className="mb-6 bg-primary/5 border-primary/20">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold mb-1">How was your experience?</p>
+                    <p className="text-sm text-muted-foreground">Rate this store and help others</p>
+                  </div>
+                  <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Star className="h-4 w-4 mr-2" />
+                        Write Review
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Rate Your Experience</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div>
+                          <p className="text-sm font-medium mb-2">Rating</p>
+                          <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                onClick={() => setRating(star)}
+                                onMouseEnter={() => setHoveredRating(star)}
+                                onMouseLeave={() => setHoveredRating(0)}
+                                className="transition-transform hover:scale-110"
+                              >
+                                <Star
+                                  className={`h-8 w-8 ${
+                                    star <= (hoveredRating || rating)
+                                      ? "fill-yellow-400 text-yellow-400"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium mb-2">Comment (Optional)</p>
+                          <Textarea
+                            placeholder="Share your experience..."
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            rows={4}
+                          />
+                        </div>
+                        <Button onClick={handleSubmitReview} className="w-full">
+                          Submit Review
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Status Timeline */}
           {order.status !== "cancelled" && (

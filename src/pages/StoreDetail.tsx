@@ -11,6 +11,9 @@ import { motion } from "framer-motion";
 import { OfferCard } from "@/components/OfferCard";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useAuth } from "@/hooks/use-auth";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 export default function StoreDetail() {
   const { storeId } = useParams();
@@ -27,6 +30,12 @@ export default function StoreDetail() {
   });
   const cartItems = useQuery(api.cart.get);
   const storeOffers = useQuery(api.offers.list, {
+    storeId: storeId as Id<"stores">,
+  });
+  const storeReviews = useQuery(api.reviews.listByStore, {
+    storeId: storeId as Id<"stores">,
+  });
+  const averageRating = useQuery(api.reviews.getAverageRating, {
     storeId: storeId as Id<"stores">,
   });
   
@@ -147,7 +156,14 @@ export default function StoreDetail() {
               <div className="flex flex-wrap gap-4 text-sm">
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{store.rating.toFixed(1)}</span>
+                  <span className="font-medium">
+                    {averageRating ? averageRating.average.toFixed(1) : store.rating.toFixed(1)}
+                  </span>
+                  {averageRating && (
+                    <span className="text-muted-foreground">
+                      ({averageRating.count} {averageRating.count === 1 ? "review" : "reviews"})
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <Clock className="h-4 w-4" />
@@ -173,6 +189,48 @@ export default function StoreDetail() {
               </div>
             </div>
           )}
+
+          {/* Reviews Section */}
+          {storeReviews && storeReviews.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-lg font-bold mb-3">Customer Reviews</h2>
+              <div className="space-y-3">
+                {storeReviews.slice(0, 5).map((review) => (
+                  <Card key={review._id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="font-semibold text-sm">{review.userName}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`h-3 w-3 ${
+                                  star <= review.rating
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        {review.isVerified && (
+                          <Badge variant="secondary" className="text-xs">
+                            Verified
+                          </Badge>
+                        )}
+                      </div>
+                      {review.comment && (
+                        <p className="text-sm text-muted-foreground">{review.comment}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Separator className="my-6" />
 
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
             {productCategories.map((cat) => (
