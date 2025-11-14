@@ -66,7 +66,6 @@ export const earnPoints = mutation({
 export const redeemPoints = mutation({
   args: {
     points: v.number(),
-    orderId: v.id("orders"),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
@@ -77,20 +76,38 @@ export const redeemPoints = mutation({
       throw new Error("Insufficient points");
     }
 
+    if (args.points < 100) {
+      throw new Error("Minimum 100 points required for redemption");
+    }
+
     const newTotal = currentPoints - args.points;
     await ctx.db.patch(user._id, {
       loyaltyPoints: newTotal,
     });
+
+    const discountAmount = Math.floor(args.points / 100);
+
+    return { newTotal, discountAmount };
+  },
+});
+
+export const recordRedemption = mutation({
+  args: {
+    points: v.number(),
+    orderId: v.id("orders"),
+    discountAmount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Unauthorized");
 
     await ctx.db.insert("loyaltyTransactions", {
       userId: user._id,
       points: -args.points,
       type: "redeemed",
       orderId: args.orderId,
-      description: `Redeemed ${args.points} points`,
+      description: `Redeemed ${args.points} points for ₹${args.discountAmount} discount`,
     });
-
-    return { newTotal };
   },
 });
 

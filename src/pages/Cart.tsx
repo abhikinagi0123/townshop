@@ -3,7 +3,7 @@ import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Minus, Trash2, IndianRupee, ShoppingBag, Calendar, Clock, CreditCard, Smartphone, Wallet } from "lucide-react";
+import { Plus, Minus, Trash2, IndianRupee, ShoppingBag, Calendar, Clock, CreditCard, Smartphone, Wallet, Award } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -65,11 +65,24 @@ export default function Cart() {
   const [walletProvider, setWalletProvider] = useState("");
   const [savePaymentMethod, setSavePaymentMethod] = useState(false);
 
+  // Loyalty points redemption states
+  const [usePoints, setUsePoints] = useState(false);
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
+  const loyaltyData = useQuery(api.loyalty.getPoints);
+  const redeemPoints = useMutation(api.loyalty.redeemPoints);
+  const recordRedemption = useMutation(api.loyalty.recordRedemption);
+
   const subtotal = cartItems?.reduce((sum, item) => 
     sum + (item.product?.price || 0) * item.quantity, 0
   ) || 0;
   const deliveryFee = subtotal > 0 ? 40 : 0;
-  const total = subtotal + deliveryFee;
+  
+  // Calculate loyalty discount
+  const maxRedeemablePoints = loyaltyData?.points || 0;
+  const maxDiscount = Math.floor(maxRedeemablePoints / 100);
+  const loyaltyDiscount = usePoints ? Math.min(Math.floor(pointsToRedeem / 100), subtotal + deliveryFee) : 0;
+  
+  const total = Math.max(0, subtotal + deliveryFee - loyaltyDiscount);
 
   const handleUpdateQuantity = async (cartItemId: string, newQuantity: number) => {
     try {
@@ -155,6 +168,18 @@ export default function Cart() {
     }
 
     try {
+      // Redeem points if applicable
+      let actualPointsRedeemed = 0;
+      if (usePoints && pointsToRedeem > 0) {
+        try {
+          const redemptionResult = await redeemPoints({ points: pointsToRedeem });
+          actualPointsRedeemed = pointsToRedeem;
+        } catch (error: any) {
+          toast.error(error.message || "Failed to redeem points");
+          return;
+        }
+      }
+
       const orderId = await createOrder({
         items: cartItems.map(item => ({
           productId: item.productId,
@@ -192,6 +217,15 @@ export default function Cart() {
         });
       }
       
+      // Record redemption transaction
+      if (actualPointsRedeemed > 0) {
+        await recordRedemption({
+          points: actualPointsRedeemed,
+          orderId,
+          discountAmount: loyaltyDiscount,
+        });
+      }
+
       await clearCart();
       
       if (scheduleOrder) {
@@ -323,6 +357,16 @@ export default function Cart() {
                         <span>{deliveryFee}</span>
                       </div>
                     </div>
+                    {loyaltyDiscount > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span>Loyalty Discount</span>
+                        <div className="flex items-center gap-1">
+                          <span>-</span>
+                          <IndianRupee className="h-3 w-3" />
+                          <span>{loyaltyDiscount}</span>
+                        </div>
+                      </div>
+                    )}
                     <div className="border-t pt-2 flex justify-between font-bold">
                       <span>Total</span>
                       <div className="flex items-center gap-1">
@@ -547,6 +591,84 @@ export default function Cart() {
                 </div>
               )}
             </div>
+
+            {/* Loyalty Points Redemption */}
+            {loyaltyData && loyaltyData.points >= 100 && (
+              <div className="border-t pt-4 mt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Award className="h-5 w-5 text-primary" />
+                    <div>
+                      <h3 className="font-semibold">Use Loyalty Points</h3>
+                      <p className="text-xs text-muted-foreground">
+                        You have {loyaltyData.points} points (₹{Math.floor(loyaltyData.points / 100)} max discount)
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={usePoints}
+                    onCheckedChange={(checked) => {
+                      setUsePoints(checked);
+                      if (!checked) setPointsToRedeem(0);
+                    }}
+                  />
+                </div>
+
+                {usePoints && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="space-y-3"
+                  >
+                    <div>
+                      <Label>Points to Redeem (100 points = ₹1)</Label>
+                      <Input
+                        type="number"
+                        min={100}
+                        max={Math.min(loyaltyData.points, (subtotal + deliveryFee) * 100)}
+                        step={100}
+                        value={pointsToRedeem}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          const maxAllowed = Math.min(loyaltyData.points, (subtotal + deliveryFee) * 100);
+                          setPointsToRedeem(Math.min(value, maxAllowed));
+                        }}
+                        placeholder="Enter points (min 100)"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Discount: ₹{Math.floor(pointsToRedeem / 100)}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPointsToRedeem(Math.min(500, loyaltyData.points, (subtotal + deliveryFee) * 100))}
+                      >
+                        Use 500
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPointsToRedeem(Math.min(1000, loyaltyData.points, (subtotal + deliveryFee) * 100))}
+                      >
+                        Use 1000
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPointsToRedeem(Math.min(loyaltyData.points, (subtotal + deliveryFee) * 100))}
+                      >
+                        Use Max
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            )}
 
             {/* Order Scheduling */}
             <div className="border-t pt-4 mt-4">
