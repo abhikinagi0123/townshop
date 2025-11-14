@@ -4,9 +4,11 @@ import { Tag, Percent, Truck, Copy } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
+import { Id } from "@/convex/_generated/dataModel";
+
 interface OfferCardProps {
   offer: {
-    _id: string;
+    _id: Id<"offers">;
     title: string;
     description: string;
     code?: string;

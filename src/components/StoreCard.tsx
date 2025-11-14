@@ -3,10 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Star, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface StoreCardProps {
   store: {
-    _id: string;
+    _id: Id<"stores">;
     name: string;
     description: string;
     image: string;

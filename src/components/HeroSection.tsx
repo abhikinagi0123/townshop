@@ -13,28 +13,26 @@ export function HeroSection({ isAuthenticated, nearbyShopsCount = 0 }: HeroSecti
   const navigate = useNavigate();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+    <section 
       className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background"
+      aria-labelledby="hero-heading"
     >
       <div className="px-4 py-8">
         <div className="max-w-2xl">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
             <Badge className="mb-3 bg-primary text-primary-foreground">
               🚀 Fast Delivery
             </Badge>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight">
+            <h1 id="hero-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight">
               Get Everything
               <br />
               <span className="text-primary">Delivered in Minutes</span>
             </h1>
-            <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+            <p className="text-muted-foreground text-sm md:text-base mb-6 leading-relaxed">
               Order from local stores and get your favorites delivered to your doorstep in 10-30 minutes. Fresh, fast, and reliable.
             </p>
           </motion.div>
@@ -42,15 +40,16 @@ export function HeroSection({ isAuthenticated, nearbyShopsCount = 0 }: HeroSecti
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="flex flex-wrap gap-3"
           >
             <Button 
               size="lg" 
               onClick={() => isAuthenticated ? navigate("/stores") : navigate("/auth")}
-              className="gap-2"
+              className="gap-2 min-h-[44px] min-w-[44px]"
+              aria-label={isAuthenticated ? "Start shopping at stores" : "Login to start shopping"}
             >
-              <Star className="h-4 w-4" />
+              <Star className="h-4 w-4" aria-hidden="true" />
               Start Shopping
             </Button>
             <Button 
@@ -60,6 +59,8 @@ export function HeroSection({ isAuthenticated, nearbyShopsCount = 0 }: HeroSecti
                 const storesSection = document.getElementById("nearby-stores");
                 storesSection?.scrollIntoView({ behavior: "smooth" });
               }}
+              className="min-h-[44px] min-w-[44px]"
+              aria-label="Scroll to nearby stores section"
             >
               Explore Stores
             </Button>
@@ -68,27 +69,29 @@ export function HeroSection({ isAuthenticated, nearbyShopsCount = 0 }: HeroSecti
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="flex gap-6 mt-6 pt-6 border-t"
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="grid grid-cols-3 gap-4 md:gap-6 mt-6 pt-6 border-t"
+            role="list"
+            aria-label="Service highlights"
           >
-            <div>
-              <p className="text-2xl font-bold text-primary">10-30</p>
-              <p className="text-xs text-muted-foreground">Min Delivery</p>
+            <div role="listitem">
+              <p className="text-2xl md:text-3xl font-bold text-primary" aria-label="10 to 30 minutes delivery">10-30</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Min Delivery</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-primary">{nearbyShopsCount}+</p>
-              <p className="text-xs text-muted-foreground">Local Stores</p>
+            <div role="listitem">
+              <p className="text-2xl md:text-3xl font-bold text-primary" aria-label={`${nearbyShopsCount} plus local stores`}>{nearbyShopsCount}+</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Local Stores</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-primary">100%</p>
-              <p className="text-xs text-muted-foreground">Fresh Products</p>
+            <div role="listitem">
+              <p className="text-2xl md:text-3xl font-bold text-primary" aria-label="100 percent fresh products">100%</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Fresh Products</p>
             </div>
           </motion.div>
         </div>
       </div>
 
-      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10" />
-      <div className="absolute bottom-0 left-1/2 w-48 h-48 bg-primary/5 rounded-full blur-3xl -z-10" />
-    </motion.div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10" aria-hidden="true" />
+      <div className="absolute bottom-0 left-1/2 w-48 h-48 bg-primary/5 rounded-full blur-3xl -z-10" aria-hidden="true" />
+    </section>
   );
 }

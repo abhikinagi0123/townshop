@@ -4,9 +4,11 @@ import { IndianRupee, Plus, Minus } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 
+import { Id } from "@/convex/_generated/dataModel";
+
 interface ProductCardProps {
   product: {
-    _id: string;
+    _id: Id<"products">;
     name: string;
     description: string;
     image: string;
