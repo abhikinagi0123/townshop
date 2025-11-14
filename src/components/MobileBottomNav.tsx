@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Home, Search, Star, User } from "lucide-react";
+import { Home, Search, Store, User } from "lucide-react";
 import { useNavigate } from "react-router";
 
 interface MobileBottomNavProps {
@@ -36,7 +36,7 @@ export function MobileBottomNav({ isAuthenticated }: MobileBottomNavProps) {
           onClick={() => navigate("/stores")}
           aria-label="Navigate to stores page"
         >
-          <Star className="h-5 w-5" aria-hidden="true" />
+          <Store className="h-5 w-5" aria-hidden="true" />
           <span className="text-xs">Stores</span>
         </Button>
         <Button
