@@ -26,6 +26,8 @@ const featuredCategories = [
   { name: "Cold Drinks", emoji: "🥤", color: "from-red-500 to-pink-600" },
   { name: "Instant Food", emoji: "🍜", color: "from-purple-500 to-violet-600" },
   { name: "Tea & Coffee", emoji: "☕", color: "from-yellow-500 to-orange-600" },
+  { name: "Bakery & Biscuits", emoji: "🍪", color: "from-pink-500 to-rose-600" },
+  { name: "Sauces & Spreads", emoji: "🍯", color: "from-amber-500 to-yellow-600" },
 ];
 
 const quickActions = [
@@ -33,6 +35,13 @@ const quickActions = [
   { title: "Fresh Produce", icon: "🌿", desc: "Farm to home" },
   { title: "Best Prices", icon: "💰", desc: "Save more" },
   { title: "24/7 Available", icon: "🌙", desc: "Always open" },
+];
+
+const topPicks = [
+  { name: "Fresh Milk", image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200", price: 65, discount: "10% OFF" },
+  { name: "Brown Bread", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200", price: 45, discount: "15% OFF" },
+  { name: "Farm Eggs", image: "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=200", price: 85, discount: "5% OFF" },
+  { name: "Fresh Juice", image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=200", price: 120, discount: "20% OFF" },
 ];
 
 export default function Landing() {
@@ -151,6 +160,41 @@ export default function Landing() {
           </div>
         </div>
 
+        {/* Top Picks Banner */}
+        <div className="py-3">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <h2 className="text-base font-bold">Top Picks</h2>
+            </div>
+            <Badge variant="secondary" className="text-[10px]">Limited Time</Badge>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+            {topPicks.map((item, index) => (
+              <motion.div
+                key={item.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2, delay: 0.03 * index }}
+                className="flex-shrink-0 w-28"
+              >
+                <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                  <div className="relative">
+                    <img src={item.image} alt={item.name} className="w-full h-24 object-cover" />
+                    <Badge className="absolute top-1 right-1 text-[9px] px-1.5 py-0 h-4 bg-red-500">
+                      {item.discount}
+                    </Badge>
+                  </div>
+                  <CardContent className="p-2">
+                    <p className="text-[11px] font-semibold line-clamp-1">{item.name}</p>
+                    <p className="text-[10px] text-primary font-bold">₹{item.price}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
         {/* Featured Categories - Horizontal Scroll */}
         <div className="py-3">
           <div className="flex items-center justify-between mb-3">
@@ -172,6 +216,28 @@ export default function Landing() {
               </motion.div>
             ))}
           </div>
+        </div>
+
+        {/* Trending Now Section */}
+        <div className="py-3">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="h-4 w-4 text-orange-500" />
+            <h2 className="text-base font-bold">Trending Now</h2>
+          </div>
+          <Card className="bg-gradient-to-r from-orange-500 to-pink-500 text-white border-0">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold mb-1">🔥 Hot Deals</p>
+                  <p className="text-lg font-bold mb-1">Up to 50% OFF</p>
+                  <p className="text-[10px] opacity-90">On selected items</p>
+                </div>
+                <Button size="sm" variant="secondary" className="h-8 text-xs">
+                  Shop Now
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Nearby Shops Section */}
