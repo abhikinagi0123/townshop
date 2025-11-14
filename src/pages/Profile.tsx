@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Award, Gift, MessageSquare, Copy, Trophy } from "lucide-react";
+import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Award, Gift, MessageSquare, Copy, Trophy, Wallet, Plus, TrendingUp, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { ProfileCompletionDialog } from "@/components/ProfileCompletionDialog";
@@ -23,15 +23,20 @@ export default function Profile() {
   const loyaltyData = useQuery(api.loyalty.getPoints);
   const loyaltyTransactions = useQuery(api.loyalty.getTransactions, { limit: 5 });
   const referralStats = useQuery(api.loyalty.getReferralStats);
+  const walletData = useQuery(api.wallet.getBalance);
+  const walletTransactions = useQuery(api.wallet.getTransactions, { limit: 5 });
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showReferralDialog, setShowReferralDialog] = useState(false);
   const [showChatDialog, setShowChatDialog] = useState(false);
+  const [showWalletDialog, setShowWalletDialog] = useState(false);
+  const [addMoneyAmount, setAddMoneyAmount] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [applyReferralCode, setApplyReferralCode] = useState("");
   
   const createReferralCode = useMutation(api.loyalty.createReferralCode);
   const applyReferral = useMutation(api.loyalty.applyReferralCode);
   const createChatSession = useMutation(api.chat.createSession);
+  const addMoney = useMutation(api.wallet.addMoney);
 
   const handleSignOut = async () => {
     await signOut();
@@ -88,6 +93,22 @@ export default function Profile() {
   // Calculate redeemable money from points
   const redeemableMoney = loyaltyData ? Math.floor(loyaltyData.points / 100) : 0;
 
+  const handleAddMoney = async () => {
+    const amount = parseFloat(addMoneyAmount);
+    if (!amount || amount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    try {
+      await addMoney({ amount, transactionId: `TXN${Date.now()}` });
+      toast.success(`₹${amount} added to wallet successfully!`);
+      setAddMoneyAmount("");
+      setShowWalletDialog(false);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to add money");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <MobileHeader showSearch={false} isAuthenticated={isAuthenticated} />
@@ -138,6 +159,61 @@ export default function Profile() {
               </Button>
             </CardContent>
           </Card>
+
+          {/* Wallet Card */}
+          {walletData && (
+            <Card className="mb-6 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="h-6 w-6" />
+                    <h3 className="text-lg font-bold">My Wallet</h3>
+                  </div>
+                  <div className="text-3xl font-bold">₹{walletData.balance.toFixed(2)}</div>
+                </div>
+                <p className="text-sm opacity-90">Available balance for orders</p>
+              </div>
+              <CardContent className="p-4">
+                <div className="space-y-4">
+                  <Button 
+                    className="w-full" 
+                    onClick={() => setShowWalletDialog(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Money
+                  </Button>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Recent Transactions</span>
+                    <Button variant="ghost" size="sm" onClick={() => navigate("/wallet")}>
+                      View All
+                    </Button>
+                  </div>
+                  {walletTransactions && walletTransactions.length > 0 ? (
+                    <div className="space-y-2">
+                      {walletTransactions.slice(0, 3).map((transaction) => (
+                        <div key={transaction._id} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            {transaction.type === "credit" ? (
+                              <TrendingUp className="h-4 w-4 text-green-600" />
+                            ) : (
+                              <TrendingDown className="h-4 w-4 text-red-600" />
+                            )}
+                            <span className="text-muted-foreground">{transaction.description}</span>
+                          </div>
+                          <span className={transaction.type === "credit" ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
+                            {transaction.type === "credit" ? "+" : ""}₹{Math.abs(transaction.amount)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No transactions yet</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Loyalty Program Card with Redeemable Money */}
           {loyaltyData && (
@@ -338,6 +414,64 @@ export default function Profile() {
         currentLat={user?.lat}
         currentLng={user?.lng}
       />
+
+      {/* Add Money Dialog */}
+      <Dialog open={showWalletDialog} onOpenChange={setShowWalletDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Money to Wallet</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <p className="text-sm font-medium mb-2">Enter Amount</p>
+              <Input
+                type="number"
+                placeholder="Enter amount in ₹"
+                value={addMoneyAmount}
+                onChange={(e) => setAddMoneyAmount(e.target.value)}
+                min="1"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setAddMoneyAmount("100")}
+              >
+                ₹100
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setAddMoneyAmount("500")}
+              >
+                ₹500
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setAddMoneyAmount("1000")}
+              >
+                ₹1000
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setAddMoneyAmount("2000")}
+              >
+                ₹2000
+              </Button>
+            </div>
+            <Button onClick={handleAddMoney} className="w-full">
+              Add Money
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <MobileBottomNav isAuthenticated={isAuthenticated} />
     </div>

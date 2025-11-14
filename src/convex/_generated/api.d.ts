@@ -33,6 +33,7 @@ import type * as seed from "../seed.js";
 import type * as seedOffers from "../seedOffers.js";
 import type * as stores from "../stores.js";
 import type * as users from "../users.js";
+import type * as wallet from "../wallet.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -63,6 +64,7 @@ declare const fullApi: ApiFromModules<{
   seedOffers: typeof seedOffers;
   stores: typeof stores;
   users: typeof users;
+  wallet: typeof wallet;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

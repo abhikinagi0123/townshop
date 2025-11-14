@@ -39,6 +39,7 @@ const schema = defineSchema(
         v.literal("gold"),
         v.literal("platinum")
       )),
+      walletBalance: v.optional(v.number()), // wallet balance in rupees
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
     stores: defineTable({
@@ -275,6 +276,18 @@ const schema = defineSchema(
       p256dh: v.string(),
       auth: v.string(),
       userAgent: v.optional(v.string()),
+    }).index("by_user", ["userId"]),
+
+    walletTransactions: defineTable({
+      userId: v.id("users"),
+      amount: v.number(),
+      type: v.union(
+        v.literal("credit"),
+        v.literal("debit")
+      ),
+      description: v.string(),
+      orderId: v.optional(v.id("orders")),
+      transactionId: v.optional(v.string()),
     }).index("by_user", ["userId"]),
   },
   {

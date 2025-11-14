@@ -58,7 +58,7 @@ export default function Cart() {
   const [recurringFrequency, setRecurringFrequency] = useState<"daily" | "weekly" | "monthly">("weekly");
 
   // Payment states
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "upi" | "wallet" | "cod">("cod");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "upi" | "wallet" | "cod" | "app_wallet">("cod");
   const [cardNumber, setCardNumber] = useState("");
   const [cardLast4, setCardLast4] = useState("");
   const [upiId, setUpiId] = useState("");
@@ -69,8 +69,10 @@ export default function Cart() {
   const [usePoints, setUsePoints] = useState(false);
   const [pointsToRedeem, setPointsToRedeem] = useState(0);
   const loyaltyData = useQuery(api.loyalty.getPoints);
+  const walletData = useQuery(api.wallet.getBalance);
   const redeemPoints = useMutation(api.loyalty.redeemPoints);
   const recordRedemption = useMutation(api.loyalty.recordRedemption);
+  const deductWalletMoney = useMutation(api.wallet.deductMoney);
 
   const subtotal = cartItems?.reduce((sum, item) => 
     sum + (item.product?.price || 0) * item.quantity, 0
@@ -81,6 +83,9 @@ export default function Cart() {
   const maxRedeemablePoints = loyaltyData?.points || 0;
   const maxDiscount = Math.floor(maxRedeemablePoints / 100);
   const loyaltyDiscount = usePoints ? Math.min(Math.floor(pointsToRedeem / 100), subtotal + deliveryFee) : 0;
+  
+  // Calculate wallet balance available
+  const walletBalance = walletData?.balance || 0;
   
   const total = Math.max(0, subtotal + deliveryFee - loyaltyDiscount);
 
@@ -142,6 +147,10 @@ export default function Cart() {
       toast.error("Please select wallet provider");
       return;
     }
+    if (paymentMethod === "app_wallet" && walletBalance < total) {
+      toast.error("Insufficient wallet balance");
+      return;
+    }
 
     const address = addresses?.find(a => a._id === selectedAddress);
     if (!address) return;
@@ -197,17 +206,36 @@ export default function Cart() {
       });
 
       // Process payment
+      if (paymentMethod === "app_wallet") {
+        await deductWalletMoney({ amount: total, orderId });
+      }
+      
       const last4 = paymentMethod === "card" ? cardNumber.slice(-4) : undefined;
+      
+      // Map payment method for backend
+      let backendMethod: "card" | "upi" | "wallet" | "cod";
+      if (paymentMethod === "app_wallet") {
+        backendMethod = "wallet";
+      } else if (paymentMethod === "card") {
+        backendMethod = "card";
+      } else if (paymentMethod === "upi") {
+        backendMethod = "upi";
+      } else if (paymentMethod === "wallet") {
+        backendMethod = "wallet";
+      } else {
+        backendMethod = "cod";
+      }
+      
       await createPayment({
         orderId,
         amount: total,
-        method: paymentMethod,
+        method: backendMethod,
         cardLast4: last4,
         upiId: paymentMethod === "upi" ? upiId : undefined,
       });
 
       // Save payment method if requested
-      if (savePaymentMethod && paymentMethod !== "cod") {
+      if (savePaymentMethod && paymentMethod !== "cod" && paymentMethod !== "app_wallet") {
         await addSavedPaymentMethod({
           type: paymentMethod,
           cardLast4: last4,
@@ -560,6 +588,26 @@ export default function Cart() {
                           </Select>
                         </motion.div>
                       )}
+                    </CardContent>
+                  </Card>
+
+                  {/* App Wallet */}
+                  <Card className={paymentMethod === "app_wallet" ? "border-primary" : ""}>
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="app_wallet" id="app_wallet" />
+                        <Label htmlFor="app_wallet" className="flex-1 cursor-pointer">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Wallet className="h-4 w-4" />
+                              <span>App Wallet</span>
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              Balance: ₹{walletBalance.toFixed(2)}
+                            </span>
+                          </div>
+                        </Label>
+                      </div>
                     </CardContent>
                   </Card>
 
