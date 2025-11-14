@@ -132,7 +132,14 @@ export default function Landing() {
               placeholder="Search stores or products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 h-10 text-sm"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && search.trim()) {
+                  navigate(`/search?q=${encodeURIComponent(search.trim())}`);
+                }
+              }}
+              onClick={() => navigate('/search')}
+              className="pl-10 h-10 text-sm cursor-pointer"
+              readOnly
             />
           </div>
         </div>
