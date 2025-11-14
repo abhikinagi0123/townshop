@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { PushNotificationPrompt } from "@/components/PushNotificationPrompt";
 import { HeroSection } from "@/components/HeroSection";
 import { CategoryPills } from "@/components/CategoryPills";
 import { QuickActions } from "@/components/QuickActions";
@@ -387,6 +388,7 @@ export default function Landing() {
       </div>
 
       <MobileBottomNav isAuthenticated={isAuthenticated} />
+      {isAuthenticated && <PushNotificationPrompt />}
     </div>
   );
 }

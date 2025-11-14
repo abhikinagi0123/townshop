@@ -1,7 +1,8 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams, useNavigate } from "react-router";
-import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, CheckCircle2, Clock, Truck, Phone, IndianRupee, MessageSquare } from "lucide-react";
+import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, CheckCircle2, Clock, Truck, Phone, IndianRupee, MessageSquare, Navigation } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,11 @@ export default function OrderTracking() {
   const navigate = useNavigate();
   const order = useQuery(api.orders.getById, { orderId: orderId as Id<"orders"> });
   const cartItems = useQuery(api.cart.get);
+  const deliveryLocation = useQuery(api.deliveryTracking.getDeliveryPartnerLocation, { 
+    orderId: orderId as Id<"orders"> 
+  });
   const createReview = useMutation(api.reviews.create);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [rating, setRating] = useState(0);
@@ -243,7 +248,7 @@ export default function OrderTracking() {
             </Card>
           )}
 
-          {/* Delivery Partner Info */}
+          {/* Delivery Partner Info & Live Tracking */}
           {order.deliveryPartner && (
             <Card className="mb-6">
               <CardContent className="p-6">
@@ -268,6 +273,47 @@ export default function OrderTracking() {
                       {order.deliveryPartner.phone}
                     </a>
                   </div>
+
+                  {/* Live Location Tracking */}
+                  {deliveryLocation && deliveryLocation.currentLat && deliveryLocation.currentLng && (
+                    <div className="mt-4 border-t pt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Navigation className="h-4 w-4 text-primary" />
+                          <span className="font-semibold text-sm">Live Location</span>
+                        </div>
+                        {deliveryLocation.lastLocationUpdate && (
+                          <span className="text-xs text-muted-foreground">
+                            Updated {Math.floor((Date.now() - deliveryLocation.lastLocationUpdate) / 60000)}m ago
+                          </span>
+                        )}
+                      </div>
+                      <div className="bg-muted rounded-lg overflow-hidden h-48 relative">
+                        <div ref={mapRef} className="w-full h-full flex items-center justify-center">
+                          <div className="text-center">
+                            <MapPin className="h-8 w-8 mx-auto mb-2 text-primary animate-bounce" />
+                            <p className="text-sm font-medium">Delivery Partner Location</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Lat: {deliveryLocation.currentLat.toFixed(4)}, Lng: {deliveryLocation.currentLng.toFixed(4)}
+                            </p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="mt-3"
+                              onClick={() => {
+                                window.open(
+                                  `https://www.google.com/maps/dir/?api=1&destination=${deliveryLocation.currentLat},${deliveryLocation.currentLng}`,
+                                  '_blank'
+                                );
+                              }}
+                            >
+                              Open in Maps
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

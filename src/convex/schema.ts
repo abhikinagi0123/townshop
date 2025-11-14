@@ -96,6 +96,9 @@ const schema = defineSchema(
         name: v.string(),
         phone: v.string(),
         vehicleNumber: v.optional(v.string()),
+        currentLat: v.optional(v.number()),
+        currentLng: v.optional(v.number()),
+        lastLocationUpdate: v.optional(v.number()),
       })),
       scheduledFor: v.optional(v.number()),
       isRecurring: v.optional(v.boolean()),
@@ -264,6 +267,14 @@ const schema = defineSchema(
         v.literal("closed")
       ),
       lastMessageAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    pushSubscriptions: defineTable({
+      userId: v.id("users"),
+      endpoint: v.string(),
+      p256dh: v.string(),
+      auth: v.string(),
+      userAgent: v.optional(v.string()),
     }).index("by_user", ["userId"]),
   },
   {
