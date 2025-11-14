@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { ShoppingBag, Zap, MapPin, Star, Search, ChevronRight, Clock, TrendingUp, Sparkles } from "lucide-react";
+import { ShoppingBag, Zap, MapPin, Star, Search, ChevronRight, Clock, TrendingUp, Sparkles, Flame, Award } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { StoreCard } from "@/components/StoreCard";
@@ -35,13 +35,6 @@ const quickActions = [
   { title: "Fresh Produce", icon: "🌿", desc: "Farm to home" },
   { title: "Best Prices", icon: "💰", desc: "Save more" },
   { title: "24/7 Available", icon: "🌙", desc: "Always open" },
-];
-
-const topPicks = [
-  { name: "Fresh Milk", image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200", price: 65, discount: "10% OFF" },
-  { name: "Brown Bread", image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200", price: 45, discount: "15% OFF" },
-  { name: "Farm Eggs", image: "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=200", price: 85, discount: "5% OFF" },
-  { name: "Fresh Juice", image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=200", price: 120, discount: "20% OFF" },
 ];
 
 export default function Landing() {
@@ -77,6 +70,11 @@ export default function Landing() {
     api.stores.getNearbyShops,
     userLocation ? { lat: userLocation.lat, lng: userLocation.lng, category, search, radius: 10 } : "skip"
   );
+
+  // Fetch dynamic content
+  const trendingProducts = useQuery(api.products.getTrendingProducts, { limit: 6 });
+  const topRatedProducts = useQuery(api.products.getTopRatedProducts, { limit: 4 });
+  const featuredProducts = useQuery(api.products.getFeaturedProducts, { limit: 8 });
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -160,40 +158,123 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Top Picks Banner */}
-        <div className="py-3">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <h2 className="text-base font-bold">Top Picks</h2>
+        {/* Trending Products - Dynamic */}
+        {trendingProducts && trendingProducts.length > 0 && (
+          <div className="py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Flame className="h-4 w-4 text-orange-500" />
+                <h2 className="text-base font-bold">Trending Now</h2>
+              </div>
+              <Badge variant="secondary" className="text-[10px]">Hot 🔥</Badge>
             </div>
-            <Badge variant="secondary" className="text-[10px]">Limited Time</Badge>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+              {trendingProducts.filter((item): item is NonNullable<typeof item> & { image: string; name: string; price: number } => 
+                item !== null && 'image' in item && 'name' in item && 'price' in item
+              ).map((item, index) => (
+                <motion.div
+                  key={item._id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: 0.03 * index }}
+                  className="flex-shrink-0 w-28"
+                >
+                  <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="relative">
+                      <img src={item.image} alt={item.name} className="w-full h-24 object-cover" />
+                      <Badge className="absolute top-1 right-1 text-[9px] px-1.5 py-0 h-4 bg-orange-500">
+                        Trending
+                      </Badge>
+                    </div>
+                    <CardContent className="p-2">
+                      <p className="text-[11px] font-semibold line-clamp-1">{item.name}</p>
+                      <p className="text-[9px] text-muted-foreground line-clamp-1">{item.storeName}</p>
+                      <p className="text-[10px] text-primary font-bold">₹{item.price}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
-            {topPicks.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2, delay: 0.03 * index }}
-                className="flex-shrink-0 w-28"
-              >
-                <Card className="overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="relative">
-                    <img src={item.image} alt={item.name} className="w-full h-24 object-cover" />
-                    <Badge className="absolute top-1 right-1 text-[9px] px-1.5 py-0 h-4 bg-red-500">
-                      {item.discount}
-                    </Badge>
-                  </div>
-                  <CardContent className="p-2">
-                    <p className="text-[11px] font-semibold line-clamp-1">{item.name}</p>
-                    <p className="text-[10px] text-primary font-bold">₹{item.price}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+        )}
+
+        {/* Top Rated Products */}
+        {topRatedProducts && topRatedProducts.length > 0 && (
+          <div className="py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Award className="h-4 w-4 text-yellow-500" />
+                <h2 className="text-base font-bold">Top Rated</h2>
+              </div>
+              <Badge variant="secondary" className="text-[10px]">Best Quality</Badge>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+              {topRatedProducts.filter((item): item is NonNullable<typeof item> & { image: string; name: string; price: number; storeRating: number } => 
+                item !== null && 'image' in item && 'name' in item && 'price' in item
+              ).map((item, index) => (
+                <motion.div
+                  key={item._id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: 0.03 * index }}
+                  className="flex-shrink-0 w-28"
+                >
+                  <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="relative">
+                      <img src={item.image} alt={item.name} className="w-full h-24 object-cover" />
+                      <div className="absolute top-1 left-1 flex items-center gap-0.5 bg-background/95 backdrop-blur-sm px-1.5 py-0.5 rounded-md">
+                        <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                        <span className="text-[9px] font-bold">{item.storeRating}</span>
+                      </div>
+                    </div>
+                    <CardContent className="p-2">
+                      <p className="text-[11px] font-semibold line-clamp-1">{item.name}</p>
+                      <p className="text-[9px] text-muted-foreground line-clamp-1">{item.storeName}</p>
+                      <p className="text-[10px] text-primary font-bold">₹{item.price}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Featured Products */}
+        {featuredProducts && featuredProducts.length > 0 && (
+          <div className="py-3">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-bold">Featured Picks</h2>
+              </div>
+              <Badge variant="secondary" className="text-[10px]">Handpicked</Badge>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
+              {featuredProducts.filter((item): item is NonNullable<typeof item> & { image: string; name: string; price: number } => 
+                item !== null && 'image' in item && 'name' in item && 'price' in item
+              ).map((item, index) => (
+                <motion.div
+                  key={item._id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: 0.03 * index }}
+                  className="flex-shrink-0 w-28"
+                >
+                  <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="relative">
+                      <img src={item.image} alt={item.name} className="w-full h-24 object-cover" />
+                    </div>
+                    <CardContent className="p-2">
+                      <p className="text-[11px] font-semibold line-clamp-1">{item.name}</p>
+                      <p className="text-[9px] text-muted-foreground line-clamp-1">{item.storeName}</p>
+                      <p className="text-[10px] text-primary font-bold">₹{item.price}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Featured Categories - Horizontal Scroll */}
         <div className="py-3">
@@ -222,7 +303,7 @@ export default function Landing() {
         <div className="py-3">
           <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="h-4 w-4 text-orange-500" />
-            <h2 className="text-base font-bold">Trending Now</h2>
+            <h2 className="text-base font-bold">Special Offers</h2>
           </div>
           <Card className="bg-gradient-to-r from-orange-500 to-pink-500 text-white border-0">
             <CardContent className="p-4">
