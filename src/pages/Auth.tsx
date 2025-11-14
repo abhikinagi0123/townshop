@@ -15,9 +15,12 @@ import {
 } from "@/components/ui/input-otp";
 
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowRight, Loader2, Mail, UserX, Home, Search, Star, User } from "lucide-react";
+import { ArrowRight, Loader2, Mail, UserX, Home, Search, Star, User, Gift } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { toast } from "sonner";
 
 interface AuthProps {
   redirectAfterAuth?: string;
@@ -30,6 +33,10 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState("");
+  const [showReferralInput, setShowReferralInput] = useState(false);
+  
+  const applyReferral = useMutation(api.loyalty.applyReferralCode);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -37,6 +44,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       navigate(redirect);
     }
   }, [authLoading, isAuthenticated, navigate, redirectAfterAuth]);
+
   const handleEmailSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
@@ -66,6 +74,18 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       await signIn("email-otp", formData);
 
       console.log("signed in");
+
+      // Apply referral code if provided
+      if (referralCode.trim()) {
+        try {
+          await applyReferral({ code: referralCode.trim() });
+          toast.success("Referral code applied! You earned 500 bonus points!");
+        } catch (referralError: any) {
+          // Don't block login if referral fails
+          console.error("Referral application failed:", referralError);
+          toast.error(referralError.message || "Referral code could not be applied");
+        }
+      }
 
       const redirect = redirectAfterAuth || "/";
       navigate(redirect);
@@ -228,6 +248,49 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                       {error}
                     </p>
                   )}
+
+                  {/* Referral Code Section */}
+                  <div className="mt-4 border-t pt-4">
+                    {!showReferralInput ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowReferralInput(true)}
+                        className="w-full text-xs"
+                      >
+                        <Gift className="h-3 w-3 mr-2" />
+                        Have a referral code? Click to enter
+                      </Button>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Gift className="h-3 w-3" />
+                          <span>Enter referral code to earn 500 bonus points</span>
+                        </div>
+                        <Input
+                          placeholder="Enter referral code"
+                          value={referralCode}
+                          onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                          disabled={isLoading}
+                          className="text-sm"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setShowReferralInput(false);
+                            setReferralCode("");
+                          }}
+                          className="w-full text-xs"
+                        >
+                          Skip for now
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
                   <p className="text-sm text-muted-foreground text-center mt-4">
                     Didn't receive a code?{" "}
                     <Button
