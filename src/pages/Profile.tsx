@@ -85,6 +85,9 @@ export default function Profile() {
     }
   };
 
+  // Calculate redeemable money from points
+  const redeemableMoney = loyaltyData ? Math.floor(loyaltyData.points / 100) : 0;
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <MobileHeader showSearch={false} isAuthenticated={isAuthenticated} />
@@ -136,7 +139,7 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          {/* Loyalty Program Card */}
+          {/* Loyalty Program Card with Redeemable Money */}
           {loyaltyData && (
             <Card className="mb-6 overflow-hidden">
               <div className={`${getTierColor(loyaltyData.tier)} p-6 text-white`}>
@@ -152,7 +155,23 @@ export default function Profile() {
                 <p className="text-sm opacity-90">Keep earning to unlock more rewards!</p>
               </div>
               <CardContent className="p-4">
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  {/* Redeemable Money Section */}
+                  <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Award className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <span className="font-semibold text-green-900 dark:text-green-100">Redeemable Balance</span>
+                      </div>
+                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                        ₹{redeemableMoney}
+                      </div>
+                    </div>
+                    <p className="text-xs text-green-700 dark:text-green-300">
+                      Use your points at checkout (100 points = ₹1)
+                    </p>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Recent Transactions</span>
                     <Button variant="ghost" size="sm" onClick={() => navigate("/loyalty")}>
