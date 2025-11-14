@@ -324,17 +324,6 @@ export default function Profile() {
                         </Button>
                       )}
                     </div>
-                    <div className="border-t pt-4">
-                      <p className="text-sm font-medium mb-2">Apply Referral Code</p>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Enter code"
-                          value={applyReferralCode}
-                          onChange={(e) => setApplyReferralCode(e.target.value)}
-                        />
-                        <Button onClick={handleApplyReferralCode}>Apply</Button>
-                      </div>
-                    </div>
                   </div>
                 </DialogContent>
               </Dialog>
