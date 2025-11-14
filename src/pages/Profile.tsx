@@ -1,26 +1,88 @@
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit } from "lucide-react";
+import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Award, Gift, MessageSquare, Copy, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { ProfileCompletionDialog } from "@/components/ProfileCompletionDialog";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 export default function Profile() {
   const navigate = useNavigate();
   const { user, signOut, isAuthenticated } = useAuth();
   const orders = useQuery(api.orders.list);
   const addresses = useQuery(api.addresses.list);
+  const loyaltyData = useQuery(api.loyalty.getPoints);
+  const loyaltyTransactions = useQuery(api.loyalty.getTransactions, { limit: 5 });
+  const referralStats = useQuery(api.loyalty.getReferralStats);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showReferralDialog, setShowReferralDialog] = useState(false);
+  const [showChatDialog, setShowChatDialog] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
+  const [applyReferralCode, setApplyReferralCode] = useState("");
+  
+  const createReferralCode = useMutation(api.loyalty.createReferralCode);
+  const applyReferral = useMutation(api.loyalty.applyReferralCode);
+  const createChatSession = useMutation(api.chat.createSession);
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const handleGenerateReferralCode = async () => {
+    try {
+      const code = await createReferralCode();
+      setReferralCode(code);
+      toast.success("Referral code generated!");
+    } catch (error) {
+      toast.error("Failed to generate referral code");
+    }
+  };
+
+  const handleCopyReferralCode = () => {
+    navigator.clipboard.writeText(referralCode);
+    toast.success("Referral code copied!");
+  };
+
+  const handleApplyReferralCode = async () => {
+    if (!applyReferralCode.trim()) {
+      toast.error("Please enter a referral code");
+      return;
+    }
+    try {
+      await applyReferral({ code: applyReferralCode });
+      toast.success("Referral code applied successfully!");
+      setApplyReferralCode("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to apply referral code");
+    }
+  };
+
+  const handleStartChat = async () => {
+    try {
+      const sessionId = await createChatSession({});
+      navigate(`/chat/${sessionId}`);
+    } catch (error) {
+      toast.error("Failed to start chat");
+    }
+  };
+
+  const getTierColor = (tier: string) => {
+    switch (tier) {
+      case "platinum": return "bg-gradient-to-r from-gray-400 to-gray-600";
+      case "gold": return "bg-gradient-to-r from-yellow-400 to-yellow-600";
+      case "silver": return "bg-gradient-to-r from-gray-300 to-gray-500";
+      default: return "bg-gradient-to-r from-orange-400 to-orange-600";
+    }
   };
 
   return (
@@ -71,6 +133,116 @@ export default function Profile() {
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Loyalty Program Card */}
+          {loyaltyData && (
+            <Card className="mb-6 overflow-hidden">
+              <div className={`${getTierColor(loyaltyData.tier)} p-6 text-white`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-6 w-6" />
+                    <h3 className="text-lg font-bold capitalize">{loyaltyData.tier} Member</h3>
+                  </div>
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                    {loyaltyData.points} Points
+                  </Badge>
+                </div>
+                <p className="text-sm opacity-90">Keep earning to unlock more rewards!</p>
+              </div>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Recent Transactions</span>
+                    <Button variant="ghost" size="sm" onClick={() => navigate("/loyalty")}>
+                      View All
+                    </Button>
+                  </div>
+                  {loyaltyTransactions && loyaltyTransactions.length > 0 ? (
+                    <div className="space-y-2">
+                      {loyaltyTransactions.slice(0, 3).map((transaction) => (
+                        <div key={transaction._id} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">{transaction.description}</span>
+                          <span className={transaction.points > 0 ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
+                            {transaction.points > 0 ? "+" : ""}{transaction.points}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No transactions yet</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Referral Program Card */}
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Gift className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold">Refer & Earn</h3>
+                  <p className="text-sm text-muted-foreground">Get 500 points for each referral</p>
+                </div>
+              </div>
+              {referralStats && (
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="text-center p-3 bg-muted rounded-lg">
+                    <p className="text-2xl font-bold">{referralStats.totalReferrals}</p>
+                    <p className="text-xs text-muted-foreground">Successful Referrals</p>
+                  </div>
+                  <div className="text-center p-3 bg-muted rounded-lg">
+                    <p className="text-2xl font-bold">{referralStats.totalBonus}</p>
+                    <p className="text-xs text-muted-foreground">Bonus Points Earned</p>
+                  </div>
+                </div>
+              )}
+              <Dialog open={showReferralDialog} onOpenChange={setShowReferralDialog}>
+                <DialogTrigger asChild>
+                  <Button className="w-full" variant="outline">
+                    <Gift className="h-4 w-4 mr-2" />
+                    Manage Referrals
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Referral Program</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div>
+                      <p className="text-sm font-medium mb-2">Your Referral Code</p>
+                      {referralCode ? (
+                        <div className="flex gap-2">
+                          <Input value={referralCode} readOnly />
+                          <Button size="sm" onClick={handleCopyReferralCode}>
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button onClick={handleGenerateReferralCode} className="w-full">
+                          Generate Code
+                        </Button>
+                      )}
+                    </div>
+                    <div className="border-t pt-4">
+                      <p className="text-sm font-medium mb-2">Apply Referral Code</p>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Enter code"
+                          value={applyReferralCode}
+                          onChange={(e) => setApplyReferralCode(e.target.value)}
+                        />
+                        <Button onClick={handleApplyReferralCode}>Apply</Button>
+                      </div>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
 
@@ -126,6 +298,14 @@ export default function Profile() {
             >
               <MapPin className="h-4 w-4 mr-2" />
               Browse Stores
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={handleStartChat}
+            >
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Customer Support
             </Button>
           </div>
         </motion.div>

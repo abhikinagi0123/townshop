@@ -20,6 +20,8 @@ import Addresses from "./pages/Addresses.tsx";
 import Search from "./pages/Search.tsx";
 import Favorites from "./pages/Favorites";
 import Notifications from "./pages/Notifications";
+import Chat from "./pages/Chat";
+import Loyalty from "./pages/Loyalty";
 import "./types/global.d.ts";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
@@ -95,6 +97,14 @@ const router = createBrowserRouter([
   {
     path: "/notifications",
     element: <Notifications />,
+  },
+  {
+    path: "/chat/:sessionId",
+    element: <Chat />,
+  },
+  {
+    path: "/loyalty",
+    element: <Loyalty />,
   },
   {
     path: "*",
