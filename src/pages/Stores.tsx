@@ -1,7 +1,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
-import { ShoppingBag, Search, Star, MapPin, Loader2, Store } from "lucide-react";
+import { Store, Loader2 } from "lucide-react";
 import { StoreCard } from "@/components/StoreCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProfileCompletionDialog } from "@/components/ProfileCompletionDialog";
 import { useAuth } from "@/hooks/use-auth";
+import { MobileHeader } from "@/components/MobileHeader";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 const categories = [
   { id: "all", label: "All", emoji: "🏪" },
@@ -30,7 +32,6 @@ export default function Stores() {
 
   const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
-  // Check if profile needs completion
   useEffect(() => {
     if (isAuthenticated && user && (!user.name || !user.phone || user.lat === undefined || user.lng === undefined)) {
       setShowProfileDialog(true);
@@ -43,17 +44,11 @@ export default function Stores() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* App Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
-              <span className="font-bold text-xl tracking-tight">QuickDeliver</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <MobileHeader 
+        search={search}
+        onSearchChange={setSearch}
+        isAuthenticated={isAuthenticated}
+      />
       
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <motion.div
@@ -71,23 +66,6 @@ export default function Stores() {
           <p className="text-muted-foreground ml-15">
             Discover local stores and get your favorites delivered fast
           </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-6"
-        >
-          <div className="relative max-w-2xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder="Search for stores, products, or categories..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-12 h-12 text-base shadow-sm"
-            />
-          </div>
         </motion.div>
 
         <motion.div
@@ -198,43 +176,7 @@ export default function Stores() {
         currentLng={user?.lng}
       />
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/")}
-          >
-            <ShoppingBag className="h-5 w-5" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/search")}
-          >
-            <Search className="h-5 w-5" />
-            <span className="text-xs">Search</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/stores")}
-          >
-            <Star className="h-5 w-5" />
-            <span className="text-xs">Stores</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => isAuthenticated ? navigate("/profile") : navigate("/auth")}
-          >
-            <MapPin className="h-5 w-5" />
-            <span className="text-xs">Profile</span>
-          </Button>
-        </div>
-      </nav>
+      <MobileBottomNav isAuthenticated={isAuthenticated} />
     </div>
   );
 }

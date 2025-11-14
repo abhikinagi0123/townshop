@@ -1,18 +1,19 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
-import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, IndianRupee } from "lucide-react";
+import { Package, ArrowLeft, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { MobileHeader } from "@/components/MobileHeader";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Orders() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const orders = useQuery(api.orders.list);
-  const cartItems = useQuery(api.cart.get);
-
-  const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -33,17 +34,7 @@ export default function Orders() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* App Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
-              <span className="font-bold text-xl tracking-tight">QuickDeliver</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <MobileHeader showSearch={false} />
       
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <Button
@@ -127,43 +118,7 @@ export default function Orders() {
         )}
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/")}
-          >
-            <ShoppingBag className="h-5 w-5" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/search")}
-          >
-            <Search className="h-5 w-5" />
-            <span className="text-xs">Search</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/stores")}
-          >
-            <Star className="h-5 w-5" />
-            <span className="text-xs">Stores</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/profile")}
-          >
-            <MapPin className="h-5 w-5" />
-            <span className="text-xs">Profile</span>
-          </Button>
-        </div>
-      </nav>
+      <MobileBottomNav isAuthenticated={isAuthenticated} />
     </div>
   );
 }

@@ -2,14 +2,15 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useNavigate, useSearchParams } from "react-router";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search as SearchIcon, Store, Package, ArrowLeft, Home, User, Star } from "lucide-react";
+import { Search as SearchIcon, Store, Package } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { StoreCard } from "@/components/StoreCard";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
+import { MobileHeader } from "@/components/MobileHeader";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export default function Search() {
   const navigate = useNavigate();
@@ -37,25 +38,7 @@ export default function Search() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Mobile Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
-        <div className="px-4 py-3">
-          <div className="flex items-center gap-3 mb-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(-1)}
-              className="h-8 w-8 p-0"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
-              <span className="font-bold text-lg tracking-tight">Search</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <MobileHeader showSearch={false} isAuthenticated={isAuthenticated} />
       
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         <motion.div
@@ -188,43 +171,7 @@ export default function Search() {
         )}
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/")}
-          >
-            <Home className="h-5 w-5" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/search")}
-          >
-            <SearchIcon className="h-5 w-5" />
-            <span className="text-xs">Search</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/stores")}
-          >
-            <Star className="h-5 w-5" />
-            <span className="text-xs">Stores</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => isAuthenticated ? navigate("/profile") : navigate("/auth")}
-          >
-            <User className="h-5 w-5" />
-            <span className="text-xs">Profile</span>
-          </Button>
-        </div>
-      </nav>
+      <MobileBottomNav isAuthenticated={isAuthenticated} />
     </div>
   );
 }
