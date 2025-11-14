@@ -9,10 +9,13 @@ import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import { motion } from "framer-motion";
 import { OfferCard } from "@/components/OfferCard";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function StoreDetail() {
   const { storeId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [productCategory, setProductCategory] = useState("all");
 
   const store = useQuery(api.stores.getById, { 
@@ -80,7 +83,7 @@ export default function StoreDetail() {
 
   if (!store || !products) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
           <div className="px-4 py-3">
             <div className="flex items-center justify-between">
@@ -91,8 +94,9 @@ export default function StoreDetail() {
             </div>
           </div>
         </div>
-        <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="flex-1 flex flex-col justify-center items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Loading store details...</p>
         </div>
       </div>
     );
@@ -102,7 +106,6 @@ export default function StoreDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* App Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b shadow-sm">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
@@ -120,6 +123,7 @@ export default function StoreDetail() {
           size="sm"
           onClick={() => navigate("/stores")}
           className="mb-4"
+          aria-label="Back to stores"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Stores
@@ -143,7 +147,7 @@ export default function StoreDetail() {
               <div className="flex flex-wrap gap-4 text-sm">
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{store.rating}</span>
+                  <span className="font-medium">{store.rating.toFixed(1)}</span>
                 </div>
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <Clock className="h-4 w-4" />
@@ -170,7 +174,7 @@ export default function StoreDetail() {
             </div>
           )}
 
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
             {productCategories.map((cat) => (
               <Button
                 key={cat}
@@ -185,73 +189,43 @@ export default function StoreDetail() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {products.map((product) => (
-            <ProductCard
-              key={product._id}
-              product={product}
-              quantity={getProductQuantity(product._id)}
-              onAdd={() => handleAddToCart(product._id)}
-              onIncrease={() => handleIncrease(product._id)}
-              onDecrease={() => handleDecrease(product._id)}
-            />
-          ))}
-        </div>
+        {products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No products available in this category</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {products.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                quantity={getProductQuantity(product._id)}
+                onAdd={() => handleAddToCart(product._id)}
+                onIncrease={() => handleIncrease(product._id)}
+                onDecrease={() => handleDecrease(product._id)}
+              />
+            ))}
+          </div>
+        )}
 
         {cartCount > 0 && (
           <motion.div
             initial={{ y: 100 }}
             animate={{ y: 0 }}
-            className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md"
+            className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md z-40"
           >
             <Button
               size="lg"
               className="w-full shadow-lg"
               onClick={() => navigate("/cart")}
             >
-              View Cart ({cartCount} items)
+              View Cart ({cartCount} {cartCount === 1 ? 'item' : 'items'})
             </Button>
           </motion.div>
         )}
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg z-50">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/")}
-          >
-            <ShoppingBag className="h-5 w-5" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/search")}
-          >
-            <Search className="h-5 w-5" />
-            <span className="text-xs">Search</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/stores")}
-          >
-            <Star className="h-5 w-5" />
-            <span className="text-xs">Stores</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-full rounded-none flex-1"
-            onClick={() => navigate("/profile")}
-          >
-            <MapPin className="h-5 w-5" />
-            <span className="text-xs">Profile</span>
-          </Button>
-        </div>
-      </nav>
+      <MobileBottomNav isAuthenticated={isAuthenticated} />
     </div>
   );
 }

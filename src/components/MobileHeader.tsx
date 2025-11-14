@@ -42,6 +42,7 @@ export function MobileHeader({
                 onClick={() => isAuthenticated ? navigate("/stores") : navigate("/auth")} 
                 size="sm"
                 className="flex-shrink-0"
+                aria-label={isAuthenticated ? "Browse stores" : "Login to browse"}
               >
                 {isAuthenticated ? "Browse" : "Login"}
               </Button>
@@ -51,7 +52,7 @@ export function MobileHeader({
 
         {showSearch && (
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               placeholder="Search stores or products..."
               value={search}
@@ -64,6 +65,7 @@ export function MobileHeader({
               onClick={() => navigate('/search')}
               className="pl-10 h-10 text-sm cursor-pointer"
               readOnly
+              aria-label="Search stores or products"
             />
           </div>
         )}
