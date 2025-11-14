@@ -32,12 +32,65 @@ const schema = defineSchema(
       role: v.optional(roleValidator), // role of the user. do not remove
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
-    // add other tables here
+    stores: defineTable({
+      name: v.string(),
+      description: v.string(),
+      image: v.string(),
+      category: v.string(),
+      rating: v.number(),
+      deliveryTime: v.string(),
+      minOrder: v.number(),
+    }),
 
-    // tableName: defineTable({
-    //   ...
-    //   // table fields
-    // }).index("by_field", ["field"])
+    products: defineTable({
+      storeId: v.id("stores"),
+      name: v.string(),
+      description: v.string(),
+      image: v.string(),
+      price: v.number(),
+      category: v.string(),
+      inStock: v.boolean(),
+    }).index("by_store", ["storeId"]),
+
+    cart: defineTable({
+      userId: v.id("users"),
+      productId: v.id("products"),
+      quantity: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_and_product", ["userId", "productId"]),
+
+    orders: defineTable({
+      userId: v.id("users"),
+      items: v.array(v.object({
+        productId: v.id("products"),
+        productName: v.string(),
+        quantity: v.number(),
+        price: v.number(),
+      })),
+      storeId: v.id("stores"),
+      storeName: v.string(),
+      totalAmount: v.number(),
+      deliveryAddress: v.string(),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("confirmed"),
+        v.literal("preparing"),
+        v.literal("out_for_delivery"),
+        v.literal("delivered"),
+        v.literal("cancelled")
+      ),
+    }).index("by_user", ["userId"]),
+
+    addresses: defineTable({
+      userId: v.id("users"),
+      label: v.string(),
+      street: v.string(),
+      city: v.string(),
+      state: v.string(),
+      zipCode: v.string(),
+      isDefault: v.boolean(),
+    }).index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

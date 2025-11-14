@@ -1,0 +1,186 @@
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useParams, useNavigate } from "react-router";
+import { Navbar } from "@/components/Navbar";
+import { ProductCard } from "@/components/ProductCard";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Star, Clock, IndianRupee, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Id } from "@/convex/_generated/dataModel";
+import { motion } from "framer-motion";
+
+export default function StoreDetail() {
+  const { storeId } = useParams();
+  const navigate = useNavigate();
+  const [productCategory, setProductCategory] = useState("all");
+
+  const store = useQuery(api.stores.getById, { 
+    storeId: storeId as Id<"stores"> 
+  });
+  const products = useQuery(api.products.listByStore, {
+    storeId: storeId as Id<"stores">,
+    category: productCategory,
+  });
+  const cartItems = useQuery(api.cart.get);
+  
+  const addToCart = useMutation(api.cart.addItem);
+  const updateQuantity = useMutation(api.cart.updateQuantity);
+
+  const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+  const getProductQuantity = (productId: string) => {
+    const item = cartItems?.find(item => item.productId === productId);
+    return item?.quantity || 0;
+  };
+
+  const getCartItemId = (productId: string) => {
+    return cartItems?.find(item => item.productId === productId)?._id;
+  };
+
+  const handleAddToCart = async (productId: Id<"products">) => {
+    try {
+      await addToCart({ productId, quantity: 1 });
+      toast.success("Added to cart");
+    } catch (error) {
+      toast.error("Failed to add to cart");
+    }
+  };
+
+  const handleIncrease = async (productId: Id<"products">) => {
+    const cartItemId = getCartItemId(productId);
+    if (!cartItemId) return;
+    
+    try {
+      await updateQuantity({
+        cartItemId,
+        quantity: getProductQuantity(productId) + 1,
+      });
+    } catch (error) {
+      toast.error("Failed to update quantity");
+    }
+  };
+
+  const handleDecrease = async (productId: Id<"products">) => {
+    const cartItemId = getCartItemId(productId);
+    if (!cartItemId) return;
+    
+    try {
+      await updateQuantity({
+        cartItemId,
+        quantity: getProductQuantity(productId) - 1,
+      });
+    } catch (error) {
+      toast.error("Failed to update quantity");
+    }
+  };
+
+  if (!store || !products) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar cartCount={cartCount} />
+        <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  const productCategories = ["all", ...new Set(products.map(p => p.category))];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar cartCount={cartCount} />
+      
+      <div className="container mx-auto px-4 py-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/stores")}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Stores
+        </Button>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6"
+        >
+          <div className="flex flex-col md:flex-row gap-6 mb-6">
+            <img
+              src={store.image}
+              alt={store.name}
+              className="w-full md:w-48 h-48 object-cover rounded-lg"
+            />
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold mb-2">{store.name}</h1>
+              <p className="text-muted-foreground mb-4">{store.description}</p>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="font-medium">{store.rating}</span>
+                </div>
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Clock className="h-4 w-4" />
+                  <span>{store.deliveryTime}</span>
+                </div>
+                {store.minOrder > 0 && (
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <IndianRupee className="h-3 w-3" />
+                    <span>{store.minOrder} minimum order</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+            {productCategories.map((cat) => (
+              <Button
+                key={cat}
+                variant={productCategory === cat ? "default" : "outline"}
+                size="sm"
+                onClick={() => setProductCategory(cat)}
+                className="whitespace-nowrap"
+              >
+                {cat === "all" ? "All" : cat}
+              </Button>
+            ))}
+          </div>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {products.map((product) => (
+            <ProductCard
+              key={product._id}
+              product={product}
+              quantity={getProductQuantity(product._id)}
+              onAdd={() => handleAddToCart(product._id)}
+              onIncrease={() => handleIncrease(product._id)}
+              onDecrease={() => handleDecrease(product._id)}
+            />
+          ))}
+        </div>
+
+        {cartCount > 0 && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md"
+          >
+            <Button
+              size="lg"
+              className="w-full shadow-lg"
+              onClick={() => navigate("/cart")}
+            >
+              View Cart ({cartCount} items)
+            </Button>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}
