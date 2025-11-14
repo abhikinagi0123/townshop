@@ -16,6 +16,8 @@ import Cart from "./pages/Cart.tsx";
 import Orders from "./pages/Orders.tsx";
 import OrderTracking from "./pages/OrderTracking.tsx";
 import Profile from "./pages/Profile.tsx";
+import Addresses from "./pages/Addresses.tsx";
+import Search from "./pages/Search.tsx";
 import "./types/global.d.ts";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
@@ -59,6 +61,8 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/orders" element={<Orders />} />
             <Route path="/order/:orderId" element={<OrderTracking />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/addresses" element={<Addresses />} />
+            <Route path="/search" element={<Search />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

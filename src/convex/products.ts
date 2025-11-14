@@ -140,6 +140,32 @@ export const getFeaturedProducts = query({
   },
 });
 
+export const search = query({
+  args: { term: v.string() },
+  handler: async (ctx, args) => {
+    const searchLower = args.term.toLowerCase();
+    const products = await ctx.db.query("products").collect();
+    
+    const matchingProducts = products.filter(product => 
+      product.name.toLowerCase().includes(searchLower) ||
+      product.description.toLowerCase().includes(searchLower) ||
+      product.category.toLowerCase().includes(searchLower)
+    );
+    
+    const productsWithStore = await Promise.all(
+      matchingProducts.map(async (product) => {
+        const store = await ctx.db.get(product.storeId);
+        return {
+          ...product,
+          storeName: store?.name || "Unknown Store",
+        };
+      })
+    );
+    
+    return productsWithStore;
+  },
+});
+
 export const create = mutation({
   args: {
     storeId: v.id("stores"),

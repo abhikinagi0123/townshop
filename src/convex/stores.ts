@@ -104,3 +104,17 @@ export const create = mutation({
     return await ctx.db.insert("stores", args);
   },
 });
+
+export const search = query({
+  args: { term: v.string() },
+  handler: async (ctx, args) => {
+    const searchLower = args.term.toLowerCase();
+    const stores = await ctx.db.query("stores").collect();
+    
+    return stores.filter(store => 
+      store.name.toLowerCase().includes(searchLower) ||
+      store.description.toLowerCase().includes(searchLower) ||
+      store.category.toLowerCase().includes(searchLower)
+    );
+  },
+});

@@ -96,7 +96,10 @@ export default function Profile() {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate("/addresses")}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
