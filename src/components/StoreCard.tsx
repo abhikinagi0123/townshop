@@ -22,42 +22,46 @@ export function StoreCard({ store }: StoreCardProps) {
 
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2 }}
     >
       <Card 
-        className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+        className="overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/20 group"
         onClick={() => navigate(`/store/${store._id}`)}
       >
-        <div className="relative h-48 overflow-hidden">
-          <img
+        <div className="relative h-48 overflow-hidden bg-muted">
+          <motion.img
             src={store.image}
             alt={store.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+            loading="lazy"
           />
-          <Badge className="absolute top-2 right-2 bg-white text-black">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <Badge className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm text-foreground border shadow-sm">
             {store.category}
           </Badge>
+          <div className="absolute top-3 left-3 flex items-center gap-1 bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full">
+            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+            <span className="text-xs font-semibold">{store.rating}</span>
+          </div>
         </div>
         <CardContent className="p-4">
-          <h3 className="font-bold text-lg mb-1">{store.name}</h3>
-          <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
+          <h3 className="font-bold text-lg mb-1 tracking-tight group-hover:text-primary transition-colors">
+            {store.name}
+          </h3>
+          <p className="text-sm text-muted-foreground mb-3 line-clamp-2 min-h-[40px]">
             {store.description}
           </p>
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">{store.rating}</span>
-            </div>
+          <div className="flex items-center justify-between text-sm pt-2 border-t">
             <div className="flex items-center gap-1 text-muted-foreground">
               <Clock className="h-4 w-4" />
-              <span>{store.deliveryTime}</span>
+              <span className="font-medium">{store.deliveryTime}</span>
             </div>
             {store.minOrder > 0 && (
               <div className="flex items-center gap-1 text-muted-foreground">
                 <IndianRupee className="h-3 w-3" />
-                <span>{store.minOrder} min</span>
+                <span className="font-medium">{store.minOrder} min</span>
               </div>
             )}
           </div>
