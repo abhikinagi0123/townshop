@@ -152,28 +152,30 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {trendingProducts.map((product, index) => (
-                    <div 
-                      key={product._id}
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                      onClick={() => navigate(`/product/${product._id}`)}
-                    >
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        className="w-12 h-12 rounded-lg object-cover"
-                        loading="lazy"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">{product.storeName}</p>
+                  {trendingProducts.map((product, index) => 
+                    'image' in product && 'name' in product && 'price' in product ? (
+                      <div 
+                        key={product._id}
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted cursor-pointer transition-colors"
+                        onClick={() => navigate(`/product/${product._id}`)}
+                      >
+                        <img 
+                          src={product.image} 
+                          alt={product.name}
+                          className="w-12 h-12 rounded-lg object-cover"
+                          loading="lazy"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{product.name}</p>
+                          <p className="text-xs text-muted-foreground">{product.storeName}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-primary">₹{product.price}</p>
+                          <p className="text-xs text-muted-foreground">{product.orderCount} orders</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold text-primary">₹{product.price}</p>
-                        <p className="text-xs text-muted-foreground">{product.orderCount} orders</p>
-                      </div>
-                    </div>
-                  ))}
+                    ) : null
+                  )}
                 </div>
               </CardContent>
             </Card>

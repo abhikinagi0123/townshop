@@ -79,14 +79,14 @@ export function UserDashboard() {
         ))}
       </div>
 
-      {stats.favoriteStores && stats.favoriteStores.length > 0 && (
+      {stats.topStores && stats.topStores.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Your Favorite Stores</CardTitle>
+            <CardTitle className="text-base">Your Top Stores</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {stats.favoriteStores?.map((store: any, index: number) => (
+              {stats.topStores?.map((store: any, index: number) => (
                 <div key={store.storeId} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold">
