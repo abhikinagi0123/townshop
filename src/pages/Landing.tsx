@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
@@ -21,11 +22,30 @@ import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { StoreCard } from "@/components/StoreCard";
 import { OfferCard } from "@/components/OfferCard";
 
+const categories = [
+  { id: "all", label: "All", emoji: "🏪" },
+  { id: "Grocery", label: "Grocery", emoji: "🛒" },
+  { id: "Food", label: "Food", emoji: "🍕" },
+  { id: "Pharmacy", label: "Pharmacy", emoji: "💊" },
+  { id: "Electronics", label: "Electronics", emoji: "📱" },
+];
+
+const featuredCategories = [
+  { name: "Vegetables & Fruits", emoji: "🥬", color: "from-green-500 to-green-400" },
+  { name: "Dairy & Breakfast", emoji: "🥛", color: "from-blue-500 to-blue-400" },
+  { name: "Munchies", emoji: "🍿", color: "from-orange-500 to-orange-400" },
+  { name: "Cold Drinks", emoji: "🥤", color: "from-red-500 to-red-400" },
+  { name: "Instant Food", emoji: "🍜", color: "from-yellow-500 to-yellow-400" },
+  { name: "Tea & Coffee", emoji: "☕", color: "from-purple-500 to-purple-400" },
+  { name: "Bakery & Biscuits", emoji: "🍪", color: "from-pink-500 to-pink-400" },
+  { name: "Sauces & Spreads", emoji: "🍯", color: "from-amber-500 to-amber-400" },
+];
+
 const quickActions = [
-  { title: "Fast Service", icon: "⚡", desc: "Quick delivery" },
-  { title: "Local Shops", icon: "🏪", desc: "Support local" },
+  { title: "10-Min Delivery", icon: "⚡", desc: "Lightning fast" },
+  { title: "Fresh Produce", icon: "🌿", desc: "Farm to home" },
   { title: "Best Prices", icon: "💰", desc: "Save more" },
-  { title: "All Services", icon: "✨", desc: "Everything you need" },
+  { title: "24/7 Available", icon: "🌙", desc: "Always open" },
 ];
 
 export default function Landing() {
@@ -83,20 +103,6 @@ export default function Landing() {
     userLocation ? { lat: userLocation.lat, lng: userLocation.lng, limit: 6 } : "skip"
   );
 
-  // Safe filter function to ensure valid product data
-  const filterValidProducts = (products: any[] | undefined) => {
-    if (!products || !Array.isArray(products)) return [];
-    return products.filter(item => 
-      item && 
-      typeof item === 'object' &&
-      item._id &&
-      item.image && 
-      item.name && 
-      typeof item.price === 'number' &&
-      item.storeName
-    );
-  };
-
   return (
     <div className="min-h-screen bg-background pb-20">
       <a href="#main-content" className="skip-to-main">
@@ -119,6 +125,7 @@ export default function Landing() {
 
         <div className="px-4">
           <CategoryPills 
+            categories={categories}
             selectedCategory={category}
             onCategoryChange={setCategory}
           />
@@ -127,62 +134,131 @@ export default function Landing() {
 
           {trendingProducts === undefined ? (
             <ProductSectionSkeleton />
-          ) : filterValidProducts(trendingProducts).length > 0 ? (
+          ) : trendingProducts && trendingProducts.length > 0 ? (
             <ProductSection
               title="Trending Now"
               icon={<Flame className="h-4 w-4 text-orange-500" />}
               badge="Hot 🔥"
-              products={filterValidProducts(trendingProducts)}
+              products={trendingProducts.filter(item => 
+                item !== null && 'image' in item && 'name' in item && 'price' in item
+              ).map(item => ({
+                _id: item._id as string,
+                image: (item as any).image,
+                name: (item as any).name,
+                price: (item as any).price,
+                storeName: (item as any).storeName,
+              }))}
             />
           ) : null}
 
           {topRatedProducts === undefined ? (
             <ProductSectionSkeleton />
-          ) : filterValidProducts(topRatedProducts).length > 0 ? (
+          ) : topRatedProducts && topRatedProducts.length > 0 ? (
             <ProductSection
               title="Top Rated"
               icon={<Award className="h-4 w-4 text-yellow-500" />}
               badge="Best Quality"
-              products={filterValidProducts(topRatedProducts)}
+              products={topRatedProducts.filter(item => 
+                item !== null && 'image' in item && 'name' in item && 'price' in item
+              ).map(item => ({
+                _id: item._id as string,
+                image: (item as any).image,
+                name: (item as any).name,
+                price: (item as any).price,
+                storeName: (item as any).storeName,
+                storeRating: (item as any).storeRating,
+              }))}
               showRating
             />
           ) : null}
 
-          {featuredProducts !== undefined && filterValidProducts(featuredProducts).length > 0 && (
+          {featuredProducts && featuredProducts.length > 0 && (
             <ProductSection
               title="Featured Picks"
               icon={<Sparkles className="h-4 w-4 text-primary" />}
               badge="Handpicked"
-              products={filterValidProducts(featuredProducts)}
+              products={featuredProducts.filter(item => 
+                item !== null && 'image' in item && 'name' in item && 'price' in item
+              ).map(item => ({
+                _id: item._id as string,
+                image: (item as any).image,
+                name: (item as any).name,
+                price: (item as any).price,
+                storeName: (item as any).storeName,
+              }))}
             />
           )}
 
-          {recommendedProducts !== undefined && filterValidProducts(recommendedProducts).length > 0 && (
-            <ProductSection
-              title="Recommended for You"
-              icon={<Sparkles className="h-4 w-4 text-purple-500" />}
-              badge="Personalized"
-              products={filterValidProducts(recommendedProducts)}
-            />
-          )}
+          {recommendedProducts && recommendedProducts.length > 0 && (() => {
+            const validProducts = recommendedProducts.filter((item) => {
+              if (!item || typeof item !== 'object') return false;
+              if (!('_id' in item) || typeof item._id !== 'string') return false;
+              // Check if it's a product ID by verifying table name
+              const idParts = item._id.split('|');
+              if (idParts.length < 2 || !idParts[0].startsWith('k')) return false;
+              // Ensure it has product fields
+              return 'image' in item && 
+                     'name' in item && 
+                     'price' in item && 
+                     'storeName' in item &&
+                     !('status' in item) && // orders have status field
+                     !('deliveryAddress' in item); // orders have deliveryAddress field
+            }).map(item => ({
+              _id: item._id as string,
+              image: (item as any).image,
+              name: (item as any).name,
+              price: (item as any).price,
+              storeName: (item as any).storeName,
+            }));
+            return validProducts.length > 0 ? (
+              <ProductSection
+                title="Recommended for You"
+                icon={<Sparkles className="h-4 w-4 text-purple-500" />}
+                badge="Personalized"
+                products={validProducts}
+              />
+            ) : null;
+          })()}
 
-          {isAuthenticated && recentlyViewedProducts !== undefined && filterValidProducts(recentlyViewedProducts).length > 0 && (
-            <ProductSection
-              title="Order Again"
-              icon={<RefreshCw className="h-4 w-4 text-blue-500" />}
-              badge="From Your Orders"
-              products={filterValidProducts(recentlyViewedProducts)}
-            />
-          )}
+          {isAuthenticated && recentlyViewedProducts && recentlyViewedProducts.length > 0 && (() => {
+            const validProducts = recentlyViewedProducts.filter((item) => {
+              if (!item || typeof item !== 'object') return false;
+              if (!('_id' in item) || typeof item._id !== 'string') return false;
+              // Check if it's a product ID by verifying table name
+              const idParts = item._id.split('|');
+              if (idParts.length < 2 || !idParts[0].startsWith('k')) return false;
+              // Ensure it has product fields
+              return 'image' in item && 
+                     'name' in item && 
+                     'price' in item && 
+                     'storeName' in item &&
+                     !('status' in item) && // orders have status field
+                     !('deliveryAddress' in item); // orders have deliveryAddress field
+            }).map(item => ({
+              _id: item._id as string,
+              image: (item as any).image,
+              name: (item as any).name,
+              price: (item as any).price,
+              storeName: (item as any).storeName,
+            }));
+            return validProducts.length > 0 ? (
+              <ProductSection
+                title="Buy Again"
+                icon={<RefreshCw className="h-4 w-4 text-blue-500" />}
+                badge="From Your Orders"
+                products={validProducts}
+              />
+            ) : null;
+          })()}
 
-          <FeaturedCategories />
+          <FeaturedCategories categories={featuredCategories} />
 
           {recommendedStores && recommendedStores.length > 0 && (
             <div className="py-3">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Star className="h-4 w-4 text-yellow-500" />
-                  <h2 className="text-base font-bold">Recommended Shops</h2>
+                  <h2 className="text-base font-bold">Recommended Stores</h2>
                 </div>
                 <Badge variant="secondary" className="text-[10px]">For You</Badge>
               </div>
@@ -280,9 +356,9 @@ export default function Landing() {
             <div className="py-3" id="nearby-stores">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h2 className="text-base font-bold">Local Shops Near You</h2>
+                  <h2 className="text-base font-bold">Stores Near You</h2>
                   <p className="text-xs text-muted-foreground">
-                    {nearbyShops.length} {nearbyShops.length === 1 ? "shop" : "shops"} in your area
+                    {nearbyShops.length} {nearbyShops.length === 1 ? "store" : "stores"}
                   </p>
                 </div>
                 {nearbyShops.length > 6 && (
