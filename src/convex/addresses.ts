@@ -22,6 +22,8 @@ export const create = mutation({
     city: v.string(),
     state: v.string(),
     zipCode: v.string(),
+    lat: v.optional(v.number()),
+    lng: v.optional(v.number()),
     isDefault: v.boolean(),
   },
   handler: async (ctx, args) => {
