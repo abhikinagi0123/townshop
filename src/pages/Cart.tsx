@@ -73,10 +73,28 @@ export default function Cart() {
   const redeemPoints = useMutation(api.loyalty.redeemPoints);
   const recordRedemption = useMutation(api.loyalty.recordRedemption);
   const deductWalletMoney = useMutation(api.wallet.deductMoney);
+  
+  // Coupon states
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  
+  // Tip and notes states
+  const [deliveryTip, setDeliveryTip] = useState(0);
+  const [orderNotes, setOrderNotes] = useState("");
+  
+  // Move to favorites mutation
+  const moveToFavorites = useMutation(api.cart.moveToFavorites);
 
   const subtotal = cartItems?.reduce((sum, item) => 
     sum + (item.product?.price || 0) * item.quantity, 0
   ) || 0;
+  
+  const validateCoupon = useQuery(
+    api.offers.validateCoupon,
+    couponCode && cartItems && cartItems.length > 0
+      ? { code: couponCode, storeId: cartItems[0].product?.storeId, orderAmount: subtotal }
+      : "skip"
+  );
   const deliveryFee = subtotal > 0 ? 40 : 0;
   
   // Calculate loyalty discount
@@ -84,10 +102,13 @@ export default function Cart() {
   const maxDiscount = Math.floor(maxRedeemablePoints / 100);
   const loyaltyDiscount = usePoints ? Math.min(Math.floor(pointsToRedeem / 100), subtotal + deliveryFee) : 0;
   
+  // Calculate coupon discount
+  const couponDiscount = appliedCoupon?.discountAmount || 0;
+  
   // Calculate wallet balance available
   const walletBalance = walletData?.balance || 0;
   
-  const total = Math.max(0, subtotal + deliveryFee - loyaltyDiscount);
+  const total = Math.max(0, subtotal + deliveryFee + deliveryTip - loyaltyDiscount - couponDiscount);
 
   const handleUpdateQuantity = async (cartItemId: string, newQuantity: number) => {
     try {
@@ -104,6 +125,35 @@ export default function Cart() {
     } catch (error) {
       toast.error("Failed to remove item");
     }
+  };
+  
+  const handleSaveForLater = async (cartItemId: string) => {
+    try {
+      await moveToFavorites({ cartItemId: cartItemId as any });
+      toast.success("Item moved to favorites");
+    } catch (error) {
+      toast.error("Failed to save for later");
+    }
+  };
+  
+  const handleApplyCoupon = () => {
+    if (!validateCoupon || typeof validateCoupon === "string") return;
+    
+    if (validateCoupon.valid && validateCoupon.offer) {
+      setAppliedCoupon({
+        code: couponCode,
+        discountAmount: validateCoupon.discountAmount,
+      });
+      toast.success(validateCoupon.message);
+      setCouponCode("");
+    } else {
+      toast.error(validateCoupon.message);
+    }
+  };
+  
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    toast.success("Coupon removed");
   };
 
   const handleAddAddress = async () => {
@@ -203,6 +253,9 @@ export default function Cart() {
         scheduledFor,
         isRecurring: scheduleOrder && isRecurring ? isRecurring : undefined,
         recurringFrequency: scheduleOrder && isRecurring ? recurringFrequency : undefined,
+        deliveryTip: deliveryTip > 0 ? deliveryTip : undefined,
+        orderNotes: orderNotes.trim() || undefined,
+        appliedCoupon: appliedCoupon || undefined,
       });
 
       // Process payment
@@ -328,33 +381,43 @@ export default function Cart() {
                               <IndianRupee className="h-4 w-4" />
                               <span>{item.product?.price}</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Minus className="h-4 w-4" />
+                                </Button>
+                                <span className="font-semibold min-w-[20px] text-center">
+                                  {item.quantity}
+                                </span>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleRemove(item._id)}
+                                  className="h-8 w-8 p-0 text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
-                                className="h-8 w-8 p-0"
+                                onClick={() => handleSaveForLater(item._id)}
+                                className="text-xs"
                               >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                              <span className="font-semibold min-w-[20px] text-center">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleRemove(item._id)}
-                                className="h-8 w-8 p-0 text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4" />
+                                Save for Later
                               </Button>
                             </div>
                           </div>
@@ -385,6 +448,15 @@ export default function Cart() {
                         <span>{deliveryFee}</span>
                       </div>
                     </div>
+                    {deliveryTip > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span>Delivery Tip</span>
+                        <div className="flex items-center gap-1">
+                          <IndianRupee className="h-3 w-3" />
+                          <span>{deliveryTip}</span>
+                        </div>
+                      </div>
+                    )}
                     {loyaltyDiscount > 0 && (
                       <div className="flex justify-between text-sm text-green-600">
                         <span>Loyalty Discount</span>
@@ -392,6 +464,16 @@ export default function Cart() {
                           <span>-</span>
                           <IndianRupee className="h-3 w-3" />
                           <span>{loyaltyDiscount}</span>
+                        </div>
+                      </div>
+                    )}
+                    {couponDiscount > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span>Coupon Discount ({appliedCoupon?.code})</span>
+                        <div className="flex items-center gap-1">
+                          <span>-</span>
+                          <IndianRupee className="h-3 w-3" />
+                          <span>{couponDiscount}</span>
                         </div>
                       </div>
                     )}
@@ -638,6 +720,88 @@ export default function Cart() {
                   />
                 </div>
               )}
+            </div>
+
+            {/* Apply Coupon Section */}
+            <div className="border-t pt-4 mt-4">
+              <h3 className="font-semibold mb-3">Apply Coupon</h3>
+              {appliedCoupon ? (
+                <Card className="border-green-500 bg-green-50">
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-green-700">{appliedCoupon.code}</p>
+                        <p className="text-sm text-green-600">
+                          You saved ₹{appliedCoupon.discountAmount}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleRemoveCoupon}
+                        className="text-red-600"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter coupon code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={handleApplyCoupon}
+                    disabled={!couponCode}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Delivery Tip Section */}
+            <div className="border-t pt-4 mt-4">
+              <h3 className="font-semibold mb-3">Tip Your Delivery Partner</h3>
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                {[0, 10, 20, 30].map((tip) => (
+                  <Button
+                    key={tip}
+                    variant={deliveryTip === tip ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setDeliveryTip(tip)}
+                  >
+                    {tip === 0 ? "No Tip" : `₹${tip}`}
+                  </Button>
+                ))}
+              </div>
+              <Input
+                type="number"
+                placeholder="Custom tip amount"
+                value={deliveryTip || ""}
+                onChange={(e) => setDeliveryTip(parseInt(e.target.value) || 0)}
+                min={0}
+              />
+            </div>
+
+            {/* Order Notes Section */}
+            <div className="border-t pt-4 mt-4">
+              <h3 className="font-semibold mb-3">Special Instructions</h3>
+              <textarea
+                className="w-full p-3 border rounded-lg resize-none"
+                rows={3}
+                placeholder="Add delivery instructions, preferences, etc."
+                value={orderNotes}
+                onChange={(e) => setOrderNotes(e.target.value)}
+                maxLength={200}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {orderNotes.length}/200 characters
+              </p>
             </div>
 
             {/* Loyalty Points Redemption */}

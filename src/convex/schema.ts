@@ -141,6 +141,12 @@ const schema = defineSchema(
         v.literal("refunded")
       )),
       loyaltyPointsEarned: v.optional(v.number()),
+      deliveryTip: v.optional(v.number()),
+      orderNotes: v.optional(v.string()),
+      appliedCoupon: v.optional(v.object({
+        code: v.string(),
+        discountAmount: v.number(),
+      })),
     }).index("by_user", ["userId"]),
 
     addresses: defineTable({

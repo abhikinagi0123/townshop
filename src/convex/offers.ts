@@ -77,3 +77,58 @@ export const create = mutation({
     return await ctx.db.insert("offers", args);
   },
 });
+
+export const validateCoupon = query({
+  args: {
+    code: v.string(),
+    storeId: v.optional(v.id("stores")),
+    orderAmount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    
+    // Find the offer by code
+    const offers = await ctx.db.query("offers").collect();
+    const offer = offers.find(o => 
+      o.code === args.code &&
+      o.isActive &&
+      o.validFrom <= now &&
+      o.validUntil >= now
+    );
+    
+    if (!offer) {
+      return { valid: false, message: "Invalid or expired coupon code" };
+    }
+    
+    // Check if store-specific
+    if (offer.storeId && args.storeId && offer.storeId !== args.storeId) {
+      return { valid: false, message: "This coupon is not valid for this store" };
+    }
+    
+    // Check minimum order amount
+    if (offer.minOrderAmount && args.orderAmount < offer.minOrderAmount) {
+      return { 
+        valid: false, 
+        message: `Minimum order amount of ₹${offer.minOrderAmount} required` 
+      };
+    }
+    
+    // Calculate discount
+    let discountAmount = 0;
+    if (offer.discountPercent) {
+      discountAmount = (args.orderAmount * offer.discountPercent) / 100;
+      if (offer.maxDiscount) {
+        discountAmount = Math.min(discountAmount, offer.maxDiscount);
+      }
+    } else if (offer.discountAmount) {
+      discountAmount = offer.discountAmount;
+    }
+    
+    return {
+      valid: true,
+      offer,
+      discountAmount,
+      message: `Coupon applied! You saved ₹${discountAmount}`,
+    };
+  },
+});

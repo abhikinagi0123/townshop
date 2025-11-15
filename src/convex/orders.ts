@@ -47,23 +47,37 @@ export const create = mutation({
       v.literal("weekly"),
       v.literal("monthly")
     )),
+    deliveryTip: v.optional(v.number()),
+    orderNotes: v.optional(v.string()),
+    appliedCoupon: v.optional(v.object({
+      code: v.string(),
+      discountAmount: v.number(),
+    })),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
     if (!user) throw new Error("Unauthorized");
     
-    return await ctx.db.insert("orders", {
+    const orderId = await ctx.db.insert("orders", {
       userId: user._id,
       items: args.items,
       storeId: args.storeId,
       storeName: args.storeName,
       totalAmount: args.totalAmount,
       deliveryAddress: args.deliveryAddress,
-      status: args.scheduledFor ? "pending" : "pending",
+      status: "pending",
       scheduledFor: args.scheduledFor,
       isRecurring: args.isRecurring,
       recurringFrequency: args.recurringFrequency,
+      paymentStatus: "pending",
+      deliveryTip: args.deliveryTip,
+      orderNotes: args.orderNotes,
+      appliedCoupon: args.appliedCoupon,
     });
+    
+    // ... keep existing notification and loyalty points code
+    
+    return orderId;
   },
 });
 

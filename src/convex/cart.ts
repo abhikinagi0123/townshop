@@ -97,3 +97,34 @@ export const clear = mutation({
     await Promise.all(items.map(item => ctx.db.delete(item._id)));
   },
 });
+
+export const moveToFavorites = mutation({
+  args: { cartItemId: v.id("cart") },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Unauthorized");
+    
+    const cartItem = await ctx.db.get(args.cartItemId);
+    if (!cartItem || cartItem.userId !== user._id) {
+      throw new Error("Cart item not found");
+    }
+    
+    // Check if already in favorites
+    const existing = await ctx.db
+      .query("favorites")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+    
+    const alreadyFavorited = existing.some(f => f.productId === cartItem.productId);
+    
+    if (!alreadyFavorited) {
+      await ctx.db.insert("favorites", {
+        userId: user._id,
+        productId: cartItem.productId,
+      });
+    }
+    
+    // Remove from cart
+    await ctx.db.delete(args.cartItemId);
+  },
+});
