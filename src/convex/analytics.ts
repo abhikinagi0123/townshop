@@ -146,3 +146,81 @@ export const getPriceDropAlerts = query({
     return [];
   },
 });
+
+export const getSpendingByCategory = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return [];
+
+    const orders = await ctx.db
+      .query("orders")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .filter((q) => q.eq(q.field("status"), "delivered"))
+      .collect();
+
+    const categorySpending: Record<string, number> = {};
+
+    for (const order of orders) {
+      for (const item of order.items) {
+        const product = await ctx.db.get(item.productId);
+        if (product) {
+          const category = product.category;
+          categorySpending[category] = (categorySpending[category] || 0) + item.price * item.quantity;
+        }
+      }
+    }
+
+    return Object.entries(categorySpending)
+      .map(([category, amount]) => ({ category, amount }))
+      .sort((a, b) => b.amount - a.amount);
+  },
+});
+
+export const getOrderFrequency = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return { avgDaysBetweenOrders: 0, totalOrders: 0 };
+
+    const orders = await ctx.db
+      .query("orders")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .filter((q) => q.eq(q.field("status"), "delivered"))
+      .collect();
+
+    if (orders.length < 2) {
+      return { avgDaysBetweenOrders: 0, totalOrders: orders.length };
+    }
+
+    const sortedOrders = orders.sort((a, b) => a._creationTime - b._creationTime);
+    let totalDays = 0;
+
+    for (let i = 1; i < sortedOrders.length; i++) {
+      const daysDiff = (sortedOrders[i]._creationTime - sortedOrders[i - 1]._creationTime) / (1000 * 60 * 60 * 24);
+      totalDays += daysDiff;
+    }
+
+    return {
+      avgDaysBetweenOrders: Math.round(totalDays / (sortedOrders.length - 1)),
+      totalOrders: orders.length,
+    };
+  },
+});
+
+export const getSavingsFromOffers = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return 0;
+
+    const orders = await ctx.db
+      .query("orders")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+
+    return orders.reduce((total, order) => {
+      return total + (order.appliedCoupon?.discountAmount || 0);
+    }, 0);
+  },
+});

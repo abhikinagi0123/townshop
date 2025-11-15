@@ -398,6 +398,27 @@ const schema = defineSchema(
       capacity: v.number(),
       booked: v.number(),
     }).index("by_store_and_date", ["storeId", "date"]),
+
+    storeSubscriptions: defineTable({
+      userId: v.id("users"),
+      storeId: v.id("stores"),
+      frequency: v.union(
+        v.literal("weekly"),
+        v.literal("biweekly"),
+        v.literal("monthly")
+      ),
+      dayOfWeek: v.optional(v.number()),
+      dayOfMonth: v.optional(v.number()),
+      isActive: v.boolean(),
+      nextDelivery: v.number(),
+    }).index("by_user", ["userId"])
+      .index("by_user_and_store", ["userId", "storeId"]),
+
+    productComparisons: defineTable({
+      userId: v.id("users"),
+      productIds: v.array(v.id("products")),
+      name: v.optional(v.string()),
+    }).index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

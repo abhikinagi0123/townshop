@@ -11,7 +11,10 @@ import {
   DollarSign, 
   Package,
   BarChart3,
-  MapPin
+  MapPin,
+  PieChart,
+  Calendar,
+  Tag
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -19,6 +22,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const stats = useQuery(api.analytics.getUserStats);
+  const categorySpending = useQuery(api.analytics.getSpendingByCategory);
+  const orderFrequency = useQuery(api.analytics.getOrderFrequency);
+  const savings = useQuery(api.analytics.getSavingsFromOffers);
   const trendingProducts = useQuery(
     api.analytics.getTrendingInArea,
     user?.lat && user?.lng
@@ -95,17 +101,75 @@ export default function Dashboard() {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-orange-500/10 flex items-center justify-center">
-                      <TrendingUp className="h-5 w-5 text-orange-500" />
+                      <Tag className="h-5 w-5 text-orange-500" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold">{stats.monthlySpending.reduce((sum: number, m: any) => sum + m.orders, 0)}</p>
-                      <p className="text-xs text-muted-foreground">This Month</p>
+                      <p className="text-2xl font-bold">₹{savings || 0}</p>
+                      <p className="text-xs text-muted-foreground">Saved</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
           )}
+
+          {/* Category Spending & Order Frequency */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {categorySpending && categorySpending.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <PieChart className="h-5 w-5" />
+                    Spending by Category
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {categorySpending.slice(0, 5).map((cat, index) => {
+                      const maxAmount = categorySpending[0].amount;
+                      const percentage = (cat.amount / maxAmount) * 100;
+                      return (
+                        <div key={index}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium">{cat.category}</span>
+                            <span className="text-sm font-bold">₹{cat.amount.toFixed(0)}</span>
+                          </div>
+                          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary rounded-full"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {orderFrequency && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Order Frequency
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <p className="text-3xl font-bold text-primary">{orderFrequency.avgDaysBetweenOrders}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Days Between Orders</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground text-center">
+                      You order approximately every {orderFrequency.avgDaysBetweenOrders} days
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
           {/* Spending Trend */}
           {stats && Array.isArray(stats.monthlySpending) && stats.monthlySpending.length > 0 && (
