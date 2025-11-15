@@ -31,6 +31,7 @@ import type * as pushNotifications from "../pushNotifications.js";
 import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
 import type * as seedOffers from "../seedOffers.js";
+import type * as stockAlerts from "../stockAlerts.js";
 import type * as stores from "../stores.js";
 import type * as users from "../users.js";
 import type * as wallet from "../wallet.js";
@@ -62,6 +63,7 @@ declare const fullApi: ApiFromModules<{
   reviews: typeof reviews;
   seed: typeof seed;
   seedOffers: typeof seedOffers;
+  stockAlerts: typeof stockAlerts;
   stores: typeof stores;
   users: typeof users;
   wallet: typeof wallet;

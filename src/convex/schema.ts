@@ -53,6 +53,21 @@ const schema = defineSchema(
       lat: v.number(),
       lng: v.number(),
       isOpen: v.optional(v.boolean()),
+      hours: v.optional(v.object({
+        monday: v.optional(v.string()),
+        tuesday: v.optional(v.string()),
+        wednesday: v.optional(v.string()),
+        thursday: v.optional(v.string()),
+        friday: v.optional(v.string()),
+        saturday: v.optional(v.string()),
+        sunday: v.optional(v.string()),
+      })),
+      policies: v.optional(v.object({
+        returnPolicy: v.optional(v.string()),
+        refundPolicy: v.optional(v.string()),
+        deliveryAreas: v.optional(v.array(v.string())),
+        deliveryRadius: v.optional(v.number()),
+      })),
     }),
 
     products: defineTable({
@@ -63,6 +78,16 @@ const schema = defineSchema(
       price: v.number(),
       category: v.string(),
       inStock: v.boolean(),
+      variants: v.optional(v.array(v.object({
+        name: v.string(),
+        options: v.array(v.string()),
+      }))),
+      compareSpecs: v.optional(v.object({
+        brand: v.optional(v.string()),
+        weight: v.optional(v.string()),
+        dimensions: v.optional(v.string()),
+        features: v.optional(v.array(v.string())),
+      })),
     }).index("by_store", ["storeId"]),
 
     cart: defineTable({
@@ -277,6 +302,14 @@ const schema = defineSchema(
       auth: v.string(),
       userAgent: v.optional(v.string()),
     }).index("by_user", ["userId"]),
+
+    stockAlerts: defineTable({
+      userId: v.id("users"),
+      productId: v.id("products"),
+      isNotified: v.boolean(),
+    }).index("by_user", ["userId"])
+      .index("by_product", ["productId"])
+      .index("by_user_and_product", ["userId", "productId"]),
 
     walletTransactions: defineTable({
       userId: v.id("users"),

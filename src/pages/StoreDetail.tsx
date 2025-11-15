@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams, useNavigate } from "react-router";
-import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Clock, IndianRupee, Loader2 } from "lucide-react";
+import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Clock, IndianRupee, Loader2, Info } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -41,6 +41,9 @@ export default function StoreDetail() {
   
   const addToCart = useMutation(api.cart.addItem);
   const updateQuantity = useMutation(api.cart.updateQuantity);
+  const createStockAlert = useMutation(api.stockAlerts.create);
+  const removeStockAlert = useMutation(api.stockAlerts.remove);
+  const stockAlerts = useQuery(api.stockAlerts.listByUser);
 
   const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
@@ -87,6 +90,25 @@ export default function StoreDetail() {
       });
     } catch (error) {
       toast.error("Failed to update quantity");
+    }
+  };
+
+  const hasStockAlert = (productId: Id<"products">) => {
+    return stockAlerts?.some(alert => alert.productId === productId) || false;
+  };
+
+  const handleToggleStockAlert = async (productId: Id<"products">) => {
+    try {
+      const existingAlert = stockAlerts?.find(alert => alert.productId === productId);
+      if (existingAlert) {
+        await removeStockAlert({ alertId: existingAlert._id });
+        toast.success("Stock alert removed");
+      } else {
+        await createStockAlert({ productId });
+        toast.success("You'll be notified when this item is back in stock");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update stock alert");
     }
   };
 
@@ -190,6 +212,66 @@ export default function StoreDetail() {
             </div>
           )}
 
+          {/* Store Hours & Policies */}
+          {(store.hours || store.policies) && (
+            <div className="mb-6">
+              <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
+                <Info className="h-5 w-5 text-primary" />
+                Store Information
+              </h2>
+              <Card>
+                <CardContent className="p-4 space-y-4">
+                  {store.hours && (
+                    <div>
+                      <h3 className="font-semibold mb-2">Operating Hours</h3>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        {Object.entries(store.hours).map(([day, hours]) => (
+                          hours && (
+                            <div key={day} className="flex justify-between">
+                              <span className="capitalize text-muted-foreground">{day}:</span>
+                              <span className="font-medium">{hours}</span>
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {store.policies && (
+                    <div>
+                      <h3 className="font-semibold mb-2">Store Policies</h3>
+                      <div className="space-y-2 text-sm">
+                        {store.policies.returnPolicy && (
+                          <div>
+                            <span className="text-muted-foreground">Return Policy: </span>
+                            <span>{store.policies.returnPolicy}</span>
+                          </div>
+                        )}
+                        {store.policies.refundPolicy && (
+                          <div>
+                            <span className="text-muted-foreground">Refund Policy: </span>
+                            <span>{store.policies.refundPolicy}</span>
+                          </div>
+                        )}
+                        {store.policies.deliveryAreas && store.policies.deliveryAreas.length > 0 && (
+                          <div>
+                            <span className="text-muted-foreground">Delivery Areas: </span>
+                            <span>{store.policies.deliveryAreas.join(", ")}</span>
+                          </div>
+                        )}
+                        {store.policies.deliveryRadius && (
+                          <div>
+                            <span className="text-muted-foreground">Delivery Radius: </span>
+                            <span>{store.policies.deliveryRadius} km</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Reviews Section */}
           {storeReviews && storeReviews.length > 0 && (
             <div className="mb-6">
@@ -261,6 +343,8 @@ export default function StoreDetail() {
                 onAdd={() => handleAddToCart(product._id)}
                 onIncrease={() => handleIncrease(product._id)}
                 onDecrease={() => handleDecrease(product._id)}
+                hasStockAlert={hasStockAlert(product._id)}
+                onToggleStockAlert={() => handleToggleStockAlert(product._id)}
               />
             ))}
           </div>

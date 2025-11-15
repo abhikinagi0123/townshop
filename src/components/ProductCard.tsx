@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IndianRupee, Plus, Minus } from "lucide-react";
+import { IndianRupee, Plus, Minus, Bell, BellOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 
@@ -15,11 +15,17 @@ interface ProductCardProps {
     price: number;
     category: string;
     inStock: boolean;
+    variants?: Array<{
+      name: string;
+      options: string[];
+    }>;
   };
   quantity?: number;
   onAdd: () => void;
   onIncrease?: () => void;
   onDecrease?: () => void;
+  hasStockAlert?: boolean;
+  onToggleStockAlert?: () => void;
 }
 
 export function ProductCard({ 
@@ -27,7 +33,9 @@ export function ProductCard({
   quantity = 0, 
   onAdd, 
   onIncrease, 
-  onDecrease 
+  onDecrease,
+  hasStockAlert = false,
+  onToggleStockAlert
 }: ProductCardProps) {
   return (
     <motion.div
@@ -46,8 +54,31 @@ export function ProductCard({
               loading="lazy"
             />
             {!product.inStock && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+              <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center backdrop-blur-sm gap-1">
                 <Badge variant="destructive" className="text-[10px]">Out of Stock</Badge>
+                {onToggleStockAlert && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-6 text-[10px] px-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleStockAlert();
+                    }}
+                  >
+                    {hasStockAlert ? (
+                      <>
+                        <BellOff className="h-3 w-3 mr-1" />
+                        Remove Alert
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="h-3 w-3 mr-1" />
+                        Notify Me
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
             )}
           </div>
