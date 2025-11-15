@@ -21,6 +21,7 @@ import type * as cart from "../cart.js";
 import type * as chat from "../chat.js";
 import type * as deliveryTracking from "../deliveryTracking.js";
 import type * as favorites from "../favorites.js";
+import type * as groupOrders from "../groupOrders.js";
 import type * as http from "../http.js";
 import type * as loyalty from "../loyalty.js";
 import type * as notifications from "../notifications.js";
@@ -55,6 +56,7 @@ declare const fullApi: ApiFromModules<{
   chat: typeof chat;
   deliveryTracking: typeof deliveryTracking;
   favorites: typeof favorites;
+  groupOrders: typeof groupOrders;
   http: typeof http;
   loyalty: typeof loyalty;
   notifications: typeof notifications;

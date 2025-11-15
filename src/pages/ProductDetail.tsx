@@ -35,6 +35,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Id } from "@/convex/_generated/dataModel";
+import { ShareButton } from "@/components/ShareButton";
 
 export default function ProductDetail() {
   const { productId } = useParams<{ productId: string }>();
@@ -293,8 +294,9 @@ export default function ProductDetail() {
                         className="flex-1" 
                         size="lg"
                         onClick={handleAddToCart}
+                        aria-label={`Add ${product.name} to cart`}
                       >
-                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        <ShoppingCart className="h-5 w-5 mr-2" aria-hidden="true" />
                         Add to Cart
                       </Button>
                     ) : (
@@ -322,11 +324,21 @@ export default function ProductDetail() {
                       size="lg"
                       variant="outline"
                       onClick={handleToggleFavorite}
+                      aria-label={isFavorited ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`}
                     >
                       <Heart 
-                        className={`h-5 w-5 ${isFavorited ? 'fill-red-500 text-red-500' : ''}`} 
-                      />
+                        className={`h-5 w-5 ${isFavorited ? 'fill-red-500 text-red-500' : ''}`}
+                        aria-hidden="true"
+                      /><span className="sr-only">{isFavorited ? "Remove from favorites" : "Add to favorites"}</span>
                     </Button>
+                    
+                    <ShareButton
+                      title={product.name}
+                      text={`Check out ${product.name} on TownShop!`}
+                      url={window.location.href}
+                      variant="outline"
+                      size="lg"
+                    />
                   </div>
                 </div>
               </div>

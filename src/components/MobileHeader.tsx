@@ -6,6 +6,7 @@ import { useNavigate } from "react-router";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { AccessibilityControls } from "@/components/AccessibilityControls";
 
 interface MobileHeaderProps {
   userLocation?: { lat: number; lng: number } | null;
@@ -62,6 +63,7 @@ export function MobileHeader({
           </motion.div>
 
           <div className="flex items-center gap-1">
+            <AccessibilityControls />
             {isAuthenticated ? (
               <>
                 <Button

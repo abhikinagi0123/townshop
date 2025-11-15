@@ -328,6 +328,27 @@ const schema = defineSchema(
       orderId: v.optional(v.id("orders")),
       transactionId: v.optional(v.string()),
     }).index("by_user", ["userId"]),
+
+    groupOrders: defineTable({
+      creatorId: v.id("users"),
+      creatorName: v.string(),
+      productIds: v.array(v.id("products")),
+      storeId: v.id("stores"),
+      participants: v.array(
+        v.object({
+          userId: v.id("users"),
+          userName: v.string(),
+        })
+      ),
+      maxParticipants: v.number(),
+      status: v.union(
+        v.literal("open"),
+        v.literal("closed"),
+        v.literal("completed")
+      ),
+      expiresAt: v.number(),
+      description: v.optional(v.string()),
+    }).index("by_store", ["storeId"]).index("by_creator", ["creatorId"]),
   },
   {
     schemaValidation: false,
