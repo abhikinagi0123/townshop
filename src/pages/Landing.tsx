@@ -83,6 +83,20 @@ export default function Landing() {
     userLocation ? { lat: userLocation.lat, lng: userLocation.lng, limit: 6 } : "skip"
   );
 
+  // Safe filter function to ensure valid product data
+  const filterValidProducts = (products: any[] | undefined) => {
+    if (!products || !Array.isArray(products)) return [];
+    return products.filter(item => 
+      item && 
+      typeof item === 'object' &&
+      item._id &&
+      item.image && 
+      item.name && 
+      typeof item.price === 'number' &&
+      item.storeName
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <a href="#main-content" className="skip-to-main">
@@ -113,92 +127,51 @@ export default function Landing() {
 
           {trendingProducts === undefined ? (
             <ProductSectionSkeleton />
-          ) : trendingProducts && trendingProducts.length > 0 ? (
+          ) : filterValidProducts(trendingProducts).length > 0 ? (
             <ProductSection
               title="Trending Now"
               icon={<Flame className="h-4 w-4 text-orange-500" />}
               badge="Hot 🔥"
-              products={trendingProducts
-                .filter(item => item && 'image' in item && 'name' in item && 'price' in item)
-                .map(item => ({
-                  _id: item._id,
-                  image: item.image,
-                  name: item.name,
-                  price: item.price,
-                  storeName: item.storeName,
-                }))}
+              products={filterValidProducts(trendingProducts)}
             />
           ) : null}
 
           {topRatedProducts === undefined ? (
             <ProductSectionSkeleton />
-          ) : topRatedProducts && topRatedProducts.length > 0 ? (
+          ) : filterValidProducts(topRatedProducts).length > 0 ? (
             <ProductSection
               title="Top Rated"
               icon={<Award className="h-4 w-4 text-yellow-500" />}
               badge="Best Quality"
-              products={topRatedProducts
-                .filter(item => item && item.image && item.name && item.price)
-                .map(item => ({
-                  _id: item._id,
-                  image: item.image,
-                  name: item.name,
-                  price: item.price,
-                  storeName: item.storeName || "Store",
-                  storeRating: item.storeRating,
-                }))}
+              products={filterValidProducts(topRatedProducts)}
               showRating
             />
           ) : null}
 
-          {featuredProducts && featuredProducts.length > 0 && (
+          {filterValidProducts(featuredProducts).length > 0 && (
             <ProductSection
               title="Featured Picks"
               icon={<Sparkles className="h-4 w-4 text-primary" />}
               badge="Handpicked"
-              products={featuredProducts
-                .filter(item => item && item.image && item.name && item.price)
-                .map(item => ({
-                  _id: item._id,
-                  image: item.image,
-                  name: item.name,
-                  price: item.price,
-                  storeName: item.storeName || "Store",
-                }))}
+              products={filterValidProducts(featuredProducts)}
             />
           )}
 
-          {recommendedProducts && recommendedProducts.length > 0 && (
+          {filterValidProducts(recommendedProducts).length > 0 && (
             <ProductSection
               title="Recommended for You"
               icon={<Sparkles className="h-4 w-4 text-purple-500" />}
               badge="Personalized"
-              products={recommendedProducts
-                .filter(item => item && 'image' in item && 'name' in item && 'price' in item)
-                .map(item => ({
-                  _id: item._id,
-                  image: item.image,
-                  name: item.name,
-                  price: item.price,
-                  storeName: item.storeName,
-                }))}
+              products={filterValidProducts(recommendedProducts)}
             />
           )}
 
-          {isAuthenticated && recentlyViewedProducts && recentlyViewedProducts.length > 0 && (
+          {isAuthenticated && filterValidProducts(recentlyViewedProducts).length > 0 && (
             <ProductSection
               title="Order Again"
               icon={<RefreshCw className="h-4 w-4 text-blue-500" />}
               badge="From Your Orders"
-              products={recentlyViewedProducts
-                .filter(item => item && 'image' in item && 'name' in item && 'price' in item)
-                .map(item => ({
-                  _id: item._id,
-                  image: item.image,
-                  name: item.name,
-                  price: item.price,
-                  storeName: item.storeName,
-                }))}
+              products={filterValidProducts(recentlyViewedProducts)}
             />
           )}
 

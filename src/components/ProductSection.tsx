@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 import { ReactNode } from "react";
+import { useNavigate } from "react-router";
 
 interface Product {
   _id: string;
@@ -22,6 +23,8 @@ interface ProductSectionProps {
 }
 
 export function ProductSection({ title, icon, badge, products, showRating = false }: ProductSectionProps) {
+  const navigate = useNavigate();
+
   return (
     <section className="py-3" aria-labelledby={`section-${title.replace(/\s+/g, '-').toLowerCase()}`}>
       <div className="flex items-center justify-between mb-3">
@@ -40,7 +43,7 @@ export function ProductSection({ title, icon, badge, products, showRating = fals
             transition={{ duration: 0.2, delay: Math.min(0.03 * index, 0.3) }}
             className="flex-shrink-0 w-28 cursor-pointer"
             role="listitem"
-            onClick={() => window.location.href = `/product/${item._id}`}
+            onClick={() => navigate(`/product/${item._id}`)}
           >
             <Card className="overflow-hidden hover:shadow-md transition-shadow">
               <div className="relative">
