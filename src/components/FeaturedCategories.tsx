@@ -1,14 +1,23 @@
 import { motion } from "framer-motion";
-import { FEATURED_CATEGORIES } from "@/lib/constants";
 
-export function FeaturedCategories() {
+interface FeaturedCategory {
+  name: string;
+  emoji: string;
+  color: string;
+}
+
+interface FeaturedCategoriesProps {
+  categories: FeaturedCategory[];
+}
+
+export function FeaturedCategories({ categories }: FeaturedCategoriesProps) {
   return (
     <div className="py-3">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-bold">Browse by Category</h2>
+        <h2 className="text-base font-bold">Shop by Category</h2>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
-        {FEATURED_CATEGORIES.map((cat, index) => (
+        {categories.map((cat, index) => (
           <motion.div
             key={cat.name}
             initial={{ opacity: 0, x: -20 }}

@@ -224,14 +224,7 @@ export const getRecommendedProducts = query({
         products.map(async (product) => {
           const store = await ctx.db.get(product.storeId);
           return {
-            _id: product._id,
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            description: product.description,
-            category: product.category,
-            inStock: product.inStock,
-            storeId: product.storeId,
+            ...product,
             storeName: store?.name || "Unknown Store",
           };
         })
@@ -252,16 +245,14 @@ export const getRecommendedProducts = query({
       }
     }
     
-    const orderedProducts = [];
-    for (const id of Array.from(orderedProductIds)) {
-      const product = await ctx.db.get(id as any);
-      if (product && 'category' in product) {
-        orderedProducts.push(product);
-      }
-    }
+    const orderedProducts = await Promise.all(
+      Array.from(orderedProductIds).map(id => ctx.db.get(id as any))
+    );
     
     const preferredCategories = new Set(
-      orderedProducts.map((p: any) => p.category)
+      orderedProducts.filter((p): p is NonNullable<typeof p> & { category: string } => 
+        p !== null && 'category' in p
+      ).map(p => p.category)
     );
     
     const allProducts = await ctx.db.query("products")
@@ -276,14 +267,7 @@ export const getRecommendedProducts = query({
       recommended.map(async (product) => {
         const store = await ctx.db.get(product.storeId);
         return {
-          _id: product._id,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          description: product.description,
-          category: product.category,
-          inStock: product.inStock,
-          storeId: product.storeId,
+          ...product,
           storeName: store?.name || "Unknown Store",
         };
       })
@@ -317,31 +301,19 @@ export const getRecentlyViewedProducts = query({
       if (productIds.size >= limit) break;
     }
     
-    const products = [];
-    for (const id of Array.from(productIds)) {
-      const product = await ctx.db.get(id as any);
-      // Only include if it's actually a product
-      if (product && 
-          'storeId' in product && 
-          'name' in product && 
-          'price' in product && 
-          'image' in product) {
+    const products = await Promise.all(
+      Array.from(productIds).map(async (id) => {
+        const product = await ctx.db.get(id as any);
+        if (!product || !('storeId' in product) || !product.storeId) return null;
         const store = await ctx.db.get(product.storeId);
-        products.push({
-          _id: product._id,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          description: product.description,
-          category: product.category,
-          inStock: product.inStock,
-          storeId: product.storeId,
+        return {
+          ...product,
           storeName: store?.name || "Unknown Store",
-        });
-      }
-    }
+        };
+      })
+    );
     
-    return products;
+    return products.filter(p => p !== null);
   },
 });
 
