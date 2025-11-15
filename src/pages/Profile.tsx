@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Award, Gift, MessageSquare, Copy, Trophy, Wallet, Plus, TrendingUp, TrendingDown, BarChart3, Users, Heart } from "lucide-react";
+import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Award, Gift, MessageSquare, Copy, Trophy, Wallet, Plus, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
 import { UserDashboard } from "@/components/UserDashboard";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -381,42 +381,6 @@ export default function Profile() {
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <Button
-              variant="outline"
-              className="h-20 flex-col gap-2"
-              onClick={() => navigate("/wallet")}
-            >
-              <Wallet className="h-6 w-6" />
-              <span className="text-sm">Wallet</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="h-20 flex-col gap-2"
-              onClick={() => navigate("/group-orders")}
-            >
-              <Users className="h-6 w-6" />
-              <span className="text-sm">Group Orders</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="h-20 flex-col gap-2"
-              onClick={() => navigate("/loyalty")}
-            >
-              <Gift className="h-6 w-6" />
-              <span className="text-sm">Loyalty</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="h-20 flex-col gap-2"
-              onClick={() => navigate("/favorites")}
-            >
-              <Heart className="h-6 w-6" />
-              <span className="text-sm">Favorites</span>
-            </Button>
           </div>
 
           <div className="space-y-2">
