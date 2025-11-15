@@ -1,5 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { useParams, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,28 +44,28 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   
-  const product = useQuery(api.products.getById, { 
+  const product = useQuery(apiAny.products.getById, { 
     productId: productId as Id<"products"> 
   });
-  const store = product ? useQuery(api.stores.getById, { 
+  const store = product ? useQuery(apiAny.stores.getById, { 
     storeId: product.storeId 
   }) : undefined;
-  const reviews = useQuery(api.reviews.listByProduct, { 
+  const reviews = useQuery(apiAny.reviews.listByProduct, { 
     productId: productId as Id<"products"> 
   });
-  const averageRating = useQuery(api.reviews.getAverageRating, { 
+  const averageRating = useQuery(apiAny.reviews.getAverageRating, { 
     productId: productId as Id<"products"> 
   });
   const stockAlert = useQuery(
-    api.stockAlerts.checkAlert,
+    apiAny.stockAlerts.checkAlert,
     isAuthenticated && productId ? { productId: productId as Id<"products"> } : "skip"
   );
-  const favorites = useQuery(api.favorites.list);
+  const favorites = useQuery(apiAny.favorites.list);
   
-  const addToCart = useMutation(api.cart.addItem);
-  const toggleFavorite = useMutation(api.favorites.toggle);
-  const toggleStockAlert = useMutation(api.stockAlerts.toggle);
-  const createReview = useMutation(api.reviews.create);
+  const addToCart = useMutation(apiAny.cart.addItem);
+  const toggleFavorite = useMutation(apiAny.favorites.toggle);
+  const toggleStockAlert = useMutation(apiAny.stockAlerts.toggle);
+  const createReview = useMutation(apiAny.reviews.create);
   
   const [quantity, setQuantity] = useState(1);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
@@ -71,7 +73,7 @@ export default function ProductDetail() {
   const [reviewComment, setReviewComment] = useState("");
   const [showReviewForm, setShowReviewForm] = useState(false);
   
-  const isFavorited = favorites?.some(f => f.productId === productId);
+  const isFavorited = favorites?.some((f: any) => f.productId === productId);
   const hasStockAlert = stockAlert?.hasAlert || false;
   
   const handleAddToCart = async () => {
@@ -234,7 +236,7 @@ export default function ProductDetail() {
                   {/* Product Variants */}
                   {product.variants && product.variants.length > 0 && (
                     <div className="space-y-3">
-                      {product.variants.map((variant) => (
+                      {product.variants.map((variant: any) => (
                         <div key={variant.name}>
                           <Label className="mb-2 block">{variant.name}</Label>
                           <Select
@@ -247,7 +249,7 @@ export default function ProductDetail() {
                               <SelectValue placeholder={`Select ${variant.name}`} />
                             </SelectTrigger>
                             <SelectContent>
-                              {variant.options.map((option) => (
+                              {variant.options.map((option: any) => (
                                 <SelectItem key={option} value={option}>
                                   {option}
                                 </SelectItem>
@@ -404,7 +406,7 @@ export default function ProductDetail() {
                         <div className="py-2">
                           <span className="font-medium block mb-2">Features</span>
                           <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                            {product.compareSpecs.features.map((feature, idx) => (
+                            {product.compareSpecs.features.map((feature: any, idx: number) => (
                               <li key={idx}>{feature}</li>
                             ))}
                           </ul>
@@ -501,7 +503,7 @@ export default function ProductDetail() {
                   
                   <div className="space-y-4">
                     {reviews && reviews.length > 0 ? (
-                      reviews.map((review) => (
+                      reviews.map((review: any) => (
                         <Card key={review._id}>
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between mb-2">

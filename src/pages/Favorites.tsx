@@ -1,5 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,8 +16,8 @@ import { Badge } from "@/components/ui/badge";
 export default function Favorites() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const favorites = useQuery(api.favorites.list);
-  const removeFavorite = useMutation(api.favorites.remove);
+  const favorites = useQuery(apiAny.favorites.list);
+  const removeFavorite = useMutation(apiAny.favorites.remove);
 
   const handleRemove = async (favoriteId: string) => {
     try {
@@ -32,11 +34,11 @@ export default function Favorites() {
   }
 
   // Type guard helpers
-  const hasStore = (fav: any): fav is { store: any } => {
+  const hasStore = (fav: any): fav is { _id: string; storeId: string; store: any } => {
     return fav.store !== undefined && fav.store !== null;
   };
 
-  const hasProduct = (fav: any): fav is { product: any; storeName?: string } => {
+  const hasProduct = (fav: any): fav is { _id: string; productId: string; product: any; storeName?: string } => {
     return fav.product !== undefined && fav.product !== null;
   };
 
@@ -68,19 +70,19 @@ export default function Favorites() {
           </motion.div>
         ) : (
           <div className="space-y-6">
-            {favorites.some((f) => hasStore(f)) && (
+            {favorites.some((f: any) => hasStore(f)) && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Store className="h-5 w-5 text-primary" />
                   <h2 className="text-lg font-bold">Favorite Stores</h2>
                   <Badge variant="secondary">
-                    {favorites.filter((f) => hasStore(f)).length}
+                    {favorites.filter((f: any) => hasStore(f)).length}
                   </Badge>
                 </div>
                 <div className="grid gap-3">
                   {favorites
-                    .filter((f) => hasStore(f))
-                    .map((fav, index) => {
+                    .filter((f: any) => hasStore(f))
+                    .map((fav: any, index: number) => {
                       if (!hasStore(fav)) return null;
                       return (
                         <motion.div
@@ -135,19 +137,19 @@ export default function Favorites() {
               </div>
             )}
 
-            {favorites.some((f) => hasProduct(f)) && (
+            {favorites.some((f: any) => hasProduct(f)) && (
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Package className="h-5 w-5 text-primary" />
                   <h2 className="text-lg font-bold">Favorite Products</h2>
                   <Badge variant="secondary">
-                    {favorites.filter((f) => hasProduct(f)).length}
+                    {favorites.filter((f: any) => hasProduct(f)).length}
                   </Badge>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {favorites
-                    .filter((f) => hasProduct(f))
-                    .map((fav, index) => {
+                    .filter((f: any) => hasProduct(f))
+                    .map((fav: any, index: number) => {
                       if (!hasProduct(fav)) return null;
                       return (
                         <motion.div
@@ -158,7 +160,7 @@ export default function Favorites() {
                         >
                           <Card
                             className="cursor-pointer hover:shadow-lg transition-shadow"
-                            onClick={() => navigate(`/store/${fav.product?.storeId}`)}
+                            onClick={() => navigate(`/product/${fav.productId}`)}
                           >
                             <div className="relative">
                               <img

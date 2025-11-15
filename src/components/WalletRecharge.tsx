@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,8 +22,8 @@ declare global {
 
 export function WalletRecharge({ userId, onSuccess }: WalletRechargeProps) {
   const [amount, setAmount] = useState("");
-  const createOrder = useAction(api.razorpay.createWalletRechargeOrder);
-  const verifyRecharge = useAction(api.razorpay.verifyWalletRecharge);
+  const createOrder = useAction(apiAny.razorpay.createWalletRechargeOrder);
+  const verifyRecharge = useAction(apiAny.razorpay.verifyWalletRecharge);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {

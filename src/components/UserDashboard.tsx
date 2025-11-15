@@ -5,7 +5,8 @@ import { TrendingUp, ShoppingBag, DollarSign, Package } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function UserDashboard() {
-  const stats = useQuery(api.analytics.getUserStats);
+  const apiAny: any = api;
+  const stats = useQuery(apiAny.analytics.getUserStats);
 
   if (!stats) {
     return (

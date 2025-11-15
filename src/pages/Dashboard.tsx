@@ -1,5 +1,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,12 +23,12 @@ import { motion } from "framer-motion";
 export default function Dashboard() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  const stats = useQuery(api.analytics.getUserStats);
-  const categorySpending = useQuery(api.analytics.getSpendingByCategory);
-  const orderFrequency = useQuery(api.analytics.getOrderFrequency);
-  const savings = useQuery(api.analytics.getSavingsFromOffers);
+  const stats = useQuery(apiAny.analytics.getUserStats);
+  const categorySpending = useQuery(apiAny.analytics.getSpendingByCategory);
+  const orderFrequency = useQuery(apiAny.analytics.getOrderFrequency);
+  const savings = useQuery(apiAny.analytics.getSavingsFromOffers);
   const trendingProducts = useQuery(
-    api.analytics.getTrendingInArea,
+    apiAny.analytics.getTrendingInArea,
     user?.lat && user?.lng
       ? { lat: user.lat, lng: user.lng, radius: 10 }
       : "skip"
@@ -127,7 +129,7 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {categorySpending.slice(0, 5).map((cat, index) => {
+                      {categorySpending.slice(0, 5).map((cat: any, index: number) => {
                         const percentage = (cat.amount / maxAmount) * 100;
                         return (
                           <div key={index}>
@@ -222,7 +224,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {trendingProducts.map((product, index) => 
+                  {trendingProducts.map((product: any, index: number) => 
                     'image' in product && 'name' in product && 'price' in product ? (
                       <div 
                         key={product._id}

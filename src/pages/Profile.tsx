@@ -19,13 +19,14 @@ import { toast } from "sonner";
 export default function Profile() {
   const navigate = useNavigate();
   const { user, signOut, isAuthenticated } = useAuth();
-  const orders = useQuery(api.orders.list);
-  const addresses = useQuery(api.addresses.list);
-  const loyaltyData = useQuery(api.loyalty.getPoints);
-  const loyaltyTransactions = useQuery(api.loyalty.getTransactions, { limit: 5 });
-  const referralStats = useQuery(api.loyalty.getReferralStats);
-  const walletData = useQuery(api.wallet.getBalance);
-  const walletTransactions = useQuery(api.wallet.getTransactions, { limit: 5 });
+  const apiAny: any = api;
+  const orders = useQuery(apiAny.orders.list);
+  const addresses = useQuery(apiAny.addresses.list);
+  const loyaltyData = useQuery(apiAny.loyalty.getPoints);
+  const loyaltyTransactions = useQuery(apiAny.loyalty.getTransactions, { limit: 5 });
+  const referralStats = useQuery(apiAny.loyalty.getReferralStats);
+  const walletData = useQuery(apiAny.wallet.getBalance);
+  const walletTransactions = useQuery(apiAny.wallet.getTransactions, { limit: 5 });
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showReferralDialog, setShowReferralDialog] = useState(false);
   const [showChatDialog, setShowChatDialog] = useState(false);
@@ -34,10 +35,10 @@ export default function Profile() {
   const [referralCode, setReferralCode] = useState("");
   const [applyReferralCode, setApplyReferralCode] = useState("");
   
-  const createReferralCode = useMutation(api.loyalty.createReferralCode);
-  const applyReferral = useMutation(api.loyalty.applyReferralCode);
-  const createChatSession = useMutation(api.chat.createSession);
-  const addMoney = useMutation(api.wallet.addMoney);
+  const createReferralCode = useMutation(apiAny.loyalty.createReferralCode);
+  const applyReferral = useMutation(apiAny.loyalty.applyReferralCode);
+  const createChatSession = useMutation(apiAny.chat.createSession);
+  const addMoney = useMutation(apiAny.wallet.addMoney);
 
   const handleSignOut = async () => {
     await signOut();
@@ -208,7 +209,7 @@ export default function Profile() {
                   </div>
                   {walletTransactions && walletTransactions.length > 0 ? (
                     <div className="space-y-2">
-                      {walletTransactions.slice(0, 3).map((transaction) => (
+                      {walletTransactions.slice(0, 3).map((transaction: any) => (
                         <div key={transaction._id} className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2">
                             {transaction.type === "credit" ? (
@@ -273,7 +274,7 @@ export default function Profile() {
                   </div>
                   {loyaltyTransactions && loyaltyTransactions.length > 0 ? (
                     <div className="space-y-2">
-                      {loyaltyTransactions.slice(0, 3).map((transaction) => (
+                      {loyaltyTransactions.slice(0, 3).map((transaction: any) => (
                         <div key={transaction._id} className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">{transaction.description}</span>
                           <span className={transaction.points > 0 ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>

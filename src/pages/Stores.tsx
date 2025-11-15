@@ -41,7 +41,7 @@ export default function Stores() {
   );
   const stores = storesData?.stores || [];
 
-  const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const cartCount = cartItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0;
 
   useEffect(() => {
     if (isAuthenticated && user && (!user.name || !user.phone || user.lat === undefined || user.lng === undefined)) {

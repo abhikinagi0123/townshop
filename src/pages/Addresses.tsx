@@ -1,5 +1,8 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,11 +26,11 @@ import { useAuth } from "@/hooks/use-auth";
 export default function Addresses() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const addresses = useQuery(api.addresses.list);
+  const addresses = useQuery(apiAny.addresses.list);
   
-  const createAddress = useMutation(api.addresses.create);
-  const updateAddress = useMutation(api.addresses.update);
-  const removeAddress = useMutation(api.addresses.remove);
+  const createAddress = useMutation(apiAny.addresses.create);
+  const updateAddress = useMutation(apiAny.addresses.update);
+  const removeAddress = useMutation(apiAny.addresses.remove);
 
   const [showDialog, setShowDialog] = useState(false);
   const [editingId, setEditingId] = useState<Id<"addresses"> | null>(null);
@@ -218,7 +221,7 @@ export default function Addresses() {
           </motion.div>
         ) : (
           <div className="space-y-4">
-            {addresses.map((address, index) => (
+            {addresses.map((address: any, index: number) => (
               <motion.div
                 key={address._id}
                 initial={{ opacity: 0, y: 20 }}

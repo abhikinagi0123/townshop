@@ -1,5 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { useParams, useNavigate } from "react-router";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,9 +22,9 @@ export default function Chat() {
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const messages = useQuery(api.chat.getMessages, { limit: 50 });
-  const sendMessage = useMutation(api.chat.sendMessage);
-  const markAsRead = useMutation(api.chat.markMessagesAsRead);
+  const messages = useQuery(apiAny.chat.getMessages, { limit: 50 });
+  const sendMessage = useMutation(apiAny.chat.sendMessage);
+  const markAsRead = useMutation(apiAny.chat.markMessagesAsRead);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -84,7 +86,7 @@ export default function Chat() {
           <CardContent className="p-4 flex-1 overflow-y-auto">
             {messages && messages.length > 0 ? (
               <div className="space-y-4">
-                {messages.reverse().map((msg) => (
+                {messages.reverse().map((msg: any) => (
                   <motion.div
                     key={msg._id}
                     initial={{ opacity: 0, y: 10 }}

@@ -21,39 +21,40 @@ export default function StoreDetail() {
   const { isAuthenticated } = useAuth();
   const [productCategory, setProductCategory] = useState("all");
 
-  const store = useQuery(api.stores.getById, { 
+  const apiAny: any = api;
+  const store = useQuery(apiAny.stores.getById, { 
     storeId: storeId as Id<"stores"> 
   });
-  const products = useQuery(api.products.listByStore, {
+  const products = useQuery(apiAny.products.listByStore, {
     storeId: storeId as Id<"stores">,
     category: productCategory,
   });
-  const cartItems = useQuery(api.cart.get);
-  const storeOffers = useQuery(api.offers.list, {
+  const cartItems = useQuery(apiAny.cart.get);
+  const storeOffers = useQuery(apiAny.offers.list, {
     storeId: storeId as Id<"stores">,
   });
-  const storeReviews = useQuery(api.reviews.listByStore, {
+  const storeReviews = useQuery(apiAny.reviews.listByStore, {
     storeId: storeId as Id<"stores">,
   });
-  const averageRating = useQuery(api.reviews.getAverageRating, {
+  const averageRating = useQuery(apiAny.reviews.getAverageRating, {
     storeId: storeId as Id<"stores">,
   });
   
-  const addToCart = useMutation(api.cart.addItem);
-  const updateQuantity = useMutation(api.cart.updateQuantity);
-  const createStockAlert = useMutation(api.stockAlerts.create);
-  const removeStockAlert = useMutation(api.stockAlerts.remove);
-  const stockAlerts = useQuery(api.stockAlerts.listByUser);
+  const addToCart = useMutation(apiAny.cart.addItem);
+  const updateQuantity = useMutation(apiAny.cart.updateQuantity);
+  const createStockAlert = useMutation(apiAny.stockAlerts.create);
+  const removeStockAlert = useMutation(apiAny.stockAlerts.remove);
+  const stockAlerts = useQuery(apiAny.stockAlerts.listByUser);
 
-  const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const cartCount = cartItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0;
 
   const getProductQuantity = (productId: string) => {
-    const item = cartItems?.find(item => item.productId === productId);
+    const item = cartItems?.find((item: any) => item.productId === productId);
     return item?.quantity || 0;
   };
 
   const getCartItemId = (productId: string) => {
-    return cartItems?.find(item => item.productId === productId)?._id;
+    return cartItems?.find((item: any) => item.productId === productId)?._id;
   };
 
   const handleAddToCart = async (productId: Id<"products">) => {
@@ -94,12 +95,12 @@ export default function StoreDetail() {
   };
 
   const hasStockAlert = (productId: Id<"products">) => {
-    return stockAlerts?.some(alert => alert.productId === productId) || false;
+    return stockAlerts?.some((alert: any) => alert.productId === productId) || false;
   };
 
   const handleToggleStockAlert = async (productId: Id<"products">) => {
     try {
-      const existingAlert = stockAlerts?.find(alert => alert.productId === productId);
+      const existingAlert = stockAlerts?.find((alert: any) => alert.productId === productId);
       if (existingAlert) {
         await removeStockAlert({ alertId: existingAlert._id });
         toast.success("Stock alert removed");
@@ -133,7 +134,7 @@ export default function StoreDetail() {
     );
   }
 
-  const productCategories = ["all", ...new Set(products.map(p => p.category))];
+  const productCategories = ["all", ...new Set(products?.map((p: any) => p.category) || [])];
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -205,7 +206,7 @@ export default function StoreDetail() {
             <div className="mb-6">
               <h2 className="text-lg font-bold mb-3">Available Offers</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {storeOffers.map((offer) => (
+                {storeOffers.map((offer: any) => (
                   <OfferCard key={offer._id} offer={offer} />
                 ))}
               </div>
@@ -213,7 +214,7 @@ export default function StoreDetail() {
           )}
 
           {/* Store Hours & Policies */}
-          {(store.hours || store.policies) && (
+          {(store?.hours || store?.policies) && (
             <div className="mb-6">
               <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
                 <Info className="h-5 w-5 text-primary" />
@@ -225,7 +226,7 @@ export default function StoreDetail() {
                     <div>
                       <h3 className="font-semibold mb-2">Operating Hours</h3>
                       <div className="grid grid-cols-2 gap-2 text-sm">
-                        {Object.entries(store.hours).map(([day, hours]) => (
+                        {Object.entries(store.hours).map(([day, hours]: [string, any]) => (
                           hours && (
                             <div key={day} className="flex justify-between">
                               <span className="capitalize text-muted-foreground">{day}:</span>
@@ -277,7 +278,7 @@ export default function StoreDetail() {
             <div className="mb-6">
               <h2 className="text-lg font-bold mb-3">Customer Reviews</h2>
               <div className="space-y-3">
-                {storeReviews.slice(0, 5).map((review) => (
+                {storeReviews.slice(0, 5).map((review: any) => (
                   <Card key={review._id}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
@@ -315,7 +316,7 @@ export default function StoreDetail() {
           <Separator className="my-6" />
 
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-            {productCategories.map((cat) => (
+            {productCategories.map((cat: any) => (
               <Button
                 key={cat}
                 variant={productCategory === cat ? "default" : "outline"}
@@ -329,13 +330,13 @@ export default function StoreDetail() {
           </div>
         </motion.div>
 
-        {products.length === 0 ? (
+        {products && products.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No products available in this category</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map((product) => (
+            {products?.map((product: any) => (
               <ProductCard
                 key={product._id}
                 product={product}

@@ -1,6 +1,9 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
+
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { Package, ArrowLeft, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,7 +16,7 @@ import { useAuth } from "@/hooks/use-auth";
 export default function Orders() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const orders = useQuery(api.orders.list);
+  const orders = useQuery(apiAny.orders.list);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -63,7 +66,7 @@ export default function Orders() {
           </motion.div>
         ) : (
           <div className="space-y-4">
-            {orders.map((order) => (
+            {orders.map((order: any) => (
               <motion.div
                 key={order._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -87,7 +90,7 @@ export default function Orders() {
                     </div>
                     
                     <div className="space-y-2 mb-4">
-                      {order.items.map((item, idx) => (
+                      {order.items.map((item: any, idx: number) => (
                         <div key={idx} className="flex justify-between text-sm">
                           <span>{item.productName} x {item.quantity}</span>
                           <div className="flex items-center gap-1">

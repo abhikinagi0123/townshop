@@ -16,12 +16,13 @@ import { toast } from "sonner";
 export default function OrderTracking() {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const order = useQuery(api.orders.getById, { orderId: orderId as Id<"orders"> });
-  const cartItems = useQuery(api.cart.get);
-  const deliveryLocation = useQuery(api.deliveryTracking.getDeliveryPartnerLocation, { 
+  const apiAny: any = api;
+  const order = useQuery(apiAny.orders.getById, { orderId: orderId as Id<"orders"> });
+  const cartItems = useQuery(apiAny.cart.get);
+  const deliveryLocation = useQuery(apiAny.deliveryTracking.getDeliveryPartnerLocation, { 
     orderId: orderId as Id<"orders"> 
   });
-  const createReview = useMutation(api.reviews.create);
+  const createReview = useMutation(apiAny.reviews.create);
   const mapRef = useRef<HTMLDivElement>(null);
 
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
@@ -29,7 +30,7 @@ export default function OrderTracking() {
   const [comment, setComment] = useState("");
   const [hoveredRating, setHoveredRating] = useState(0);
 
-  const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const cartCount = cartItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0;
 
   const statusSteps = [
     { key: "pending", label: "Order Placed", icon: Package },
@@ -129,7 +130,7 @@ export default function OrderTracking() {
               order.status === "cancelled" ? "bg-red-500" :
               "bg-blue-500"
             }>
-              {order.status.split("_").map(word => 
+              {order.status.split("_").map((word: string) => 
                 word.charAt(0).toUpperCase() + word.slice(1)
               ).join(" ")}
             </Badge>
@@ -334,7 +335,7 @@ export default function OrderTracking() {
                 <div className="border-t pt-3">
                   <p className="font-semibold mb-2">{order.storeName}</p>
                   <div className="space-y-2">
-                    {order.items.map((item, idx) => (
+                    {order.items.map((item: any, idx: number) => (
                       <div key={idx} className="flex justify-between text-sm">
                         <span>{item.productName} x {item.quantity}</span>
                         <div className="flex items-center gap-1">

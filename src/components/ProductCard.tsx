@@ -40,8 +40,9 @@ export function ProductCard({
   onToggleStockAlert,
   showDynamicPrice = false,
 }: ProductCardProps) {
+  const apiAny: any = api;
   const dynamicPrice = useQuery(
-    api.pricing.getDynamicPrice,
+    apiAny.pricing.getDynamicPrice,
     showDynamicPrice ? { productId: product._id, quantity: quantity || 1 } : "skip"
   );
 

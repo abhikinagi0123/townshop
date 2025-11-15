@@ -1,5 +1,8 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { useNavigate, useSearchParams } from "react-router";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,11 +27,11 @@ export default function Search() {
   const [storeFilters, setStoreFilters] = useState<any>({});
   
   const stores = useQuery(
-    api.stores.search, 
+    apiAny.stores.search, 
     searchTerm ? { term: searchTerm, filters: storeFilters } : "skip"
   );
   const products = useQuery(
-    api.products.search, 
+    apiAny.products.search, 
     searchTerm ? { term: searchTerm, filters: productFilters, sortBy: productFilters.sortBy } : "skip"
   );
 
@@ -156,7 +159,7 @@ export default function Search() {
                   />
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {products.map((product, index) => (
+                  {products.map((product: any, index: number) => (
                     <motion.div
                       key={product._id}
                       initial={{ opacity: 0, y: 20 }}

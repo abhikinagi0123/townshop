@@ -29,17 +29,18 @@ import { Textarea } from "@/components/ui/textarea";
 export default function Cart() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const cartItems = useQuery(api.cart.get);
-  const addresses = useQuery(api.addresses.list);
-  const savedPaymentMethods = useQuery(api.payments.listSavedPaymentMethods);
+  const apiAny: any = api;
+  const cartItems = useQuery(apiAny.cart.get);
+  const addresses = useQuery(apiAny.addresses.list);
+  const savedPaymentMethods = useQuery(apiAny.payments.listSavedPaymentMethods);
   
-  const updateQuantity = useMutation(api.cart.updateQuantity);
-  const removeItem = useMutation(api.cart.removeItem);
-  const clearCart = useMutation(api.cart.clear);
-  const createOrder = useMutation(api.orders.create);
-  const createAddress = useMutation(api.addresses.create);
-  const createPayment = useMutation(api.payments.create);
-  const addSavedPaymentMethod = useMutation(api.payments.addSavedPaymentMethod);
+  const updateQuantity = useMutation(apiAny.cart.updateQuantity);
+  const removeItem = useMutation(apiAny.cart.removeItem);
+  const clearCart = useMutation(apiAny.cart.clear);
+  const createOrder = useMutation(apiAny.orders.create);
+  const createAddress = useMutation(apiAny.addresses.create);
+  const createPayment = useMutation(apiAny.payments.create);
+  const addSavedPaymentMethod = useMutation(apiAny.payments.addSavedPaymentMethod);
 
   const [showCheckout, setShowCheckout] = useState(false);
   const [showAddAddress, setShowAddAddress] = useState(false);
@@ -78,11 +79,11 @@ export default function Cart() {
   // Loyalty points redemption states
   const [usePoints, setUsePoints] = useState(false);
   const [pointsToRedeem, setPointsToRedeem] = useState(0);
-  const loyaltyData = useQuery(api.loyalty.getPoints);
-  const walletData = useQuery(api.wallet.getBalance);
-  const redeemPoints = useMutation(api.loyalty.redeemPoints);
-  const recordRedemption = useMutation(api.loyalty.recordRedemption);
-  const deductWalletMoney = useMutation(api.wallet.deductMoney);
+  const loyaltyData = useQuery(apiAny.loyalty.getPoints);
+  const walletData = useQuery(apiAny.wallet.getBalance);
+  const redeemPoints = useMutation(apiAny.loyalty.redeemPoints);
+  const recordRedemption = useMutation(apiAny.loyalty.recordRedemption);
+  const deductWalletMoney = useMutation(apiAny.wallet.deductMoney);
   
   // Coupon states
   const [couponCode, setCouponCode] = useState("");
@@ -93,14 +94,14 @@ export default function Cart() {
   const [orderNotes, setOrderNotes] = useState("");
   
   // Move to favorites mutation
-  const moveToFavorites = useMutation(api.cart.moveToFavorites);
+  const moveToFavorites = useMutation(apiAny.cart.moveToFavorites);
 
-  const subtotal = cartItems?.reduce((sum, item) => 
+  const subtotal = cartItems?.reduce((sum: number, item: any) => 
     sum + (item.product?.price || 0) * item.quantity, 0
   ) || 0;
   
   const validateCoupon = useQuery(
-    api.offers.validateCoupon,
+    apiAny.offers.validateCoupon,
     couponCode && cartItems && cartItems.length > 0 && cartItems[0]?.product?.storeId
       ? { code: couponCode, storeId: cartItems[0].product.storeId, orderAmount: subtotal }
       : "skip"
@@ -212,7 +213,7 @@ export default function Cart() {
       return;
     }
 
-    const address = addresses?.find(a => a._id === selectedAddress);
+    const address = addresses?.find((a: any) => a._id === selectedAddress);
     if (!address) return;
 
     const storeId = cartItems[0]?.product?.storeId;
@@ -250,7 +251,7 @@ export default function Cart() {
       }
 
       const orderId = await createOrder({
-        items: cartItems.map(item => ({
+        items: cartItems.map((item: any) => ({
           productId: item.productId,
           productName: item.product?.name || "",
           quantity: item.quantity,
@@ -374,7 +375,7 @@ export default function Cart() {
         ) : (
           <div className="grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
-              {cartItems.map((item) => (
+              {cartItems.map((item: any) => (
                 <motion.div
                   key={item._id}
                   initial={{ opacity: 0, x: -20 }}
@@ -529,7 +530,7 @@ export default function Cart() {
             <div>
               <h3 className="font-semibold mb-3">Delivery Address</h3>
               <div className="space-y-2">
-                {addresses?.map((address) => (
+                {addresses?.map((address: any) => (
                   <Card
                     key={address._id}
                     className={`cursor-pointer transition-colors ${selectedAddress === address._id ? 'border-primary bg-primary/5' : ''}`}
@@ -566,7 +567,7 @@ export default function Cart() {
                   {savedPaymentMethods && savedPaymentMethods.length > 0 && (
                     <div className="mb-4">
                       <p className="text-sm font-medium mb-2">Saved Methods</p>
-                      {savedPaymentMethods.map((method) => (
+                      {savedPaymentMethods.map((method: any) => (
                         <Card key={method._id} className="mb-2 cursor-pointer hover:border-primary">
                           <CardContent className="p-3">
                             <div className="flex items-center gap-3">

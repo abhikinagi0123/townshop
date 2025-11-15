@@ -1,5 +1,7 @@
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -26,8 +28,8 @@ export function RazorpayCheckout({
   onFailure,
   children,
 }: RazorpayCheckoutProps) {
-  const createOrder = useAction(api.razorpay.createPaymentOrder);
-  const verifyPayment = useAction(api.razorpay.verifyPaymentSignature);
+  const createOrder = useAction(apiAny.razorpay.createPaymentOrder);
+  const verifyPayment = useAction(apiAny.razorpay.verifyPaymentSignature);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {

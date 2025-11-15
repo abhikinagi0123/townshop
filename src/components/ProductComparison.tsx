@@ -1,5 +1,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +16,7 @@ interface ProductComparisonProps {
 
 export function ProductComparison({ productIds, onClose }: ProductComparisonProps) {
   const navigate = useNavigate();
-  const products = useQuery(api.productComparison.compareProducts, { productIds });
+  const products = useQuery(apiAny.productComparison.compareProducts, { productIds });
 
   if (!products || products.length === 0) {
     return (
@@ -27,7 +29,7 @@ export function ProductComparison({ productIds, onClose }: ProductComparisonProp
   }
 
   const allSpecs = new Set<string>();
-  products.forEach((p) => {
+  products.forEach((p: any) => {
     if (p.compareSpecs) {
       Object.keys(p.compareSpecs).forEach((key) => allSpecs.add(key));
     }
@@ -51,7 +53,7 @@ export function ProductComparison({ productIds, onClose }: ProductComparisonProp
             <thead>
               <tr>
                 <th className="border p-2 text-left bg-muted">Feature</th>
-                {products.map((product) => (
+                {products.map((product: any) => (
                   <th key={product._id} className="border p-2 text-center min-w-[200px]">
                     <img
                       src={product.image}
@@ -66,7 +68,7 @@ export function ProductComparison({ productIds, onClose }: ProductComparisonProp
             <tbody>
               <tr>
                 <td className="border p-2 font-medium">Price</td>
-                {products.map((product) => (
+                {products.map((product: any) => (
                   <td key={product._id} className="border p-2 text-center">
                     <span className="text-lg font-bold text-primary">₹{product.price}</span>
                   </td>
@@ -74,7 +76,7 @@ export function ProductComparison({ productIds, onClose }: ProductComparisonProp
               </tr>
               <tr>
                 <td className="border p-2 font-medium">Store</td>
-                {products.map((product) => (
+                {products.map((product: any) => (
                   <td key={product._id} className="border p-2 text-center">
                     <span className="text-sm text-muted-foreground">{product.storeName}</span>
                   </td>
@@ -82,7 +84,7 @@ export function ProductComparison({ productIds, onClose }: ProductComparisonProp
               </tr>
               <tr>
                 <td className="border p-2 font-medium">Rating</td>
-                {products.map((product) => (
+                {products.map((product: any) => (
                   <td key={product._id} className="border p-2 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -94,7 +96,7 @@ export function ProductComparison({ productIds, onClose }: ProductComparisonProp
               </tr>
               <tr>
                 <td className="border p-2 font-medium">Stock</td>
-                {products.map((product) => (
+                {products.map((product: any) => (
                   <td key={product._id} className="border p-2 text-center">
                     {product.inStock ? (
                       <Badge variant="secondary" className="bg-green-100 text-green-800">
@@ -113,7 +115,7 @@ export function ProductComparison({ productIds, onClose }: ProductComparisonProp
               {Array.from(allSpecs).map((spec) => (
                 <tr key={spec}>
                   <td className="border p-2 font-medium capitalize">{spec}</td>
-                  {products.map((product) => (
+                  {products.map((product: any) => (
                     <td key={product._id} className="border p-2 text-center text-sm">
                       {product.compareSpecs?.[spec as keyof typeof product.compareSpecs]
                         ? String(product.compareSpecs[spec as keyof typeof product.compareSpecs])
@@ -124,7 +126,7 @@ export function ProductComparison({ productIds, onClose }: ProductComparisonProp
               ))}
               <tr>
                 <td className="border p-2 font-medium">Action</td>
-                {products.map((product) => (
+                {products.map((product: any) => (
                   <td key={product._id} className="border p-2 text-center">
                     <Button
                       size="sm"

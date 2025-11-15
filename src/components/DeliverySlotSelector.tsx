@@ -20,7 +20,8 @@ export function DeliverySlotSelector({
   selectedSlot,
   onSlotChange,
 }: DeliverySlotSelectorProps) {
-  const slots = useQuery(api.pricing.getDeliveryTimeSlots, {
+  const apiAny: any = api;
+  const slots = useQuery(apiAny.pricing.getDeliveryTimeSlots, {
     storeId,
     date: selectedDate,
   });
@@ -41,7 +42,7 @@ export function DeliverySlotSelector({
       </Label>
       <RadioGroup value={selectedSlot} onValueChange={onSlotChange}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {slots.map((slot) => (
+          {slots.map((slot: any) => (
             <Card
               key={slot.startTime}
               className={`cursor-pointer transition-colors ${

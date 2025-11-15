@@ -1,9 +1,11 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Bell, Package, Tag, Info, CheckCheck } from "lucide-react";
+import { Bell, ArrowLeft, Trash2, Check, Package, Tag, Info } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
@@ -14,9 +16,9 @@ import { Badge } from "@/components/ui/badge";
 export default function Notifications() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const notifications = useQuery(api.notifications.list);
-  const markAsRead = useMutation(api.notifications.markAsRead);
-  const markAllAsRead = useMutation(api.notifications.markAllAsRead);
+  const notifications = useQuery(apiAny.notifications.list);
+  const markAsRead = useMutation(apiAny.notifications.markAsRead);
+  const deleteNotification = useMutation(apiAny.notifications.remove);
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
@@ -28,7 +30,13 @@ export default function Notifications() {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAsRead();
+      if (notifications) {
+        for (const notification of notifications) {
+          if (!notification.isRead) {
+            await markAsRead({ notificationId: notification._id as any });
+          }
+        }
+      }
       toast.success("All notifications marked as read");
     } catch (error) {
       toast.error("Failed to mark all as read");
@@ -61,9 +69,9 @@ export default function Notifications() {
             <Bell className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold">Notifications</h1>
           </div>
-          {notifications && notifications.some((n) => !n.isRead) && (
+          {notifications && notifications.some((n: any) => !n.isRead) && (
             <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
-              <CheckCheck className="h-4 w-4 mr-2" />
+              <Check className="h-4 w-4 mr-2" />
               Mark All Read
             </Button>
           )}
@@ -87,7 +95,7 @@ export default function Notifications() {
           </motion.div>
         ) : (
           <div className="space-y-3">
-            {notifications.map((notification, index) => (
+            {notifications.map((notification: any, index: number) => (
               <motion.div
                 key={notification._id}
                 initial={{ opacity: 0, y: 20 }}

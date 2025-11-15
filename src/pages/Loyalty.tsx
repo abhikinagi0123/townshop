@@ -1,5 +1,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+// Type assertion to avoid deep type instantiation with React 19
+const apiAny: any = api;
 import { useNavigate } from "react-router";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,8 +15,8 @@ import { useAuth } from "@/hooks/use-auth";
 export default function Loyalty() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const loyaltyData = useQuery(api.loyalty.getPoints);
-  const transactions = useQuery(api.loyalty.getTransactions, { limit: 50 });
+  const loyaltyData = useQuery(apiAny.loyalty.getPoints);
+  const transactions = useQuery(apiAny.loyalty.getTransactions, { limit: 50 });
 
   const getTierColor = (tier: string) => {
     switch (tier) {
@@ -131,7 +133,7 @@ export default function Loyalty() {
               <h2 className="font-bold text-lg mb-4">Transaction History</h2>
               {transactions && transactions.length > 0 ? (
                 <div className="space-y-3">
-                  {transactions.map((transaction) => (
+                  {transactions.map((transaction: any) => (
                     <motion.div
                       key={transaction._id}
                       initial={{ opacity: 0, x: -20 }}
