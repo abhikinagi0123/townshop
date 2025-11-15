@@ -148,7 +148,7 @@ export default function Landing() {
             />
           ) : null}
 
-          {filterValidProducts(featuredProducts).length > 0 && (
+          {featuredProducts !== undefined && filterValidProducts(featuredProducts).length > 0 && (
             <ProductSection
               title="Featured Picks"
               icon={<Sparkles className="h-4 w-4 text-primary" />}
@@ -157,7 +157,7 @@ export default function Landing() {
             />
           )}
 
-          {filterValidProducts(recommendedProducts).length > 0 && (
+          {recommendedProducts !== undefined && filterValidProducts(recommendedProducts).length > 0 && (
             <ProductSection
               title="Recommended for You"
               icon={<Sparkles className="h-4 w-4 text-purple-500" />}
@@ -166,7 +166,7 @@ export default function Landing() {
             />
           )}
 
-          {isAuthenticated && filterValidProducts(recentlyViewedProducts).length > 0 && (
+          {isAuthenticated && recentlyViewedProducts !== undefined && filterValidProducts(recentlyViewedProducts).length > 0 && (
             <ProductSection
               title="Order Again"
               icon={<RefreshCw className="h-4 w-4 text-blue-500" />}
