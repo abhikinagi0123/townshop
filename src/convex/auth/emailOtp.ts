@@ -1,31 +1,26 @@
+"use node";
+
 import { Email } from "@convex-dev/auth/providers/Email";
-import axios from "axios";
-import { alphabet, generateRandomString } from "oslo/crypto";
+
+function generateRandomString(length: number, chars: string): string {
+  let result = "";
+  const randomBytes = new Uint8Array(length);
+  crypto.getRandomValues(randomBytes);
+  for (let i = 0; i < length; i++) {
+    result += chars[randomBytes[i] % chars.length];
+  }
+  return result;
+}
 
 export const emailOtp = Email({
   id: "email-otp",
   maxAge: 60 * 15, // 15 minutes
-  // This function can be asynchronous
   generateVerificationToken() {
-    return generateRandomString(6, alphabet("0-9"));
+    return generateRandomString(6, "0123456789");
   },
-  async sendVerificationRequest({ identifier: email, provider, token }) {
-    try {
-      await axios.post(
-        "https://email.vly.ai/send_otp",
-        {
-          to: email,
-          otp: token,
-          appName: process.env.VLY_APP_NAME || "a vly.ai application",
-        },
-        {
-          headers: {
-            "x-api-key": "vlytothemoon2025",
-          },
-        },
-      );
-    } catch (error) {
-      throw new Error(JSON.stringify(error));
-    }
+  async sendVerificationRequest({ identifier: email, token }: { identifier: string; token: string }) {
+    // Email sending is disabled - using console log for development
+    console.log(`Verification code for ${email}: ${token}`);
+    // In production, integrate with an email service like Resend, SendGrid, etc.
   },
 });

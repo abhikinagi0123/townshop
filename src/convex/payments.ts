@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { getCurrentUser } from "./users";
 
 export const create = mutation({
@@ -124,5 +124,30 @@ export const removeSavedPaymentMethod = mutation({
     }
 
     await ctx.db.delete(args.paymentMethodId);
+  },
+});
+
+export const updatePaymentStatus = internalMutation({
+  args: {
+    orderId: v.id("orders"),
+    paymentId: v.string(),
+    status: v.union(v.literal("pending"), v.literal("completed"), v.literal("failed")),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.orderId, {
+      paymentStatus: args.status,
+    });
+
+    const payment = await ctx.db
+      .query("payments")
+      .withIndex("by_order", (q) => q.eq("orderId", args.orderId))
+      .first();
+
+    if (payment) {
+      await ctx.db.patch(payment._id, {
+        status: args.status,
+        transactionId: args.paymentId,
+      });
+    }
   },
 });

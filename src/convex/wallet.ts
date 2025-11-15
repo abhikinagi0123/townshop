@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { getCurrentUser } from "./users";
 
 export const getBalance = query({
@@ -15,6 +15,38 @@ export const getBalance = query({
 });
 
 export const addMoney = mutation({
+  args: {
+    amount: v.number(),
+    transactionId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Unauthorized");
+
+    if (args.amount <= 0) {
+      throw new Error("Amount must be greater than 0");
+    }
+
+    const currentBalance = user.walletBalance || 0;
+    const newBalance = currentBalance + args.amount;
+
+    await ctx.db.patch(user._id, {
+      walletBalance: newBalance,
+    });
+
+    await ctx.db.insert("walletTransactions", {
+      userId: user._id,
+      amount: args.amount,
+      type: "credit",
+      description: `Added ₹${args.amount} to wallet`,
+      transactionId: args.transactionId,
+    });
+
+    return { newBalance };
+  },
+});
+
+export const addMoneyInternal = internalMutation({
   args: {
     amount: v.number(),
     transactionId: v.optional(v.string()),
