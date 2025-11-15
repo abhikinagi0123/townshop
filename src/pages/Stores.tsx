@@ -3,7 +3,6 @@ import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
 import { Store, Loader2 } from "lucide-react";
 import { StoreCard } from "@/components/StoreCard";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +10,7 @@ import { ProfileCompletionDialog } from "@/components/ProfileCompletionDialog";
 import { useAuth } from "@/hooks/use-auth";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { AdvancedFilters } from "@/components/AdvancedFilters";
 
 const categories = [
   { id: "all", label: "All", emoji: "🏪" },
@@ -25,10 +25,19 @@ export default function Stores() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [filters, setFilters] = useState<any>({});
   
   const { user, isAuthenticated } = useAuth();
   const cartItems = useQuery(api.cart.get);
-  const storesData = useQuery(api.stores.list, { category, search });
+  const storesData = useQuery(
+    api.stores.list, 
+    { 
+      category: category === "all" ? undefined : category, 
+      search,
+      filters,
+      sortBy: filters.sortBy,
+    }
+  );
   const stores = storesData?.stores || [];
 
   const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
@@ -73,7 +82,7 @@ export default function Stores() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-8"
+          className="mb-8 space-y-4"
         >
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((cat, index) => (
@@ -94,6 +103,15 @@ export default function Stores() {
                 </Button>
               </motion.div>
             ))}
+          </div>
+
+          <div className="flex justify-end">
+            <AdvancedFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              categories={categories.slice(1).map(c => c.id)}
+              type="stores"
+            />
           </div>
         </motion.div>
 
@@ -129,6 +147,7 @@ export default function Stores() {
                 onClick={() => {
                   setSearch("");
                   setCategory("all");
+                  setFilters({});
                 }}
               >
                 Clear Filters
@@ -164,6 +183,7 @@ export default function Stores() {
             className="mt-8 text-center text-sm text-muted-foreground"
           >
             Showing {stores.length} {stores.length === 1 ? "store" : "stores"}
+            {storesData?.hasMore && " (scroll for more)"}
           </motion.div>
         )}
       </div>

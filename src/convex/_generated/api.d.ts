@@ -23,6 +23,7 @@ import type * as deliveryTracking from "../deliveryTracking.js";
 import type * as favorites from "../favorites.js";
 import type * as groupOrders from "../groupOrders.js";
 import type * as http from "../http.js";
+import type * as inventory from "../inventory.js";
 import type * as loyalty from "../loyalty.js";
 import type * as notifications from "../notifications.js";
 import type * as offers from "../offers.js";
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   favorites: typeof favorites;
   groupOrders: typeof groupOrders;
   http: typeof http;
+  inventory: typeof inventory;
   loyalty: typeof loyalty;
   notifications: typeof notifications;
   offers: typeof offers;

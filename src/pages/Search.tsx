@@ -11,15 +11,26 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { AdvancedFilters } from "@/components/AdvancedFilters";
+
+const categories = ["Grocery", "Food", "Pharmacy", "Electronics"];
 
 export default function Search() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
+  const [productFilters, setProductFilters] = useState<any>({});
+  const [storeFilters, setStoreFilters] = useState<any>({});
   
-  const stores = useQuery(api.stores.search, searchTerm ? { term: searchTerm } : "skip");
-  const products = useQuery(api.products.search, searchTerm ? { term: searchTerm } : "skip");
+  const stores = useQuery(
+    api.stores.search, 
+    searchTerm ? { term: searchTerm, filters: storeFilters } : "skip"
+  );
+  const products = useQuery(
+    api.products.search, 
+    searchTerm ? { term: searchTerm, filters: productFilters, sortBy: productFilters.sortBy } : "skip"
+  );
 
   useEffect(() => {
     const q = searchParams.get("q");
@@ -44,7 +55,7 @@ export default function Search() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          className="mb-6 space-y-4"
         >
           <form onSubmit={handleSearch}>
             <div className="relative max-w-2xl">
@@ -92,15 +103,23 @@ export default function Search() {
           </motion.div>
         ) : (
           <div className="space-y-8">
-              {stores && stores.length > 0 && (
+            {stores && stores.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <div className="flex items-center gap-2 mb-4">
-                  <Store className="h-5 w-5 text-primary" />
-                  <h2 className="text-2xl font-bold">Stores</h2>
-                  <Badge variant="secondary">{stores.length}</Badge>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Store className="h-5 w-5 text-primary" />
+                    <h2 className="text-2xl font-bold">Stores</h2>
+                    <Badge variant="secondary">{stores.length}</Badge>
+                  </div>
+                  <AdvancedFilters
+                    filters={storeFilters}
+                    onFiltersChange={setStoreFilters}
+                    categories={categories}
+                    type="stores"
+                  />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {stores.map((store: any, index: number) => (
@@ -123,10 +142,18 @@ export default function Search() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <div className="flex items-center gap-2 mb-4">
-                  <Package className="h-5 w-5 text-primary" />
-                  <h2 className="text-2xl font-bold">Products</h2>
-                  <Badge variant="secondary">{products.length}</Badge>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-5 w-5 text-primary" />
+                    <h2 className="text-2xl font-bold">Products</h2>
+                    <Badge variant="secondary">{products.length}</Badge>
+                  </div>
+                  <AdvancedFilters
+                    filters={productFilters}
+                    onFiltersChange={setProductFilters}
+                    categories={categories}
+                    type="products"
+                  />
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {products.map((product, index) => (
@@ -138,18 +165,24 @@ export default function Search() {
                     >
                       <Card 
                         className="cursor-pointer hover:shadow-lg transition-shadow"
-                        onClick={() => navigate(`/store/${product.storeId}`)}
+                        onClick={() => navigate(`/product/${product._id}`)}
                       >
                         <div className="relative">
                           <img
                             src={product.image}
                             alt={product.name}
                             className="w-full h-32 object-cover rounded-t-lg"
+                            loading="lazy"
                           />
                           {!product.inStock && (
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
                               <Badge variant="secondary">Out of Stock</Badge>
                             </div>
+                          )}
+                          {product.stockQuantity !== undefined && product.stockQuantity <= (product.lowStockThreshold || 10) && product.inStock && (
+                            <Badge className="absolute top-2 right-2 bg-orange-500">
+                              Only {product.stockQuantity} left
+                            </Badge>
                           )}
                         </div>
                         <CardContent className="p-3">

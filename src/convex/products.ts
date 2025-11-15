@@ -55,7 +55,7 @@ export const getTrendingProducts = query({
     const trendingProducts = await Promise.all(
       sortedProducts.map(async ([productId, orderCount]) => {
         const product = await ctx.db.get(productId as any);
-        if (!product || !(("storeId" in product) && product.storeId)) return null;
+        if (!product || !((("storeId" in product) && product.storeId))) return null;
         const store = await ctx.db.get(product.storeId);
         return {
           ...product,
@@ -133,16 +133,48 @@ export const getFeaturedProducts = query({
 });
 
 export const search = query({
-  args: { term: v.string() },
+  args: { 
+    term: v.string(),
+    filters: v.optional(v.object({
+      minPrice: v.optional(v.number()),
+      maxPrice: v.optional(v.number()),
+      category: v.optional(v.string()),
+      inStock: v.optional(v.boolean()),
+      minRating: v.optional(v.number()),
+    })),
+    sortBy: v.optional(v.union(
+      v.literal("relevance"),
+      v.literal("price_asc"),
+      v.literal("price_desc"),
+      v.literal("rating"),
+      v.literal("popularity")
+    )),
+  },
   handler: async (ctx, args) => {
     const searchLower = args.term.toLowerCase();
     const products = await ctx.db.query("products").collect();
     
-    const matchingProducts = products.filter(product => 
+    let matchingProducts = products.filter(product => 
       product.name.toLowerCase().includes(searchLower) ||
       product.description.toLowerCase().includes(searchLower) ||
       product.category.toLowerCase().includes(searchLower)
     );
+
+    // Apply filters
+    if (args.filters) {
+      if (args.filters.minPrice !== undefined) {
+        matchingProducts = matchingProducts.filter(p => p.price >= args.filters!.minPrice!);
+      }
+      if (args.filters.maxPrice !== undefined) {
+        matchingProducts = matchingProducts.filter(p => p.price <= args.filters!.maxPrice!);
+      }
+      if (args.filters.category) {
+        matchingProducts = matchingProducts.filter(p => p.category === args.filters!.category);
+      }
+      if (args.filters.inStock !== undefined) {
+        matchingProducts = matchingProducts.filter(p => p.inStock === args.filters!.inStock);
+      }
+    }
     
     const productsWithStore = await Promise.all(
       matchingProducts.map(async (product) => {
@@ -150,11 +182,28 @@ export const search = query({
         return {
           ...product,
           storeName: store?.name || "Unknown Store",
+          storeRating: store?.rating || 0,
         };
       })
     );
+
+    // Apply rating filter after getting store data
+    let filteredProducts = productsWithStore;
+    if (args.filters?.minRating !== undefined) {
+      filteredProducts = productsWithStore.filter(p => p.storeRating >= args.filters!.minRating!);
+    }
+
+    // Apply sorting
+    const sortBy = args.sortBy || "relevance";
+    if (sortBy === "price_asc") {
+      filteredProducts.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "price_desc") {
+      filteredProducts.sort((a, b) => b.price - a.price);
+    } else if (sortBy === "rating") {
+      filteredProducts.sort((a, b) => b.storeRating - a.storeRating);
+    }
     
-    return productsWithStore;
+    return filteredProducts;
   },
 });
 

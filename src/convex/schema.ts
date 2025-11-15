@@ -78,6 +78,8 @@ const schema = defineSchema(
       price: v.number(),
       category: v.string(),
       inStock: v.boolean(),
+      stockQuantity: v.optional(v.number()),
+      lowStockThreshold: v.optional(v.number()),
       variants: v.optional(v.array(v.object({
         name: v.string(),
         options: v.array(v.string()),
@@ -88,7 +90,9 @@ const schema = defineSchema(
         dimensions: v.optional(v.string()),
         features: v.optional(v.array(v.string())),
       })),
-    }).index("by_store", ["storeId"]),
+    }).index("by_store", ["storeId"])
+      .index("by_category", ["category"])
+      .index("by_stock", ["inStock"]),
 
     cart: defineTable({
       userId: v.id("users"),
@@ -349,6 +353,22 @@ const schema = defineSchema(
       expiresAt: v.number(),
       description: v.optional(v.string()),
     }).index("by_store", ["storeId"]).index("by_creator", ["creatorId"]),
+
+    inventoryHistory: defineTable({
+      productId: v.id("products"),
+      storeId: v.id("stores"),
+      previousQuantity: v.number(),
+      newQuantity: v.number(),
+      changeType: v.union(
+        v.literal("restock"),
+        v.literal("sale"),
+        v.literal("adjustment"),
+        v.literal("return")
+      ),
+      orderId: v.optional(v.id("orders")),
+      notes: v.optional(v.string()),
+    }).index("by_product", ["productId"])
+      .index("by_store", ["storeId"]),
   },
   {
     schemaValidation: false,
