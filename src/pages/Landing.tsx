@@ -118,15 +118,15 @@ export default function Landing() {
               title="Trending Now"
               icon={<Flame className="h-4 w-4 text-orange-500" />}
               badge="Hot 🔥"
-              products={trendingProducts.filter(item => 
-                item !== null && 'image' in item && 'name' in item && 'price' in item
-              ).map(item => ({
-                _id: item._id as string,
-                image: (item as any).image,
-                name: (item as any).name,
-                price: (item as any).price,
-                storeName: (item as any).storeName,
-              }))}
+              products={trendingProducts
+                .filter(item => item && 'image' in item && 'name' in item && 'price' in item)
+                .map(item => ({
+                  _id: item._id,
+                  image: item.image,
+                  name: item.name,
+                  price: item.price,
+                  storeName: item.storeName,
+                }))}
             />
           ) : null}
 
@@ -137,16 +137,16 @@ export default function Landing() {
               title="Top Rated"
               icon={<Award className="h-4 w-4 text-yellow-500" />}
               badge="Best Quality"
-              products={topRatedProducts.filter(item => 
-                item !== null && 'image' in item && 'name' in item && 'price' in item
-              ).map(item => ({
-                _id: item._id as string,
-                image: (item as any).image,
-                name: (item as any).name,
-                price: (item as any).price,
-                storeName: (item as any).storeName,
-                storeRating: (item as any).storeRating,
-              }))}
+              products={topRatedProducts
+                .filter(item => item && item.image && item.name && item.price)
+                .map(item => ({
+                  _id: item._id,
+                  image: item.image,
+                  name: item.name,
+                  price: item.price,
+                  storeName: item.storeName || "Store",
+                  storeRating: item.storeRating,
+                }))}
               showRating
             />
           ) : null}
@@ -156,75 +156,51 @@ export default function Landing() {
               title="Featured Picks"
               icon={<Sparkles className="h-4 w-4 text-primary" />}
               badge="Handpicked"
-              products={featuredProducts.filter(item => 
-                item !== null && 'image' in item && 'name' in item && 'price' in item
-              ).map(item => ({
-                _id: item._id as string,
-                image: (item as any).image,
-                name: (item as any).name,
-                price: (item as any).price,
-                storeName: (item as any).storeName,
-              }))}
+              products={featuredProducts
+                .filter(item => item && item.image && item.name && item.price)
+                .map(item => ({
+                  _id: item._id,
+                  image: item.image,
+                  name: item.name,
+                  price: item.price,
+                  storeName: item.storeName || "Store",
+                }))}
             />
           )}
 
-          {recommendedProducts && recommendedProducts.length > 0 && (() => {
-            const validProducts = recommendedProducts.filter((item) => {
-              if (!item || typeof item !== 'object') return false;
-              if (!('_id' in item) || typeof item._id !== 'string') return false;
-              const idParts = item._id.split('|');
-              if (idParts.length < 2 || !idParts[0].startsWith('k')) return false;
-              return 'image' in item && 
-                     'name' in item && 
-                     'price' in item && 
-                     'storeName' in item &&
-                     !('status' in item) &&
-                     !('deliveryAddress' in item);
-            }).map(item => ({
-              _id: item._id as string,
-              image: (item as any).image,
-              name: (item as any).name,
-              price: (item as any).price,
-              storeName: (item as any).storeName,
-            }));
-            return validProducts.length > 0 ? (
-              <ProductSection
-                title="Recommended for You"
-                icon={<Sparkles className="h-4 w-4 text-purple-500" />}
-                badge="Personalized"
-                products={validProducts}
-              />
-            ) : null;
-          })()}
+          {recommendedProducts && recommendedProducts.length > 0 && (
+            <ProductSection
+              title="Recommended for You"
+              icon={<Sparkles className="h-4 w-4 text-purple-500" />}
+              badge="Personalized"
+              products={recommendedProducts
+                .filter(item => item && 'image' in item && 'name' in item && 'price' in item)
+                .map(item => ({
+                  _id: item._id,
+                  image: item.image,
+                  name: item.name,
+                  price: item.price,
+                  storeName: item.storeName,
+                }))}
+            />
+          )}
 
-          {isAuthenticated && recentlyViewedProducts && recentlyViewedProducts.length > 0 && (() => {
-            const validProducts = recentlyViewedProducts.filter((item) => {
-              if (!item || typeof item !== 'object') return false;
-              if (!('_id' in item) || typeof item._id !== 'string') return false;
-              const idParts = item._id.split('|');
-              if (idParts.length < 2 || !idParts[0].startsWith('k')) return false;
-              return 'image' in item && 
-                     'name' in item && 
-                     'price' in item && 
-                     'storeName' in item &&
-                     !('status' in item) &&
-                     !('deliveryAddress' in item);
-            }).map(item => ({
-              _id: item._id as string,
-              image: (item as any).image,
-              name: (item as any).name,
-              price: (item as any).price,
-              storeName: (item as any).storeName,
-            }));
-            return validProducts.length > 0 ? (
-              <ProductSection
-                title="Order Again"
-                icon={<RefreshCw className="h-4 w-4 text-blue-500" />}
-                badge="From Your Orders"
-                products={validProducts}
-              />
-            ) : null;
-          })()}
+          {isAuthenticated && recentlyViewedProducts && recentlyViewedProducts.length > 0 && (
+            <ProductSection
+              title="Order Again"
+              icon={<RefreshCw className="h-4 w-4 text-blue-500" />}
+              badge="From Your Orders"
+              products={recentlyViewedProducts
+                .filter(item => item && 'image' in item && 'name' in item && 'price' in item)
+                .map(item => ({
+                  _id: item._id,
+                  image: item.image,
+                  name: item.name,
+                  price: item.price,
+                  storeName: item.storeName,
+                }))}
+            />
+          )}
 
           <FeaturedCategories />
 
