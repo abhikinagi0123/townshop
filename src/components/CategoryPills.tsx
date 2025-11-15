@@ -1,22 +1,16 @@
 import { Button } from "@/components/ui/button";
-
-interface Category {
-  id: string;
-  label: string;
-  emoji: string;
-}
+import { SHOP_CATEGORIES } from "@/lib/constants";
 
 interface CategoryPillsProps {
-  categories: Category[];
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
 }
 
-export function CategoryPills({ categories, selectedCategory, onCategoryChange }: CategoryPillsProps) {
+export function CategoryPills({ selectedCategory, onCategoryChange }: CategoryPillsProps) {
   return (
     <div className="py-3 -mx-4 px-4">
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {categories.map((cat) => (
+        {SHOP_CATEGORIES.map((cat) => (
           <Button
             key={cat.id}
             variant={selectedCategory === cat.id ? "default" : "outline"}
