@@ -4,7 +4,8 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Award, Gift, MessageSquare, Copy, Trophy, Wallet, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Award, Gift, MessageSquare, Copy, Trophy, Wallet, Plus, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
+import { UserDashboard } from "@/components/UserDashboard";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { ProfileCompletionDialog } from "@/components/ProfileCompletionDialog";
@@ -157,6 +158,22 @@ export default function Profile() {
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Analytics Dashboard */}
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <BarChart3 className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold">Your Insights</h3>
+                  <p className="text-sm text-muted-foreground">Order statistics & spending</p>
+                </div>
+              </div>
+              <UserDashboard />
             </CardContent>
           </Card>
 

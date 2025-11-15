@@ -68,11 +68,18 @@ export const list = query({
   args: {
     category: v.optional(v.string()),
     search: v.optional(v.string()),
+    limit: v.optional(v.number()),
+    offset: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const stores = await ctx.db.query("stores").collect();
+    const limit = args.limit || 20;
+    const offset = args.offset || 0;
     
-    return stores.filter(store => {
+    let query = ctx.db.query("stores");
+    
+    const stores = await query.collect();
+    
+    const filtered = stores.filter(store => {
       if (args.category && args.category !== "all" && store.category !== args.category) {
         return false;
       }
@@ -85,6 +92,12 @@ export const list = query({
       
       return true;
     });
+    
+    return {
+      stores: filtered.slice(offset, offset + limit),
+      total: filtered.length,
+      hasMore: offset + limit < filtered.length,
+    };
   },
 });
 

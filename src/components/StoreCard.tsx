@@ -49,6 +49,7 @@ export function StoreCard({ store }: StoreCardProps) {
               alt={store.name}
               className="w-full h-full object-cover"
               loading="lazy"
+              decoding="async"
             />
             <div className="absolute top-1 left-1 flex items-center gap-0.5 bg-background/95 backdrop-blur-sm px-1.5 py-0.5 rounded-md shadow-sm">
               <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />

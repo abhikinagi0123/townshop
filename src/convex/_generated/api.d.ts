@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as addresses from "../addresses.js";
+import type * as analytics from "../analytics.js";
 import type * as auth_emailOtp from "../auth/emailOtp.js";
 import type * as auth from "../auth.js";
 import type * as cart from "../cart.js";
@@ -26,6 +27,7 @@ import type * as notifications from "../notifications.js";
 import type * as offers from "../offers.js";
 import type * as orders from "../orders.js";
 import type * as payments from "../payments.js";
+import type * as priceTracking from "../priceTracking.js";
 import type * as products from "../products.js";
 import type * as pushNotifications from "../pushNotifications.js";
 import type * as reviews from "../reviews.js";
@@ -46,6 +48,7 @@ import type * as wallet from "../wallet.js";
  */
 declare const fullApi: ApiFromModules<{
   addresses: typeof addresses;
+  analytics: typeof analytics;
   "auth/emailOtp": typeof auth_emailOtp;
   auth: typeof auth;
   cart: typeof cart;
@@ -58,6 +61,7 @@ declare const fullApi: ApiFromModules<{
   offers: typeof offers;
   orders: typeof orders;
   payments: typeof payments;
+  priceTracking: typeof priceTracking;
   products: typeof products;
   pushNotifications: typeof pushNotifications;
   reviews: typeof reviews;

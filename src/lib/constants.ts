@@ -32,6 +32,14 @@ export const UI_LIMITS = {
   RECOMMENDED_STORES: 6,
   ACTIVE_OFFERS: 5,
   NEARBY_STORES_PREVIEW: 6,
+  PAGINATION_PAGE_SIZE: 20,
+} as const;
+
+// Cache durations (in milliseconds)
+export const CACHE_DURATION = {
+  SHORT: 5 * 60 * 1000, // 5 minutes
+  MEDIUM: 15 * 60 * 1000, // 15 minutes
+  LONG: 60 * 60 * 1000, // 1 hour
 } as const;
 
 // Status colors

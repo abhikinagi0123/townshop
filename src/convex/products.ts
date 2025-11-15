@@ -268,6 +268,88 @@ export const getRecentlyViewedProducts = query({
   },
 });
 
+export const getTrendingInArea = query({
+  args: {
+    userLat: v.number(),
+    userLng: v.number(),
+    radiusKm: v.optional(v.number()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const radius = args.radiusKm || 10;
+    const limit = args.limit || 10;
+    
+    // Get nearby stores
+    const stores = await ctx.db.query("stores").collect();
+    const nearbyStores = stores.filter(store => {
+      const distance = calculateDistance(
+        args.userLat,
+        args.userLng,
+        store.lat,
+        store.lng
+      );
+      return distance <= radius;
+    });
+    
+    const nearbyStoreIds = nearbyStores.map(s => s._id);
+    
+    // Get products from nearby stores
+    const allProducts = await ctx.db.query("products").collect();
+    const nearbyProducts = allProducts.filter(p => 
+      nearbyStoreIds.includes(p.storeId)
+    );
+    
+    // Get recent orders to determine trending
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const recentOrders = await ctx.db
+      .query("orders")
+      .filter((q) => q.gte(q.field("_creationTime"), thirtyDaysAgo))
+      .collect();
+    
+    // Count product orders
+    const productOrderCounts = new Map<string, number>();
+    recentOrders.forEach(order => {
+      order.items.forEach(item => {
+        const count = productOrderCounts.get(item.productId) || 0;
+        productOrderCounts.set(item.productId, count + item.quantity);
+      });
+    });
+    
+    // Sort by popularity
+    const trending = nearbyProducts
+      .map(product => ({
+        ...product,
+        orderCount: productOrderCounts.get(product._id) || 0,
+      }))
+      .sort((a, b) => b.orderCount - a.orderCount)
+      .slice(0, limit);
+    
+    // Add store names
+    return await Promise.all(
+      trending.map(async (product) => {
+        const store = await ctx.db.get(product.storeId);
+        return {
+          ...product,
+          storeName: store?.name || "Unknown Store",
+        };
+      })
+    );
+  },
+});
+
+// Helper function for distance calculation
+function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export const create = mutation({
   args: {
     storeId: v.id("stores"),

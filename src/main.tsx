@@ -1,29 +1,35 @@
 import { Toaster } from "@/components/ui/sonner";
 import { VlyToolbar } from "../vly-toolbar-readonly.tsx";
 import { InstrumentationProvider } from "@/instrumentation.tsx";
-import AuthPage from "@/pages/Auth.tsx";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
-import { StrictMode, useEffect } from "react";
+import { StrictMode, useEffect, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider, useLocation } from "react-router";
 import "./index.css";
-import Landing from "./pages/Landing.tsx";
-import NotFound from "./pages/NotFound.tsx";
-import Stores from "./pages/Stores.tsx";
-import StoreDetail from "./pages/StoreDetail.tsx";
-import Cart from "./pages/Cart.tsx";
-import Orders from "./pages/Orders.tsx";
-import OrderTracking from "./pages/OrderTracking.tsx";
-import Profile from "./pages/Profile.tsx";
-import Addresses from "./pages/Addresses.tsx";
-import Search from "./pages/Search.tsx";
-import Favorites from "./pages/Favorites";
-import Notifications from "./pages/Notifications";
-import Chat from "./pages/Chat";
-import Loyalty from "./pages/Loyalty";
-import ProductDetail from "./pages/ProductDetail";
+import { Loader2 } from "lucide-react";
 import "./types/global.d.ts";
+
+// Eager load critical pages
+import Landing from "./pages/Landing.tsx";
+import AuthPage from "@/pages/Auth.tsx";
+
+// Lazy load non-critical pages
+const Stores = lazy(() => import("./pages/Stores.tsx"));
+const StoreDetail = lazy(() => import("./pages/StoreDetail.tsx"));
+const Cart = lazy(() => import("./pages/Cart.tsx"));
+const Orders = lazy(() => import("./pages/Orders.tsx"));
+const OrderTracking = lazy(() => import("./pages/OrderTracking.tsx"));
+const Profile = lazy(() => import("./pages/Profile.tsx"));
+const Addresses = lazy(() => import("./pages/Addresses.tsx"));
+const Search = lazy(() => import("./pages/Search.tsx"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const Chat = lazy(() => import("./pages/Chat"));
+const Loyalty = lazy(() => import("./pages/Loyalty"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -50,6 +56,16 @@ function RouteSyncer() {
   return null;
 }
 
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center">
+      <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+      <p className="text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -61,59 +77,63 @@ const router = createBrowserRouter([
   },
   {
     path: "/stores",
-    element: <Stores />,
+    element: <Suspense fallback={<PageLoader />}><Stores /></Suspense>,
   },
   {
     path: "/store/:storeId",
-    element: <StoreDetail />,
+    element: <Suspense fallback={<PageLoader />}><StoreDetail /></Suspense>,
   },
   {
     path: "/product/:productId",
-    element: <ProductDetail />,
+    element: <Suspense fallback={<PageLoader />}><ProductDetail /></Suspense>,
   },
   {
     path: "/cart",
-    element: <Cart />,
+    element: <Suspense fallback={<PageLoader />}><Cart /></Suspense>,
   },
   {
     path: "/orders",
-    element: <Orders />,
+    element: <Suspense fallback={<PageLoader />}><Orders /></Suspense>,
   },
   {
     path: "/order/:orderId",
-    element: <OrderTracking />,
+    element: <Suspense fallback={<PageLoader />}><OrderTracking /></Suspense>,
   },
   {
     path: "/profile",
-    element: <Profile />,
+    element: <Suspense fallback={<PageLoader />}><Profile /></Suspense>,
   },
   {
     path: "/addresses",
-    element: <Addresses />,
+    element: <Suspense fallback={<PageLoader />}><Addresses /></Suspense>,
   },
   {
     path: "/search",
-    element: <Search />,
+    element: <Suspense fallback={<PageLoader />}><Search /></Suspense>,
   },
   {
     path: "/favorites",
-    element: <Favorites />,
+    element: <Suspense fallback={<PageLoader />}><Favorites /></Suspense>,
   },
   {
     path: "/notifications",
-    element: <Notifications />,
+    element: <Suspense fallback={<PageLoader />}><Notifications /></Suspense>,
   },
   {
     path: "/chat/:sessionId",
-    element: <Chat />,
+    element: <Suspense fallback={<PageLoader />}><Chat /></Suspense>,
   },
   {
     path: "/loyalty",
-    element: <Loyalty />,
+    element: <Suspense fallback={<PageLoader />}><Loyalty /></Suspense>,
+  },
+  {
+    path: "/dashboard",
+    element: <Suspense fallback={<PageLoader />}><Dashboard /></Suspense>,
   },
   {
     path: "*",
-    element: <NotFound />,
+    element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense>,
   },
 ]);
 

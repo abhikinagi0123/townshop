@@ -52,6 +52,7 @@ export function ProductCard({
               alt={product.name}
               className="w-full h-full object-cover"
               loading="lazy"
+              decoding="async"
             />
             {!product.inStock && (
               <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center backdrop-blur-sm gap-1">

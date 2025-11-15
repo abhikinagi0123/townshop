@@ -28,7 +28,8 @@ export default function Stores() {
   
   const { user, isAuthenticated } = useAuth();
   const cartItems = useQuery(api.cart.get);
-  const stores = useQuery(api.stores.list, { category, search });
+  const storesData = useQuery(api.stores.list, { category, search });
+  const stores = storesData?.stores || [];
 
   const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
@@ -97,7 +98,7 @@ export default function Stores() {
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {stores === undefined ? (
+          {storesData === undefined ? (
             <motion.div
               key="loading"
               initial={{ opacity: 0 }}

@@ -44,13 +44,21 @@ export function ProductSection({ title, icon, badge, products, showRating = fals
           >
             <Card className="overflow-hidden hover:shadow-md transition-shadow">
               <div className="relative">
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
-                  className="w-full h-24 object-cover" 
-                  loading="lazy"
-                  decoding="async"
-                />
+                <picture>
+                  <source 
+                    srcSet={item.image.replace(/\.(jpg|jpeg|png)$/i, '.webp')} 
+                    type="image/webp" 
+                  />
+                  <img 
+                    src={item.image} 
+                    alt={item.name} 
+                    className="w-full h-24 object-cover" 
+                    loading="lazy"
+                    decoding="async"
+                    width="112"
+                    height="96"
+                  />
+                </picture>
                 {showRating && item.storeRating && (
                   <div className="absolute top-1 left-1 flex items-center gap-0.5 bg-background/95 backdrop-blur-sm px-1.5 py-0.5 rounded-md">
                     <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />
