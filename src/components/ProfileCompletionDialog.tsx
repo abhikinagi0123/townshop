@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "convex/react";
+import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/convex/_generated/api";
 import {
   Dialog,
@@ -23,29 +24,29 @@ interface ProfileCompletionDialogProps {
   currentLng?: number;
 }
 
-export function ProfileCompletionDialog({
-  open,
-  onComplete,
-  currentName = "",
-  currentPhone = "",
-  currentLat,
-  currentLng,
-}: ProfileCompletionDialogProps) {
-  const [name, setName] = useState(currentName);
-  const [phone, setPhone] = useState(currentPhone);
-  const [lat, setLat] = useState<number | undefined>(currentLat);
-  const [lng, setLng] = useState<number | undefined>(currentLng);
+export function ProfileCompletionDialog({ open: propOpen, onComplete }: ProfileCompletionDialogProps) {
+  const { user } = useAuth();
+  const [open, setOpen] = useState(propOpen);
+
+  useEffect(() => {
+    setOpen(propOpen);
+  }, [propOpen]);
+  const apiAny: any = api;
+  const updateProfile = useMutation(apiAny.users.updateProfile);
+
+  const [name, setName] = useState(user?.name || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [lat, setLat] = useState<number | undefined>(user?.lat);
+  const [lng, setLng] = useState<number | undefined>(user?.lng);
   const [isLoading, setIsLoading] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   
-  const updateProfile = useMutation(api.users.updateProfile);
-
   useEffect(() => {
-    setName(currentName);
-    setPhone(currentPhone);
-    setLat(currentLat);
-    setLng(currentLng);
-  }, [currentName, currentPhone, currentLat, currentLng]);
+    setName(user?.name || "");
+    setPhone(user?.phone || "");
+    setLat(user?.lat);
+    setLng(user?.lng);
+  }, [user]);
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {

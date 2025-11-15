@@ -16,7 +16,8 @@ import { toast } from "sonner";
 export function PushNotificationPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const subscribeToPush = useMutation(api.pushNotifications.subscribeToPush);
+  const apiAny: any = api;
+  const subscribeToPush = useMutation(apiAny.pushNotifications.subscribeToPush);
 
   useEffect(() => {
     // Check if we should show the prompt

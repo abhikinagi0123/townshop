@@ -76,30 +76,33 @@ export default function Landing() {
     }
   }, [user]);
 
+  // Type assertion to avoid deep type instantiation with React 19
+  const apiAny: any = api;
+
   const nearbyShops = useQuery(
-    api.stores.getNearbyShops,
+    apiAny.stores.getNearbyShops,
     userLocation ? { userLat: userLocation.lat, userLng: userLocation.lng, category, search, radius: 10 } : "skip"
   );
 
-  const trendingProducts = useQuery(api.products.getTrendingProducts, { limit: 6 });
-  const topRatedProducts = useQuery(api.products.getTopRatedProducts, { limit: 4 });
-  const featuredProducts = useQuery(api.products.getFeaturedProducts, { limit: 8 });
-  const activeOffers = useQuery(api.offers.getActiveOffers);
+  const trendingProducts = useQuery(apiAny.products.getTrendingProducts, { limit: 6 });
+  const topRatedProducts = useQuery(apiAny.products.getTopRatedProducts, { limit: 4 });
+  const featuredProducts = useQuery(apiAny.products.getFeaturedProducts, { limit: 8 });
+  const activeOffers = useQuery(apiAny.offers.getActiveOffers);
   
   const recentOrders = useQuery(
-    api.orders.getRecentOrders,
+    apiAny.orders.getRecentOrders,
     isAuthenticated ? { limit: 3 } : "skip"
   );
   const recommendedProducts = useQuery(
-    api.products.getRecommendedProducts,
+    apiAny.products.getRecommendedProducts,
     { limit: 8 }
   );
   const recentlyViewedProducts = useQuery(
-    api.products.getRecentlyViewedProducts,
+    apiAny.products.getRecentlyViewedProducts,
     isAuthenticated ? { limit: 6 } : "skip"
   );
   const recommendedStores = useQuery(
-    api.stores.getRecommendedStores,
+    apiAny.stores.getRecommendedStores,
     userLocation ? { lat: userLocation.lat, lng: userLocation.lng, limit: 6 } : "skip"
   );
 
@@ -139,9 +142,9 @@ export default function Landing() {
               title="Trending Now"
               icon={<Flame className="h-4 w-4 text-orange-500" />}
               badge="Hot 🔥"
-              products={trendingProducts.filter(item => 
+              products={trendingProducts.filter((item: any) => 
                 item !== null && 'image' in item && 'name' in item && 'price' in item
-              ).map(item => ({
+              ).map((item: any) => ({
                 _id: item._id as string,
                 image: (item as any).image,
                 name: (item as any).name,
@@ -158,9 +161,9 @@ export default function Landing() {
               title="Top Rated"
               icon={<Award className="h-4 w-4 text-yellow-500" />}
               badge="Best Quality"
-              products={topRatedProducts.filter(item => 
+              products={topRatedProducts.filter((item: any) => 
                 item !== null && 'image' in item && 'name' in item && 'price' in item
-              ).map(item => ({
+              ).map((item: any) => ({
                 _id: item._id as string,
                 image: (item as any).image,
                 name: (item as any).name,
@@ -177,9 +180,9 @@ export default function Landing() {
               title="Featured Picks"
               icon={<Sparkles className="h-4 w-4 text-primary" />}
               badge="Handpicked"
-              products={featuredProducts.filter(item => 
+              products={featuredProducts.filter((item: any) => 
                 item !== null && 'image' in item && 'name' in item && 'price' in item
-              ).map(item => ({
+              ).map((item: any) => ({
                 _id: item._id as string,
                 image: (item as any).image,
                 name: (item as any).name,
@@ -194,9 +197,9 @@ export default function Landing() {
               title="Recommended for You"
               icon={<Sparkles className="h-4 w-4 text-purple-500" />}
               badge="Personalized"
-              products={recommendedProducts.filter(item => 
+              products={recommendedProducts.filter((item: any) => 
                 item && 'image' in item && 'name' in item && 'price' in item && 'storeName' in item
-              ).map(item => ({
+              ).map((item: any) => ({
                 _id: item._id as string,
                 image: (item as any).image,
                 name: (item as any).name,
@@ -211,9 +214,9 @@ export default function Landing() {
               title="Buy Again"
               icon={<RefreshCw className="h-4 w-4 text-blue-500" />}
               badge="From Your Orders"
-              products={recentlyViewedProducts.filter(item => 
+              products={recentlyViewedProducts.filter((item: any) => 
                 item && 'image' in item && 'name' in item && 'price' in item && 'storeName' in item
-              ).map(item => ({
+              ).map((item: any) => ({
                 _id: item._id as string,
                 image: (item as any).image,
                 name: (item as any).name,
@@ -235,7 +238,7 @@ export default function Landing() {
                 <Badge variant="secondary" className="text-[10px]">For You</Badge>
               </div>
               <div className="grid grid-cols-1 gap-3">
-                {recommendedStores.slice(0, 4).map((shop, index) => (
+                {recommendedStores.slice(0, 4).map((shop: any, index: number) => (
                   <motion.div
                     key={shop._id}
                     initial={{ opacity: 0, y: 10 }}
@@ -256,7 +259,7 @@ export default function Landing() {
                 <h2 className="text-base font-bold">Active Offers</h2>
               </div>
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
-                {activeOffers.slice(0, 5).map((offer) => (
+                {activeOffers.slice(0, 5).map((offer: any) => (
                   <OfferCard key={offer._id} offer={offer} compact />
                 ))}
               </div>
@@ -281,7 +284,7 @@ export default function Landing() {
                 </Button>
               </div>
               <div className="space-y-3">
-                {recentOrders.map((order, index) => (
+                {recentOrders.map((order: any, index: number) => (
                   <motion.div
                     key={order._id}
                     initial={{ opacity: 0, y: 10 }}
@@ -305,7 +308,7 @@ export default function Landing() {
                             order.status === "out_for_delivery" ? "bg-blue-500" :
                             "bg-yellow-500"
                           }>
-                            {order.status.split("_").map(word => 
+                            {order.status.split("_").map((word: string) => 
                               word.charAt(0).toUpperCase() + word.slice(1)
                             ).join(" ")}
                           </Badge>
@@ -347,7 +350,7 @@ export default function Landing() {
               </div>
 
               <div className="grid grid-cols-1 gap-3">
-                {nearbyShops.slice(0, 6).map((shop, index) => (
+                {nearbyShops.slice(0, 6).map((shop: any, index: number) => (
                   <motion.div
                     key={shop._id}
                     initial={{ opacity: 0, y: 10 }}

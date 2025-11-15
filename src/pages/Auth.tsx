@@ -36,7 +36,8 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const [referralCode, setReferralCode] = useState("");
   const [showReferralInput, setShowReferralInput] = useState(false);
   
-  const applyReferral = useMutation(api.loyalty.applyReferralCode);
+  const apiAny: any = api;
+  const applyReferral = useMutation(apiAny.loyalty.applyReferralCode);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {

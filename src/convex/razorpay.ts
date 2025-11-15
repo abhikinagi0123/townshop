@@ -67,13 +67,15 @@ export const verifyPaymentSignature = action({
     
     if (isValid) {
       // Update order payment status
-      await ctx.scheduler.runAfter(
+      const scheduler: any = ctx.scheduler;
+      const internalAny: any = internal;
+      await scheduler.runAfter(
         0,
-        internal.payments.updatePaymentStatus,
+        internalAny.payments.updatePaymentStatus,
         {
           orderId: args.orderId,
           paymentId: args.razorpayPaymentId,
-          status: "completed",
+          status: "completed" as const,
         }
       );
     }
@@ -129,9 +131,11 @@ export const verifyWalletRecharge = action({
     const isValid = generatedSignature === args.razorpaySignature;
     
     if (isValid) {
-      await ctx.scheduler.runAfter(
+      const scheduler: any = ctx.scheduler;
+      const internalAny: any = internal;
+      await scheduler.runAfter(
         0,
-        internal.wallet.addMoneyInternal,
+        internalAny.wallet.addMoneyInternal,
         {
           amount: args.amount,
           transactionId: args.razorpayPaymentId,

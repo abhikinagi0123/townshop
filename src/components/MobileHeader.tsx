@@ -26,11 +26,12 @@ export function MobileHeader({
   showSearch = true
 }: MobileHeaderProps) {
   const navigate = useNavigate();
-  const unreadCount = useQuery(api.notifications.getUnreadCount);
-  const cartItems = useQuery(api.cart.get);
-  const favorites = useQuery(api.favorites.list);
+  const apiAny: any = api;
+  const unreadCount = useQuery(apiAny.notifications.getUnreadCount);
+  const cartItems = useQuery(apiAny.cart.get);
+  const favorites = useQuery(apiAny.favorites.list);
 
-  const cartCount = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const cartCount = cartItems?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0;
   const favoritesCount = favorites?.length || 0;
 
   return (

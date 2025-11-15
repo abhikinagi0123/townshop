@@ -28,9 +28,10 @@ export default function Stores() {
   const [filters, setFilters] = useState<any>({});
   
   const { user, isAuthenticated } = useAuth();
-  const cartItems = useQuery(api.cart.get);
+  const apiAny: any = api;
+  const cartItems = useQuery(apiAny.cart.get);
   const storesData = useQuery(
-    api.stores.list, 
+    apiAny.stores.list, 
     { 
       category: category === "all" ? undefined : category, 
       search,
