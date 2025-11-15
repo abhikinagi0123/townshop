@@ -1,9 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { IndianRupee, Plus, Minus, Bell, BellOff } from "lucide-react";
+import { IndianRupee, Plus, Minus, Bell, BellOff, TrendingDown, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface ProductCardProps {
@@ -26,6 +27,7 @@ interface ProductCardProps {
   onDecrease?: () => void;
   hasStockAlert?: boolean;
   onToggleStockAlert?: () => void;
+  showDynamicPrice?: boolean;
 }
 
 export function ProductCard({ 
@@ -35,8 +37,17 @@ export function ProductCard({
   onIncrease, 
   onDecrease,
   hasStockAlert = false,
-  onToggleStockAlert
+  onToggleStockAlert,
+  showDynamicPrice = false,
 }: ProductCardProps) {
+  const dynamicPrice = useQuery(
+    api.pricing.getDynamicPrice,
+    showDynamicPrice ? { productId: product._id, quantity: quantity || 1 } : "skip"
+  );
+
+  const displayPrice = dynamicPrice?.finalPrice || product.price;
+  const hasSavings = dynamicPrice && dynamicPrice.savings > 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -82,6 +93,12 @@ export function ProductCard({
                 )}
               </div>
             )}
+            {hasSavings && (
+              <Badge className="absolute top-1 right-1 bg-green-600 text-[10px] px-1">
+                <TrendingDown className="h-3 w-3 mr-0.5" />
+                Save ₹{Math.round(dynamicPrice.savings)}
+              </Badge>
+            )}
           </div>
           <CardContent className="flex-1 p-0 flex flex-col justify-between">
             <div>
@@ -89,10 +106,26 @@ export function ProductCard({
               <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                 {product.description}
               </p>
-              <div className="flex items-center gap-1 font-bold text-primary">
-                <IndianRupee className="h-3 w-3" />
-                <span>{product.price}</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 font-bold text-primary">
+                  <IndianRupee className="h-3 w-3" />
+                  <span>{displayPrice}</span>
+                </div>
+                {hasSavings && (
+                  <span className="text-xs text-muted-foreground line-through">
+                    ₹{product.price}
+                  </span>
+                )}
               </div>
+              {dynamicPrice?.discounts && dynamicPrice.discounts.length > 0 && (
+                <div className="flex items-center gap-1 mt-1">
+                  <Clock className="h-3 w-3 text-green-600" />
+                  <span className="text-[10px] text-green-600">
+                    {dynamicPrice.discounts[0].type === "bulk" && "Bulk discount"}
+                    {dynamicPrice.discounts[0].type === "early_bird" && "Early bird special"}
+                  </span>
+                </div>
+              )}
             </div>
             <div className="mt-2">
               {quantity === 0 ? (

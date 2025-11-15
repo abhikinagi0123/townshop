@@ -23,6 +23,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { DeliverySlotSelector } from "@/components/DeliverySlotSelector";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -56,6 +58,14 @@ export default function Cart() {
   const [scheduledTime, setScheduledTime] = useState("");
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringFrequency, setRecurringFrequency] = useState<"daily" | "weekly" | "monthly">("weekly");
+  
+  // Delivery slot states
+  const [useDeliverySlot, setUseDeliverySlot] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState("");
+  
+  // Order customization states
+  const [specialInstructions, setSpecialInstructions] = useState("");
+  const [substitutionPreference, setSubstitutionPreference] = useState<"call_me" | "best_match" | "refund" | "cancel_order">("call_me");
 
   // Payment states
   const [paymentMethod, setPaymentMethod] = useState<"card" | "upi" | "wallet" | "cod" | "app_wallet">("cod");
@@ -255,6 +265,13 @@ export default function Cart() {
         recurringFrequency: scheduleOrder && isRecurring ? recurringFrequency : undefined,
         deliveryTip: deliveryTip > 0 ? deliveryTip : undefined,
         orderNotes: orderNotes.trim() || undefined,
+        specialInstructions: specialInstructions.trim() || undefined,
+        substitutionPreference: substitutionPreference,
+        deliverySlot: useDeliverySlot && selectedSlot ? {
+          startTime: 0, // Will be calculated from selectedSlot
+          endTime: 0,
+          label: selectedSlot,
+        } : undefined,
         appliedCoupon: appliedCoupon || undefined,
       });
 
@@ -790,18 +807,50 @@ export default function Cart() {
 
             {/* Order Notes Section */}
             <div className="border-t pt-4 mt-4">
-              <h3 className="font-semibold mb-3">Special Instructions</h3>
-              <textarea
-                className="w-full p-3 border rounded-lg resize-none"
-                rows={3}
-                placeholder="Add delivery instructions, preferences, etc."
+              <h3 className="font-semibold mb-3">Delivery Instructions</h3>
+              <Textarea
+                placeholder="Add delivery instructions (e.g., gate code, parking info)"
                 value={orderNotes}
                 onChange={(e) => setOrderNotes(e.target.value)}
                 maxLength={200}
+                rows={2}
               />
               <p className="text-xs text-muted-foreground mt-1">
                 {orderNotes.length}/200 characters
               </p>
+            </div>
+
+            {/* Special Instructions Section */}
+            <div className="border-t pt-4 mt-4">
+              <h3 className="font-semibold mb-3">Special Instructions</h3>
+              <Textarea
+                placeholder="Any special requests for your order (e.g., ripe bananas, extra packaging)"
+                value={specialInstructions}
+                onChange={(e) => setSpecialInstructions(e.target.value)}
+                maxLength={300}
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {specialInstructions.length}/300 characters
+              </p>
+              
+              <div className="mt-4">
+                <Label className="mb-2 block">If item is unavailable:</Label>
+                <Select
+                  value={substitutionPreference}
+                  onValueChange={(value: any) => setSubstitutionPreference(value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="call_me">Call me for alternatives</SelectItem>
+                    <SelectItem value="best_match">Send best match available</SelectItem>
+                    <SelectItem value="refund">Refund the item</SelectItem>
+                    <SelectItem value="cancel_order">Cancel entire order</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Loyalty Points Redemption */}
@@ -882,12 +931,55 @@ export default function Cart() {
               </div>
             )}
 
+            {/* Delivery Time Slot Selection */}
+            {cartItems && cartItems.length > 0 && (
+              <div className="border-t pt-4 mt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold">Choose Delivery Slot</h3>
+                  </div>
+                  <Switch
+                    checked={useDeliverySlot}
+                    onCheckedChange={setUseDeliverySlot}
+                  />
+                </div>
+
+                {useDeliverySlot && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <Label>Select Date</Label>
+                      <Input
+                        type="date"
+                        min={today}
+                        value={scheduledDate}
+                        onChange={(e) => setScheduledDate(e.target.value)}
+                      />
+                    </div>
+                    
+                    {scheduledDate && cartItems[0]?.product?.storeId && (
+                      <DeliverySlotSelector
+                        storeId={cartItems[0].product.storeId}
+                        selectedDate={scheduledDate}
+                        selectedSlot={selectedSlot}
+                        onSlotChange={setSelectedSlot}
+                      />
+                    )}
+                  </motion.div>
+                )}
+              </div>
+            )}
+
             {/* Order Scheduling */}
             <div className="border-t pt-4 mt-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold">Schedule Delivery</h3>
+                  <h3 className="font-semibold">Schedule Recurring Order</h3>
                 </div>
                 <Switch
                   checked={scheduleOrder}

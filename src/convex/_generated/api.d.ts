@@ -30,6 +30,7 @@ import type * as offers from "../offers.js";
 import type * as orders from "../orders.js";
 import type * as payments from "../payments.js";
 import type * as priceTracking from "../priceTracking.js";
+import type * as pricing from "../pricing.js";
 import type * as products from "../products.js";
 import type * as pushNotifications from "../pushNotifications.js";
 import type * as razorpay from "../razorpay.js";
@@ -67,6 +68,7 @@ declare const fullApi: ApiFromModules<{
   orders: typeof orders;
   payments: typeof payments;
   priceTracking: typeof priceTracking;
+  pricing: typeof pricing;
   products: typeof products;
   pushNotifications: typeof pushNotifications;
   razorpay: typeof razorpay;

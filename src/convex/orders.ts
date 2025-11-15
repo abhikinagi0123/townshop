@@ -41,6 +41,11 @@ export const create = mutation({
     totalAmount: v.number(),
     deliveryAddress: v.string(),
     scheduledFor: v.optional(v.number()),
+    deliverySlot: v.optional(v.object({
+      startTime: v.number(),
+      endTime: v.number(),
+      label: v.string(),
+    })),
     isRecurring: v.optional(v.boolean()),
     recurringFrequency: v.optional(v.union(
       v.literal("daily"),
@@ -49,6 +54,13 @@ export const create = mutation({
     )),
     deliveryTip: v.optional(v.number()),
     orderNotes: v.optional(v.string()),
+    specialInstructions: v.optional(v.string()),
+    substitutionPreference: v.optional(v.union(
+      v.literal("call_me"),
+      v.literal("best_match"),
+      v.literal("refund"),
+      v.literal("cancel_order")
+    )),
     appliedCoupon: v.optional(v.object({
       code: v.string(),
       discountAmount: v.number(),
@@ -67,11 +79,14 @@ export const create = mutation({
       deliveryAddress: args.deliveryAddress,
       status: "pending",
       scheduledFor: args.scheduledFor,
+      deliverySlot: args.deliverySlot,
       isRecurring: args.isRecurring,
       recurringFrequency: args.recurringFrequency,
       paymentStatus: "pending",
       deliveryTip: args.deliveryTip,
       orderNotes: args.orderNotes,
+      specialInstructions: args.specialInstructions,
+      substitutionPreference: args.substitutionPreference,
       appliedCoupon: args.appliedCoupon,
     });
     

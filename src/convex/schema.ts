@@ -131,6 +131,11 @@ const schema = defineSchema(
         lastLocationUpdate: v.optional(v.number()),
       })),
       scheduledFor: v.optional(v.number()),
+      deliverySlot: v.optional(v.object({
+        startTime: v.number(),
+        endTime: v.number(),
+        label: v.string(),
+      })),
       isRecurring: v.optional(v.boolean()),
       recurringFrequency: v.optional(v.union(
         v.literal("daily"),
@@ -147,6 +152,13 @@ const schema = defineSchema(
       loyaltyPointsEarned: v.optional(v.number()),
       deliveryTip: v.optional(v.number()),
       orderNotes: v.optional(v.string()),
+      specialInstructions: v.optional(v.string()),
+      substitutionPreference: v.optional(v.union(
+        v.literal("call_me"),
+        v.literal("best_match"),
+        v.literal("refund"),
+        v.literal("cancel_order")
+      )),
       appliedCoupon: v.optional(v.object({
         code: v.string(),
         discountAmount: v.number(),
@@ -369,6 +381,23 @@ const schema = defineSchema(
       notes: v.optional(v.string()),
     }).index("by_product", ["productId"])
       .index("by_store", ["storeId"]),
+
+    priceHistory: defineTable({
+      productId: v.id("products"),
+      oldPrice: v.number(),
+      newPrice: v.number(),
+      reason: v.string(),
+      timestamp: v.number(),
+    }).index("by_product", ["productId"]),
+
+    deliverySlots: defineTable({
+      storeId: v.id("stores"),
+      date: v.string(),
+      startTime: v.number(),
+      endTime: v.number(),
+      capacity: v.number(),
+      booked: v.number(),
+    }).index("by_store_and_date", ["storeId", "date"]),
   },
   {
     schemaValidation: false,
