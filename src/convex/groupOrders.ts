@@ -63,6 +63,42 @@ export const join = mutation({
   },
 });
 
+export const listByUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return [];
+
+    const groupOrders = await ctx.db
+      .query("groupOrders")
+      .withIndex("by_creator", (q) => q.eq("creatorId", user._id))
+      .collect();
+
+    // Also get group orders where user is a participant
+    const allGroupOrders = await ctx.db.query("groupOrders").collect();
+    const participantOrders = allGroupOrders.filter((go) =>
+      go.participants.some((p) => p.userId === user._id)
+    );
+
+    // Combine and deduplicate
+    const combined = [...groupOrders, ...participantOrders];
+    const unique = Array.from(new Map(combined.map((go) => [go._id, go])).values());
+
+    // Fetch store names
+    const withStoreNames = await Promise.all(
+      unique.map(async (go) => {
+        const store = await ctx.db.get(go.storeId);
+        return {
+          ...go,
+          storeName: store?.name || "Unknown Store",
+        };
+      })
+    );
+
+    return withStoreNames;
+  },
+});
+
 export const list = query({
   args: { storeId: v.optional(v.id("stores")) },
   handler: async (ctx, args) => {
@@ -81,7 +117,18 @@ export const list = query({
       groupOrders = groupOrders.filter((go) => go.storeId === args.storeId);
     }
 
-    return groupOrders;
+    // Fetch store names
+    const withStoreNames = await Promise.all(
+      groupOrders.map(async (go) => {
+        const store = await ctx.db.get(go.storeId);
+        return {
+          ...go,
+          storeName: store?.name || "Unknown Store",
+        };
+      })
+    );
+
+    return withStoreNames;
   },
 });
 

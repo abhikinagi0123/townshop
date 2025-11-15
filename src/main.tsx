@@ -30,6 +30,8 @@ const Loyalty = lazy(() => import("./pages/Loyalty"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const GroupOrders = lazy(() => import("./pages/GroupOrders.tsx"));
+const WalletHistory = lazy(() => import("./pages/WalletHistory.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -84,6 +86,10 @@ const router = createBrowserRouter([
     element: <Suspense fallback={<PageLoader />}><StoreDetail /></Suspense>,
   },
   {
+    path: "/search",
+    element: <Suspense fallback={<PageLoader />}><Search /></Suspense>,
+  },
+  {
     path: "/product/:productId",
     element: <Suspense fallback={<PageLoader />}><ProductDetail /></Suspense>,
   },
@@ -108,28 +114,32 @@ const router = createBrowserRouter([
     element: <Suspense fallback={<PageLoader />}><Addresses /></Suspense>,
   },
   {
-    path: "/search",
-    element: <Suspense fallback={<PageLoader />}><Search /></Suspense>,
-  },
-  {
     path: "/favorites",
     element: <Suspense fallback={<PageLoader />}><Favorites /></Suspense>,
-  },
-  {
-    path: "/notifications",
-    element: <Suspense fallback={<PageLoader />}><Notifications /></Suspense>,
-  },
-  {
-    path: "/chat/:sessionId",
-    element: <Suspense fallback={<PageLoader />}><Chat /></Suspense>,
   },
   {
     path: "/loyalty",
     element: <Suspense fallback={<PageLoader />}><Loyalty /></Suspense>,
   },
   {
+    path: "/notifications",
+    element: <Suspense fallback={<PageLoader />}><Notifications /></Suspense>,
+  },
+  {
+    path: "/chat",
+    element: <Suspense fallback={<PageLoader />}><Chat /></Suspense>,
+  },
+  {
     path: "/dashboard",
     element: <Suspense fallback={<PageLoader />}><Dashboard /></Suspense>,
+  },
+  {
+    path: "/group-orders",
+    element: <Suspense fallback={<PageLoader />}><GroupOrders /></Suspense>,
+  },
+  {
+    path: "/wallet",
+    element: <Suspense fallback={<PageLoader />}><WalletHistory /></Suspense>,
   },
   {
     path: "*",
