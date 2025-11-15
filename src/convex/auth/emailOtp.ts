@@ -7,7 +7,10 @@ function generateRandomString(length: number, chars: string): string {
   const randomBytes = new Uint8Array(length);
   crypto.getRandomValues(randomBytes);
   for (let i = 0; i < length; i++) {
-    result += chars[randomBytes[i] % chars.length];
+    const byte = randomBytes[i];
+    if (byte !== undefined) {
+      result += chars[byte % chars.length];
+    }
   }
   return result;
 }

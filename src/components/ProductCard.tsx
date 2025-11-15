@@ -46,7 +46,7 @@ export function ProductCard({
   );
 
   const displayPrice = dynamicPrice?.finalPrice || product.price;
-  const hasSavings = dynamicPrice && dynamicPrice.savings > 0;
+  const hasSavings = dynamicPrice && dynamicPrice.savings > 0 && dynamicPrice.discounts;
 
   return (
     <motion.div
@@ -117,7 +117,7 @@ export function ProductCard({
                   </span>
                 )}
               </div>
-              {dynamicPrice?.discounts && dynamicPrice.discounts.length > 0 && (
+              {dynamicPrice?.discounts && dynamicPrice.discounts.length > 0 && dynamicPrice.discounts[0] && (
                 <div className="flex items-center gap-1 mt-1">
                   <Clock className="h-3 w-3 text-green-600" />
                   <span className="text-[10px] text-green-600">

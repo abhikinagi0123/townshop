@@ -101,8 +101,8 @@ export default function Cart() {
   
   const validateCoupon = useQuery(
     api.offers.validateCoupon,
-    couponCode && cartItems && cartItems.length > 0
-      ? { code: couponCode, storeId: cartItems[0].product?.storeId, orderAmount: subtotal }
+    couponCode && cartItems && cartItems.length > 0 && cartItems[0]?.product?.storeId
+      ? { code: couponCode, storeId: cartItems[0].product.storeId, orderAmount: subtotal }
       : "skip"
   );
   const deliveryFee = subtotal > 0 ? 40 : 0;
@@ -215,8 +215,8 @@ export default function Cart() {
     const address = addresses?.find(a => a._id === selectedAddress);
     if (!address) return;
 
-    const storeId = cartItems[0].product?.storeId;
-    const storeName = cartItems[0].store?.name;
+    const storeId = cartItems[0]?.product?.storeId;
+    const storeName = cartItems[0]?.store?.name;
     
     if (!storeId || !storeName) {
       toast.error("Invalid cart data");

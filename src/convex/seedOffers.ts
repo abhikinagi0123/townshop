@@ -76,7 +76,7 @@ export const seedOffers = mutation({
         minOrderAmount: 199,
         maxDiscount: 75,
         type: "shop_discount" as const,
-        storeId: stores[0]._id,
+        storeId: stores[0]!._id,
         validFrom: now,
         validUntil: now + oneWeek,
         isActive: true,

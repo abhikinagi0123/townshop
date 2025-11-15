@@ -164,8 +164,8 @@ export const getSpendingByCategory = query({
     for (const order of orders) {
       for (const item of order.items) {
         const product = await ctx.db.get(item.productId);
-        if (product) {
-          const category = product.category;
+        if (product && 'category' in product) {
+          const category = product.category as string;
           categorySpending[category] = (categorySpending[category] || 0) + item.price * item.quantity;
         }
       }
@@ -197,7 +197,10 @@ export const getOrderFrequency = query({
     let totalDays = 0;
 
     for (let i = 1; i < sortedOrders.length; i++) {
-      const daysDiff = (sortedOrders[i]._creationTime - sortedOrders[i - 1]._creationTime) / (1000 * 60 * 60 * 24);
+      const currentOrder = sortedOrders[i];
+      const previousOrder = sortedOrders[i - 1];
+      if (!currentOrder || !previousOrder) continue;
+      const daysDiff = (currentOrder._creationTime - previousOrder._creationTime) / (1000 * 60 * 60 * 24);
       totalDays += daysDiff;
     }
 

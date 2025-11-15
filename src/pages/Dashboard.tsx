@@ -115,38 +115,40 @@ export default function Dashboard() {
 
           {/* Category Spending & Order Frequency */}
           <div className="grid md:grid-cols-2 gap-6">
-            {categorySpending && categorySpending.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PieChart className="h-5 w-5" />
-                    Spending by Category
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {categorySpending.slice(0, 5).map((cat, index) => {
-                      const maxAmount = categorySpending[0].amount;
-                      const percentage = (cat.amount / maxAmount) * 100;
-                      return (
-                        <div key={index}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium">{cat.category}</span>
-                            <span className="text-sm font-bold">₹{cat.amount.toFixed(0)}</span>
+            {categorySpending && categorySpending.length > 0 && (() => {
+              const maxAmount = categorySpending[0]?.amount ?? 1;
+              return (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <PieChart className="h-5 w-5" />
+                      Spending by Category
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {categorySpending.slice(0, 5).map((cat, index) => {
+                        const percentage = (cat.amount / maxAmount) * 100;
+                        return (
+                          <div key={index}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium">{cat.category}</span>
+                              <span className="text-sm font-bold">₹{cat.amount.toFixed(0)}</span>
+                            </div>
+                            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-primary rounded-full"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
                           </div>
-                          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary rounded-full"
-                              style={{ width: `${percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
 
             {orderFrequency && (
               <Card>
@@ -182,24 +184,28 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {stats.monthlySpending.map((month: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">{month.month}</span>
-                      <div className="flex items-center gap-3">
-                        <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary rounded-full"
-                            style={{ 
-                              width: `${Math.min(100, (month.amount / Math.max(...stats.monthlySpending.map((m: any) => m.amount))) * 100)}%` 
-                            }}
-                          />
+                  {(() => {
+                    const maxAmount = Math.max(...stats.monthlySpending.map((m: any) => m.amount), 1);
+                    return stats.monthlySpending.map((month: any, index: number) => {
+                      const percentage = maxAmount > 0 ? (month.amount / maxAmount) * 100 : 0;
+                      return (
+                        <div key={index} className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">{month.month}</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-primary rounded-full"
+                                style={{ width: `${Math.min(100, percentage)}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-semibold min-w-[60px] text-right">
+                              ₹{month.amount.toFixed(0)}
+                            </span>
+                          </div>
                         </div>
-                        <span className="text-sm font-semibold min-w-[60px] text-right">
-                          ₹{month.amount.toFixed(0)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    });
+                  })()}
                 </div>
               </CardContent>
             </Card>

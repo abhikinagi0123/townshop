@@ -193,16 +193,14 @@ export default function Landing() {
             const validProducts = recommendedProducts.filter((item) => {
               if (!item || typeof item !== 'object') return false;
               if (!('_id' in item) || typeof item._id !== 'string') return false;
-              // Check if it's a product ID by verifying table name
               const idParts = item._id.split('|');
-              if (idParts.length < 2 || !idParts[0].startsWith('k')) return false;
-              // Ensure it has product fields
+              if (idParts.length < 2 || !idParts[0]?.startsWith('k')) return false;
               return 'image' in item && 
                      'name' in item && 
                      'price' in item && 
                      'storeName' in item &&
-                     !('status' in item) && // orders have status field
-                     !('deliveryAddress' in item); // orders have deliveryAddress field
+                     !('status' in item) &&
+                     !('deliveryAddress' in item);
             }).map(item => ({
               _id: item._id as string,
               image: (item as any).image,
@@ -224,16 +222,14 @@ export default function Landing() {
             const validProducts = recentlyViewedProducts.filter((item) => {
               if (!item || typeof item !== 'object') return false;
               if (!('_id' in item) || typeof item._id !== 'string') return false;
-              // Check if it's a product ID by verifying table name
               const idParts = item._id.split('|');
-              if (idParts.length < 2 || !idParts[0].startsWith('k')) return false;
-              // Ensure it has product fields
+              if (idParts.length < 2 || !idParts[0]?.startsWith('k')) return false;
               return 'image' in item && 
                      'name' in item && 
                      'price' in item && 
                      'storeName' in item &&
-                     !('status' in item) && // orders have status field
-                     !('deliveryAddress' in item); // orders have deliveryAddress field
+                     !('status' in item) &&
+                     !('deliveryAddress' in item);
             }).map(item => ({
               _id: item._id as string,
               image: (item as any).image,

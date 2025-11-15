@@ -106,18 +106,18 @@ export const list = query({
 
       // Apply advanced filters
       if (args.filters) {
-        if (args.filters.minRating !== undefined && store.rating < args.filters.minRating) {
+      if (args.filters.minRating !== undefined && store.rating < args.filters.minRating) {
+        return false;
+      }
+      if (args.filters.isOpen !== undefined && store.isOpen !== args.filters.isOpen) {
+        return false;
+      }
+      if (args.filters.maxDeliveryTime !== undefined) {
+        const deliveryMinutes = parseInt(store.deliveryTime.split("-")[0] || "0");
+        if (deliveryMinutes > args.filters.maxDeliveryTime) {
           return false;
         }
-        if (args.filters.isOpen !== undefined && store.isOpen !== args.filters.isOpen) {
-          return false;
-        }
-        if (args.filters.maxDeliveryTime !== undefined) {
-          const deliveryMinutes = parseInt(store.deliveryTime.split("-")[0]);
-          if (deliveryMinutes > args.filters.maxDeliveryTime) {
-            return false;
-          }
-        }
+      }
       }
       
       return true;
@@ -126,10 +126,10 @@ export const list = query({
     // Apply sorting
     if (args.sortBy === "rating") {
       filtered.sort((a, b) => b.rating - a.rating);
-    } else if (args.sortBy === "delivery_time") {
+      } else if (args.sortBy === "delivery_time") {
       filtered.sort((a, b) => {
-        const aTime = parseInt(a.deliveryTime.split("-")[0]);
-        const bTime = parseInt(b.deliveryTime.split("-")[0]);
+        const aTime = parseInt(a.deliveryTime.split("-")[0] || "0");
+        const bTime = parseInt(b.deliveryTime.split("-")[0] || "0");
         return aTime - bTime;
       });
     } else if (args.sortBy === "min_order") {
@@ -168,13 +168,13 @@ export const search = query({
     // Apply filters
     if (args.filters) {
       if (args.filters.minRating !== undefined) {
-        stores = stores.filter(s => s.rating >= args.filters!.minRating!);
+        stores = stores.filter(s => s.rating >= (args.filters?.minRating ?? 0));
       }
       if (args.filters.category && args.filters.category !== "all") {
-        stores = stores.filter(s => s.category === args.filters!.category);
+        stores = stores.filter(s => s.category === args.filters?.category);
       }
       if (args.filters.isOpen !== undefined) {
-        stores = stores.filter(s => s.isOpen === args.filters!.isOpen);
+        stores = stores.filter(s => s.isOpen === args.filters?.isOpen);
       }
     }
 
