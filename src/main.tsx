@@ -22,6 +22,7 @@ import Favorites from "./pages/Favorites";
 import Notifications from "./pages/Notifications";
 import Chat from "./pages/Chat";
 import Loyalty from "./pages/Loyalty";
+import ProductDetail from "./pages/ProductDetail";
 import "./types/global.d.ts";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
   {
     path: "/store/:storeId",
     element: <StoreDetail />,
+  },
+  {
+    path: "/product/:productId",
+    element: <ProductDetail />,
   },
   {
     path: "/cart",

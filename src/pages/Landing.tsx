@@ -78,7 +78,7 @@ export default function Landing() {
 
   const nearbyShops = useQuery(
     api.stores.getNearbyShops,
-    userLocation ? { lat: userLocation.lat, lng: userLocation.lng, category, search, radius: 10 } : "skip"
+    userLocation ? { userLat: userLocation.lat, userLng: userLocation.lng, category, search, radius: 10 } : "skip"
   );
 
   const trendingProducts = useQuery(api.products.getTrendingProducts, { limit: 6 });

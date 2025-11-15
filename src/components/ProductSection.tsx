@@ -38,8 +38,9 @@ export function ProductSection({ title, icon, badge, products, showRating = fals
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.2, delay: Math.min(0.03 * index, 0.3) }}
-            className="flex-shrink-0 w-28"
+            className="flex-shrink-0 w-28 cursor-pointer"
             role="listitem"
+            onClick={() => window.location.href = `/product/${item._id}`}
           >
             <Card className="overflow-hidden hover:shadow-md transition-shadow">
               <div className="relative">

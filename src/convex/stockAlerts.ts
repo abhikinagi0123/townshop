@@ -66,11 +66,40 @@ export const checkAlert = query({
     const user = await getCurrentUser(ctx);
     if (!user) return null;
 
-    return await ctx.db
+    const alert = await ctx.db
       .query("stockAlerts")
       .withIndex("by_user_and_product", (q) => 
         q.eq("userId", user._id).eq("productId", args.productId)
       )
       .first();
+
+    return alert ? { ...alert, hasAlert: true } : null;
+  },
+});
+
+export const toggle = mutation({
+  args: { productId: v.id("products") },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Unauthorized");
+
+    const existing = await ctx.db
+      .query("stockAlerts")
+      .withIndex("by_user_and_product", (q) => 
+        q.eq("userId", user._id).eq("productId", args.productId)
+      )
+      .first();
+
+    if (existing) {
+      await ctx.db.delete(existing._id);
+      return { action: "removed" };
+    } else {
+      await ctx.db.insert("stockAlerts", {
+        userId: user._id,
+        productId: args.productId,
+        isNotified: false,
+      });
+      return { action: "added" };
+    }
   },
 });

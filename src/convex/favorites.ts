@@ -109,3 +109,37 @@ export const isFavorite = query({
     return !!favorite;
   },
 });
+
+export const toggle = mutation({
+  args: {
+    productId: v.optional(v.id("products")),
+    storeId: v.optional(v.id("stores")),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Unauthorized");
+
+    const existing = await ctx.db
+      .query("favorites")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .filter((q) => {
+        if (args.productId) {
+          return q.eq(q.field("productId"), args.productId);
+        }
+        return q.eq(q.field("storeId"), args.storeId);
+      })
+      .first();
+
+    if (existing) {
+      await ctx.db.delete(existing._id);
+      return { action: "removed" };
+    } else {
+      await ctx.db.insert("favorites", {
+        userId: user._id,
+        productId: args.productId,
+        storeId: args.storeId,
+      });
+      return { action: "added" };
+    }
+  },
+});

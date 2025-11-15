@@ -92,7 +92,7 @@ export default function Search() {
           </motion.div>
         ) : (
           <div className="space-y-8">
-            {stores && stores.length > 0 && (
+              {stores && stores.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -103,7 +103,7 @@ export default function Search() {
                   <Badge variant="secondary">{stores.length}</Badge>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {stores.map((store, index) => (
+                  {stores.map((store: any, index: number) => (
                     <motion.div
                       key={store._id}
                       initial={{ opacity: 0, y: 20 }}
