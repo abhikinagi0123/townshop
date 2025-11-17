@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Gift, MessageSquare, Copy, BarChart3, Bell } from "lucide-react";
+import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Gift, MessageSquare, Copy, BarChart3, Bell, Heart, Users } from "lucide-react";
 import { UserDashboard } from "@/components/UserDashboard";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -298,6 +298,22 @@ export default function Profile() {
             >
               <Package className="h-4 w-4 mr-2" />
               My Orders
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/favorites")}
+            >
+              <Heart className="h-4 w-4 mr-2" />
+              My Favorites
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/group-buying")}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Group Buying
             </Button>
             <Button
               variant="outline"

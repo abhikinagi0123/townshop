@@ -1,62 +1,233 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-// Type assertion to avoid deep type instantiation with React 19
-const apiAny: any = api;
 import { useNavigate } from "react-router";
+import { Heart, ArrowLeft, Share2, Users, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Trash2, Store, Package } from "lucide-react";
-import { motion } from "framer-motion";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/use-auth";
+import { ProductCard } from "@/components/ProductCard";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/use-auth";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 
 export default function Favorites() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const apiAny: any = api;
   const favorites = useQuery(apiAny.favorites.list);
-  const removeFavorite = useMutation(apiAny.favorites.remove);
+  const cartItems = useQuery(apiAny.cart.get);
+  const sharedWishlists = useQuery(apiAny.wishlistSharing.listShared);
+  
+  const addToCart = useMutation(apiAny.cart.addItem);
+  const updateQuantity = useMutation(apiAny.cart.updateQuantity);
+  const toggleFavorite = useMutation(apiAny.favorites.toggle);
+  const shareWishlist = useMutation(apiAny.wishlistSharing.share);
+  const acceptWishlist = useMutation(apiAny.wishlistSharing.accept);
 
-  const handleRemove = async (favoriteId: string) => {
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareEmail, setShareEmail] = useState("");
+  const [shareMessage, setShareMessage] = useState("");
+
+  const getProductQuantity = (productId: string) => {
+    const item = cartItems?.find((item: any) => item.productId === productId);
+    return item?.quantity || 0;
+  };
+
+  const getCartItemId = (productId: string) => {
+    return cartItems?.find((item: any) => item.productId === productId)?._id;
+  };
+
+  const handleAddToCart = async (productId: any) => {
     try {
-      await removeFavorite({ favoriteId: favoriteId as any });
-      toast.success("Removed from favorites");
+      await addToCart({ productId, quantity: 1 });
+      toast.success("Added to cart");
     } catch (error) {
-      toast.error("Failed to remove from favorites");
+      toast.error("Failed to add to cart");
     }
   };
 
+  const handleIncrease = async (productId: any) => {
+    const cartItemId = getCartItemId(productId);
+    if (!cartItemId) return;
+    
+    try {
+      await updateQuantity({
+        cartItemId,
+        quantity: getProductQuantity(productId) + 1,
+      });
+    } catch (error) {
+      toast.error("Failed to update quantity");
+    }
+  };
+
+  const handleDecrease = async (productId: any) => {
+    const cartItemId = getCartItemId(productId);
+    if (!cartItemId) return;
+    
+    try {
+      await updateQuantity({
+        cartItemId,
+        quantity: getProductQuantity(productId) - 1,
+      });
+    } catch (error) {
+      toast.error("Failed to update quantity");
+    }
+  };
+
+  const handleToggleFavorite = async (productId: any) => {
+    try {
+      await toggleFavorite({ productId });
+      toast.success("Removed from favorites");
+    } catch (error) {
+      toast.error("Failed to update favorites");
+    }
+  };
+
+  const handleShareWishlist = async () => {
+    if (!shareEmail.trim()) {
+      toast.error("Please enter an email address");
+      return;
+    }
+    try {
+      await shareWishlist({
+        recipientEmail: shareEmail,
+        message: shareMessage || undefined,
+      });
+      toast.success("Wishlist shared successfully!");
+      setShareEmail("");
+      setShareMessage("");
+      setShareDialogOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to share wishlist");
+    }
+  };
+
+  const handleAcceptWishlist = async (wishlistId: string) => {
+    try {
+      await acceptWishlist({ wishlistId: wishlistId as any });
+      toast.success("Wishlist accepted!");
+    } catch (error) {
+      toast.error("Failed to accept wishlist");
+    }
+  };
+
+  const handleCopyShareLink = () => {
+    const shareUrl = `${window.location.origin}/favorites`;
+    navigator.clipboard.writeText(shareUrl);
+    toast.success("Link copied to clipboard!");
+  };
+
   if (!isAuthenticated) {
-    navigate("/auth");
-    return null;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Please sign in to view favorites</p>
+          <Button onClick={() => navigate("/auth")}>Sign In</Button>
+        </div>
+      </div>
+    );
   }
-
-  // Type guard helpers
-  const hasStore = (fav: any): fav is { _id: string; storeId: string; store: any } => {
-    return fav.store !== undefined && fav.store !== null;
-  };
-
-  const hasProduct = (fav: any): fav is { _id: string; productId: string; product: any; storeName?: string } => {
-    return fav.product !== undefined && fav.product !== null;
-  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <MobileHeader showSearch={false} isAuthenticated={isAuthenticated} />
-
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <div className="flex items-center gap-2 mb-6">
-          <Heart className="h-6 w-6 text-red-500 fill-red-500" />
-          <h1 className="text-2xl font-bold">My Favorites</h1>
+      
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/profile")}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Heart className="h-6 w-6 text-red-500 fill-red-500" />
+            <h1 className="text-3xl font-bold">My Favorites</h1>
+          </div>
+          
+          <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline">
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Share Your Wishlist</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label>Recipient Email</Label>
+                  <Input
+                    type="email"
+                    placeholder="friend@example.com"
+                    value={shareEmail}
+                    onChange={(e) => setShareEmail(e.target.value)}
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>Message (Optional)</Label>
+                  <Input
+                    placeholder="Check out my favorite products!"
+                    value={shareMessage}
+                    onChange={(e) => setShareMessage(e.target.value)}
+                    className="mt-2"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handleShareWishlist} className="flex-1">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share via Email
+                  </Button>
+                  <Button onClick={handleCopyShareLink} variant="outline">
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
-        {!favorites ? (
-          <div className="flex justify-center py-12">
-            <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        {sharedWishlists && sharedWishlists.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Shared with You
+            </h2>
+            <div className="space-y-3">
+              {sharedWishlists.map((wishlist: any) => (
+                <Card key={wishlist._id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold">{wishlist.senderName}'s Wishlist</p>
+                        <p className="text-sm text-muted-foreground">
+                          {wishlist.productIds?.length || 0} items
+                        </p>
+                        {wishlist.message && (
+                          <p className="text-sm text-muted-foreground italic mt-1">
+                            "{wishlist.message}"
+                          </p>
+                        )}
+                      </div>
+                      {!wishlist.isAccepted && (
+                        <Button size="sm" onClick={() => handleAcceptWishlist(wishlist._id)}>
+                          Accept
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        ) : favorites.length === 0 ? (
+        )}
+
+        {!favorites || favorites.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -65,139 +236,21 @@ export default function Favorites() {
             <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <p className="text-xl text-muted-foreground mb-4">No favorites yet</p>
             <Button onClick={() => navigate("/stores")}>
-              Browse Stores
+              Start Shopping
             </Button>
           </motion.div>
         ) : (
-          <div className="space-y-6">
-            {favorites.some((f: any) => hasStore(f)) && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Store className="h-5 w-5 text-primary" />
-                  <h2 className="text-lg font-bold">Favorite Stores</h2>
-                  <Badge variant="secondary">
-                    {favorites.filter((f: any) => hasStore(f)).length}
-                  </Badge>
-                </div>
-                <div className="grid gap-3">
-                  {favorites
-                    .filter((f: any) => hasStore(f))
-                    .map((fav: any, index: number) => {
-                      if (!hasStore(fav)) return null;
-                      return (
-                        <motion.div
-                          key={fav._id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                        >
-                          <Card
-                            className="cursor-pointer hover:shadow-lg transition-shadow"
-                            onClick={() => navigate(`/store/${fav.storeId}`)}
-                          >
-                            <CardContent className="p-4">
-                              <div className="flex gap-3">
-                                <img
-                                  src={fav.store?.image}
-                                  alt={fav.store?.name}
-                                  className="w-16 h-16 rounded-lg object-cover"
-                                />
-                                <div className="flex-1">
-                                  <h3 className="font-semibold">{fav.store?.name}</h3>
-                                  <p className="text-sm text-muted-foreground line-clamp-1">
-                                    {fav.store?.description}
-                                  </p>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <Badge variant="secondary" className="text-xs">
-                                      ⭐ {fav.store?.rating}
-                                    </Badge>
-                                    <span className="text-xs text-muted-foreground">
-                                      {fav.store?.deliveryTime}
-                                    </span>
-                                  </div>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemove(fav._id);
-                                  }}
-                                  className="text-red-500"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      );
-                    })}
-                </div>
-              </div>
-            )}
-
-            {favorites.some((f: any) => hasProduct(f)) && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Package className="h-5 w-5 text-primary" />
-                  <h2 className="text-lg font-bold">Favorite Products</h2>
-                  <Badge variant="secondary">
-                    {favorites.filter((f: any) => hasProduct(f)).length}
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {favorites
-                    .filter((f: any) => hasProduct(f))
-                    .map((fav: any, index: number) => {
-                      if (!hasProduct(fav)) return null;
-                      return (
-                        <motion.div
-                          key={fav._id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                        >
-                          <Card
-                            className="cursor-pointer hover:shadow-lg transition-shadow"
-                            onClick={() => navigate(`/product/${fav.productId}`)}
-                          >
-                            <div className="relative">
-                              <img
-                                src={fav.product?.image}
-                                alt={fav.product?.name}
-                                className="w-full h-32 object-cover rounded-t-lg"
-                              />
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleRemove(fav._id);
-                                }}
-                                className="absolute top-2 right-2 h-8 w-8 p-0 bg-background/80 backdrop-blur-sm hover:bg-background"
-                              >
-                                <Heart className="h-4 w-4 fill-red-500 text-red-500" />
-                              </Button>
-                            </div>
-                            <CardContent className="p-3">
-                              <h3 className="font-semibold text-sm line-clamp-2 mb-1">
-                                {fav.product?.name}
-                              </h3>
-                              <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
-                                {fav.storeName}
-                              </p>
-                              <p className="text-sm font-bold text-primary">
-                                ₹{fav.product?.price}
-                              </p>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      );
-                    })}
-                </div>
-              </div>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {favorites.map((favorite: any) => (
+              <ProductCard
+                key={favorite._id}
+                product={favorite.product}
+                quantity={getProductQuantity(favorite.productId)}
+                onAdd={() => handleAddToCart(favorite.productId)}
+                onIncrease={() => handleIncrease(favorite.productId)}
+                onDecrease={() => handleDecrease(favorite.productId)}
+              />
+            ))}
           </div>
         )}
       </div>
