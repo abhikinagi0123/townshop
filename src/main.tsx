@@ -39,6 +39,8 @@ const Services = lazy(() => import("./pages/Services.tsx"));
 const ServiceDetail = lazy(() => import("./pages/ServiceDetail.tsx"));
 const Wallet = lazy(() => import("./pages/Wallet.tsx"));
 const Referral = lazy(() => import("./pages/Referral.tsx"));
+const ProductComparison = lazy(() => import("./pages/ProductComparison.tsx"));
+const OrderSplitting = lazy(() => import("./pages/OrderSplitting.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -101,6 +103,8 @@ const router = createBrowserRouter([
   { path: "/subscriptions", element: <Suspense fallback={<PageLoader />}><SubscriptionBoxes /></Suspense> },
   { path: "/group-buying", element: <Suspense fallback={<PageLoader />}><GroupBuying /></Suspense> },
   { path: "/wallet", element: <Suspense fallback={<PageLoader />}><Wallet /></Suspense> },
+  { path: "/compare", element: <Suspense fallback={<PageLoader />}><ProductComparison /></Suspense> },
+  { path: "/order/:orderId/split", element: <Suspense fallback={<PageLoader />}><OrderSplitting /></Suspense> },
   { path: "*", element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense> },
 ]);
 

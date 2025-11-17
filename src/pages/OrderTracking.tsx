@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams, useNavigate } from "react-router";
-import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, CheckCircle2, Clock, Truck, Phone, IndianRupee, MessageSquare, Navigation, Share2 } from "lucide-react";
+import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, CheckCircle2, Clock, Truck, Phone, IndianRupee, MessageSquare, Navigation, Share2, Users } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -377,6 +377,16 @@ export default function OrderTracking() {
                   Call Driver
                 </Button>
               </div>
+              {order && order.status !== "cancelled" && order.status !== "delivered" && (
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/order/${orderId}/split`)}
+                  className="w-full"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Split Payment
+                </Button>
+              )}
             </CardContent>
           </Card>
 

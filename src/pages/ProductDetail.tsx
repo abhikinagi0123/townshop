@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Truck } from "lucide-react";
+import { ArrowLeft, Truck, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -201,6 +201,22 @@ export default function ProductDetail() {
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+  onClick={() => {
+    const currentParams = new URLSearchParams(window.location.search);
+    const existingProducts = currentParams.get("products")?.split(",") || [];
+    if (productId && !existingProducts.includes(productId)) {
+      existingProducts.push(productId);
+    }
+    navigate(`/compare?products=${existingProducts.join(",")}`);
+  }}
+        >
+          <Share2 className="h-4 w-4 mr-2" />
+          Compare
         </Button>
 
         <motion.div
