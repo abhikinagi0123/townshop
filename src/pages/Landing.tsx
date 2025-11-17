@@ -22,6 +22,7 @@ import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { StoreCard } from "@/components/StoreCard";
 import { OfferCard } from "@/components/OfferCard";
 import { FlashSaleCard } from "@/components/FlashSaleCard";
+import { TrustBadges } from "@/components/TrustBadges";
 
 const categories = [
   { id: "all", label: "All", emoji: "🏪" },
@@ -402,6 +403,8 @@ export default function Landing() {
             </div>
           )}
 
+          <TrustBadges />
+          
           <WhyChooseUs />
         </div>
       </main>

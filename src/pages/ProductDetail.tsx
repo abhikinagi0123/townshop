@@ -116,11 +116,20 @@ export default function ProductDetail() {
     }
   };
 
-  const handleSubmitReview = async (rating: number, comment: string) => {
+  const handleSubmitReview = async (rating: number, comment: string, orderId?: string) => {
+    if (!isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
     if (!comment.trim()) {
       toast.error("Please write a review");
       return;
     }
+    if (!orderId) {
+      toast.error("You can only review products you've ordered");
+      return;
+    }
+    // This would be called from the orders page with a valid orderId
     toast.error("You can only review products you've ordered");
   };
 

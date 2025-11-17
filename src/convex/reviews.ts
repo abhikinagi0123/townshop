@@ -20,6 +20,24 @@ export const create = mutation({
       throw new Error("You can only review items you've ordered");
     }
 
+    // Check if user already reviewed this product/store for this order
+    const existingReview = await ctx.db
+      .query("reviews")
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("orderId"), args.orderId),
+          q.eq(q.field("userId"), user._id),
+          args.productId 
+            ? q.eq(q.field("productId"), args.productId)
+            : q.eq(q.field("storeId"), args.storeId)
+        )
+      )
+      .first();
+
+    if (existingReview) {
+      throw new Error("You have already reviewed this item");
+    }
+
     return await ctx.db.insert("reviews", {
       userId: user._id,
       userName: user.name || "Anonymous",
@@ -79,9 +97,18 @@ export const getAverageRating = query({
     if (reviews.length === 0) return null;
 
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+    
+    // Calculate rating distribution
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach((review) => {
+      const rating = Math.round(review.rating) as 1 | 2 | 3 | 4 | 5;
+      distribution[rating]++;
+    });
+
     return {
       average: sum / reviews.length,
       count: reviews.length,
+      distribution,
     };
   },
 });

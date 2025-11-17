@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams, useNavigate } from "react-router";
-import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Clock, IndianRupee, Loader2, Info, Share2 } from "lucide-react";
+import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Clock, IndianRupee, Loader2, Info, Share2, Shield } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -176,7 +176,15 @@ export default function StoreDetail() {
             />
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
-                <h1 className="text-3xl font-bold">{store.name}</h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-3xl font-bold">{store.name}</h1>
+                  {store.isVerified && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Shield className="h-3 w-3" />
+                      Verified
+                    </Badge>
+                  )}
+                </div>
                 <ShareButton
                   title={store.name}
                   text={`Check out ${store.name} on TownShop!`}
