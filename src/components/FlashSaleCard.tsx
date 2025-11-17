@@ -1,9 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Zap, Clock } from "lucide-react";
+import { Zap, Clock, ShoppingCart, Minus, Plus } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { toast } from "sonner";
 
 interface FlashSaleCardProps {
   sale: any;
@@ -12,6 +15,11 @@ interface FlashSaleCardProps {
 export function FlashSaleCard({ sale }: FlashSaleCardProps) {
   const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState("");
+  
+  const apiAny: any = api;
+  const cartItems = useQuery(apiAny.cart.get);
+  const addToCart = useMutation(apiAny.cart.addItem);
+  const updateQuantity = useMutation(apiAny.cart.updateQuantity);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,20 +43,95 @@ export function FlashSaleCard({ sale }: FlashSaleCardProps) {
   }, [sale.endTime]);
 
   const percentSold = (sale.soldQuantity / sale.maxQuantity) * 100;
+  const remainingStock = sale.maxQuantity - sale.soldQuantity;
+  const isSoldOut = remainingStock <= 0;
+  const isLowStock = remainingStock > 0 && remainingStock <= 5;
+
+  const getProductQuantity = () => {
+    const item = cartItems?.find((item: any) => item.productId === sale.productId);
+    return item?.quantity || 0;
+  };
+
+  const getCartItemId = () => {
+    return cartItems?.find((item: any) => item.productId === sale.productId)?._id;
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isSoldOut) {
+      toast.error("This flash sale is sold out!");
+      return;
+    }
+    
+    try {
+      await addToCart({ productId: sale.productId, quantity: 1 });
+      toast.success("Added to cart!");
+    } catch (error) {
+      toast.error("Failed to add to cart");
+    }
+  };
+
+  const handleIncrease = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const cartItemId = getCartItemId();
+    if (!cartItemId) return;
+    
+    const currentQty = getProductQuantity();
+    if (currentQty >= remainingStock) {
+      toast.error(`Only ${remainingStock} items available!`);
+      return;
+    }
+    
+    try {
+      await updateQuantity({
+        cartItemId,
+        quantity: currentQty + 1,
+      });
+    } catch (error) {
+      toast.error("Failed to update quantity");
+    }
+  };
+
+  const handleDecrease = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const cartItemId = getCartItemId();
+    if (!cartItemId) return;
+    
+    try {
+      await updateQuantity({
+        cartItemId,
+        quantity: getProductQuantity() - 1,
+      });
+    } catch (error) {
+      toast.error("Failed to update quantity");
+    }
+  };
+
+  const quantity = getProductQuantity();
 
   return (
-    <Card className="overflow-hidden border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-red-50">
+    <Card 
+      className={`overflow-hidden border-2 ${isSoldOut ? 'border-gray-300 bg-gray-50 opacity-75' : 'border-orange-500 bg-gradient-to-br from-orange-50 to-red-50'} cursor-pointer transition-all hover:shadow-lg`}
+      onClick={() => navigate(`/product/${sale.productId}`)}
+    >
       <CardContent className="p-4">
         <div className="flex gap-3">
-          <img
-            src={sale.product?.image}
-            alt={sale.product?.name}
-            className="w-20 h-20 object-cover rounded-lg"
-          />
+          <div className="relative">
+            <img
+              src={sale.product?.image}
+              alt={sale.product?.name}
+              className={`w-20 h-20 object-cover rounded-lg ${isSoldOut ? 'grayscale' : ''}`}
+            />
+            {isSoldOut && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                <span className="text-white font-bold text-xs">SOLD OUT</span>
+              </div>
+            )}
+          </div>
           <div className="flex-1">
             <div className="flex items-start justify-between mb-1">
               <h3 className="font-bold text-sm line-clamp-1">{sale.product?.name}</h3>
-              <Badge className="bg-orange-500 gap-1">
+              <Badge className={`gap-1 ${isSoldOut ? 'bg-gray-500' : 'bg-orange-500'}`}>
                 <Zap className="h-3 w-3" />
                 {sale.discountPercent}% OFF
               </Badge>
@@ -56,30 +139,59 @@ export function FlashSaleCard({ sale }: FlashSaleCardProps) {
             <p className="text-xs text-muted-foreground mb-2">{sale.storeName}</p>
             
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="h-3 w-3 text-orange-600" />
-              <span className="text-xs font-semibold text-orange-600">{timeLeft}</span>
+              <Clock className={`h-3 w-3 ${isSoldOut ? 'text-gray-500' : 'text-orange-600'}`} />
+              <span className={`text-xs font-semibold ${isSoldOut ? 'text-gray-500' : 'text-orange-600'}`}>
+                {timeLeft}
+              </span>
             </div>
             
             <div className="mb-2">
               <div className="flex justify-between text-xs mb-1">
-                <span>{sale.soldQuantity} sold</span>
-                <span>{sale.maxQuantity - sale.soldQuantity} left</span>
+                <span className="font-semibold">{sale.soldQuantity} sold</span>
+                <span className={`font-semibold ${isLowStock && !isSoldOut ? 'text-red-600' : ''}`}>
+                  {remainingStock} left {isLowStock && !isSoldOut && '🔥'}
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-orange-500 h-2 rounded-full transition-all"
+                  className={`h-2 rounded-full transition-all ${isSoldOut ? 'bg-gray-400' : 'bg-orange-500'}`}
                   style={{ width: `${percentSold}%` }}
                 />
               </div>
             </div>
             
-            <Button
-              size="sm"
-              className="w-full bg-orange-500 hover:bg-orange-600"
-              onClick={() => navigate(`/product/${sale.productId}`)}
-            >
-              Grab Deal
-            </Button>
+            {quantity === 0 ? (
+              <Button
+                size="sm"
+                className={`w-full ${isSoldOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}
+                onClick={handleAddToCart}
+                disabled={isSoldOut}
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                {isSoldOut ? 'Sold Out' : 'Add to Cart'}
+              </Button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleDecrease}
+                  className="h-8 w-8 p-0"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="flex-1 text-center font-semibold">{quantity}</span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleIncrease}
+                  className="h-8 w-8 p-0"
+                  disabled={quantity >= remainingStock}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

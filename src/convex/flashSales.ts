@@ -58,14 +58,41 @@ export const purchase = mutation({
     const sale = await ctx.db.get(args.flashSaleId);
     if (!sale) throw new Error("Flash sale not found");
     
-    if (sale.soldQuantity + args.quantity > sale.maxQuantity) {
-      throw new Error("Not enough quantity available");
+    const remainingStock = sale.maxQuantity - sale.soldQuantity;
+    
+    if (remainingStock <= 0) {
+      throw new Error("Flash sale is sold out!");
+    }
+    
+    if (args.quantity > remainingStock) {
+      throw new Error(`Only ${remainingStock} items available!`);
     }
     
     await ctx.db.patch(args.flashSaleId, {
       soldQuantity: sale.soldQuantity + args.quantity,
     });
     
-    return { success: true };
+    return { success: true, remainingStock: remainingStock - args.quantity };
+  },
+});
+
+export const checkAvailability = query({
+  args: {
+    flashSaleId: v.id("flashSales"),
+  },
+  handler: async (ctx, args) => {
+    const sale = await ctx.db.get(args.flashSaleId);
+    if (!sale) return null;
+    
+    const remainingStock = sale.maxQuantity - sale.soldQuantity;
+    const isSoldOut = remainingStock <= 0;
+    const isLowStock = remainingStock > 0 && remainingStock <= 5;
+    
+    return {
+      remainingStock,
+      isSoldOut,
+      isLowStock,
+      percentSold: (sale.soldQuantity / sale.maxQuantity) * 100,
+    };
   },
 });
