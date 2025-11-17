@@ -1,196 +1,179 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { SlidersHorizontal, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-
-interface FilterOptions {
-  minPrice?: number;
-  maxPrice?: number;
-  minRating?: number;
-  category?: string;
-  inStock?: boolean;
-  sortBy?: string;
-}
+import { Switch } from "@/components/ui/switch";
+import { SlidersHorizontal } from "lucide-react";
 
 interface AdvancedFiltersProps {
-  filters: FilterOptions;
-  onFiltersChange: (filters: FilterOptions) => void;
-  categories?: string[];
-  type?: "products" | "stores";
+  filters: any;
+  onFiltersChange: (filters: any) => void;
+  categories: string[];
+  type: "products" | "stores" | "services";
 }
 
-export function AdvancedFilters({ filters, onFiltersChange, categories = [], type = "products" }: AdvancedFiltersProps) {
-  const [localFilters, setLocalFilters] = useState<FilterOptions>(filters);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleApply = () => {
-    onFiltersChange(localFilters);
-    setIsOpen(false);
+export function AdvancedFilters({ filters, onFiltersChange, categories, type }: AdvancedFiltersProps) {
+  const handleFilterChange = (key: string, value: any) => {
+    onFiltersChange({ ...filters, [key]: value });
   };
 
-  const handleReset = () => {
-    const resetFilters: FilterOptions = {};
-    setLocalFilters(resetFilters);
-    onFiltersChange(resetFilters);
+  const clearFilters = () => {
+    onFiltersChange({});
   };
-
-  const activeFilterCount = Object.keys(filters).filter(key => 
-    filters[key as keyof FilterOptions] !== undefined
-  ).length;
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" size="sm" className="gap-2">
           <SlidersHorizontal className="h-4 w-4" />
           Filters
-          {activeFilterCount > 0 && (
-            <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
-              {activeFilterCount}
-            </Badge>
-          )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+      <SheetContent>
         <SheetHeader>
-          <SheetTitle className="flex items-center justify-between">
-            <span>Filters</span>
-            {activeFilterCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={handleReset} className="h-8 gap-1">
-                <X className="h-3 w-3" />
-                Clear All
-              </Button>
-            )}
-          </SheetTitle>
+          <SheetTitle>Advanced Filters</SheetTitle>
         </SheetHeader>
-
         <div className="space-y-6 py-6">
+          {/* Category Filter */}
+          <div>
+            <Label>Category</Label>
+            <Select
+              value={filters.category || "all"}
+              onValueChange={(value) => handleFilterChange("category", value === "all" ? undefined : value)}
+            >
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Price Range (Products only) */}
           {type === "products" && (
             <>
-              <div className="space-y-3">
-                <Label>Price Range</Label>
-                <div className="space-y-2">
-                  <Slider
-                    min={0}
-                    max={5000}
-                    step={50}
-                    value={[localFilters.minPrice || 0, localFilters.maxPrice || 5000]}
-                    onValueChange={([min, max]) => {
-                      setLocalFilters({ ...localFilters, minPrice: min, maxPrice: max });
-                    }}
-                  />
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>₹{localFilters.minPrice || 0}</span>
-                    <span>₹{localFilters.maxPrice || 5000}</span>
-                  </div>
-                </div>
+              <div>
+                <Label>Min Price: ₹{filters.minPrice || 0}</Label>
+                <Slider
+                  value={[filters.minPrice || 0]}
+                  onValueChange={([value]) => handleFilterChange("minPrice", value)}
+                  max={10000}
+                  step={100}
+                  className="mt-2"
+                />
               </div>
-
-              <div className="space-y-3">
-                <Label>Stock Availability</Label>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">In Stock Only</span>
-                  <Switch
-                    checked={localFilters.inStock || false}
-                    onCheckedChange={(checked) => {
-                      setLocalFilters({ ...localFilters, inStock: checked || undefined });
-                    }}
-                  />
-                </div>
+              <div>
+                <Label>Max Price: ₹{filters.maxPrice || 10000}</Label>
+                <Slider
+                  value={[filters.maxPrice || 10000]}
+                  onValueChange={([value]) => handleFilterChange("maxPrice", value)}
+                  max={10000}
+                  step={100}
+                  className="mt-2"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label>In Stock Only</Label>
+                <Switch
+                  checked={filters.inStock || false}
+                  onCheckedChange={(checked) => handleFilterChange("inStock", checked || undefined)}
+                />
               </div>
             </>
           )}
 
-          <div className="space-y-3">
+          {/* Rating Filter */}
+          <div>
             <Label>Minimum Rating</Label>
             <Select
-              value={localFilters.minRating?.toString() || "0"}
-              onValueChange={(value) => {
-                const rating = parseFloat(value);
-                setLocalFilters({ ...localFilters, minRating: rating > 0 ? rating : undefined });
-              }}
+              value={filters.minRating?.toString() || "0"}
+              onValueChange={(value) => handleFilterChange("minRating", value === "0" ? undefined : parseFloat(value))}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Any rating" />
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Any Rating" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="0">Any rating</SelectItem>
-                <SelectItem value="3">3+ ⭐</SelectItem>
-                <SelectItem value="3.5">3.5+ ⭐</SelectItem>
-                <SelectItem value="4">4+ ⭐</SelectItem>
-                <SelectItem value="4.5">4.5+ ⭐</SelectItem>
+                <SelectItem value="0">Any Rating</SelectItem>
+                <SelectItem value="3">3+ Stars</SelectItem>
+                <SelectItem value="3.5">3.5+ Stars</SelectItem>
+                <SelectItem value="4">4+ Stars</SelectItem>
+                <SelectItem value="4.5">4.5+ Stars</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {categories.length > 0 && (
-            <div className="space-y-3">
-              <Label>Category</Label>
-              <Select
-                value={localFilters.category || "all"}
-                onValueChange={(value) => {
-                  setLocalFilters({ ...localFilters, category: value === "all" ? undefined : value });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All categories</SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Store-specific filters */}
+          {type === "stores" && (
+            <>
+              <div className="flex items-center justify-between">
+                <Label>Open Now</Label>
+                <Switch
+                  checked={filters.isOpen || false}
+                  onCheckedChange={(checked) => handleFilterChange("isOpen", checked || undefined)}
+                />
+              </div>
+              <div>
+                <Label>Max Delivery Time (minutes)</Label>
+                <Select
+                  value={filters.maxDeliveryTime?.toString() || "any"}
+                  onValueChange={(value) => handleFilterChange("maxDeliveryTime", value === "any" ? undefined : parseInt(value))}
+                >
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Any Time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any Time</SelectItem>
+                    <SelectItem value="15">15 min</SelectItem>
+                    <SelectItem value="30">30 min</SelectItem>
+                    <SelectItem value="45">45 min</SelectItem>
+                    <SelectItem value="60">60 min</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
           )}
 
-          <div className="space-y-3">
+          {/* Sorting */}
+          <div>
             <Label>Sort By</Label>
             <Select
-              value={localFilters.sortBy || "relevance"}
-              onValueChange={(value) => {
-                setLocalFilters({ ...localFilters, sortBy: value === "relevance" ? undefined : value });
-              }}
+              value={filters.sortBy || "relevance"}
+              onValueChange={(value) => handleFilterChange("sortBy", value === "relevance" ? undefined : value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="mt-2">
                 <SelectValue placeholder="Relevance" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="relevance">Relevance</SelectItem>
-                {type === "products" ? (
+                {type === "products" && (
                   <>
                     <SelectItem value="price_asc">Price: Low to High</SelectItem>
                     <SelectItem value="price_desc">Price: High to Low</SelectItem>
-                    <SelectItem value="rating">Rating</SelectItem>
                     <SelectItem value="popularity">Popularity</SelectItem>
                   </>
-                ) : (
+                )}
+                {type === "stores" && (
                   <>
                     <SelectItem value="rating">Rating</SelectItem>
                     <SelectItem value="delivery_time">Delivery Time</SelectItem>
-                    <SelectItem value="min_order">Minimum Order</SelectItem>
+                    <SelectItem value="min_order">Min Order</SelectItem>
                     <SelectItem value="name">Name</SelectItem>
                   </>
                 )}
+                <SelectItem value="rating">Rating</SelectItem>
               </SelectContent>
             </Select>
           </div>
-        </div>
 
-        <div className="flex gap-2 pt-4 border-t">
-          <Button variant="outline" className="flex-1" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          <Button className="flex-1" onClick={handleApply}>
-            Apply Filters
+          <Button onClick={clearFilters} variant="outline" className="w-full">
+            Clear All Filters
           </Button>
         </div>
       </SheetContent>

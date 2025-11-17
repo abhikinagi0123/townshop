@@ -77,7 +77,6 @@ export default function Landing() {
     }
   }, [user]);
 
-  // Type assertion to avoid deep type instantiation with React 19
   const apiAny: any = api;
 
   const nearbyShops = useQuery(
@@ -90,6 +89,11 @@ export default function Landing() {
   const featuredProducts = useQuery(apiAny.products.getFeaturedProducts, { limit: 8 });
   const activeOffers = useQuery(apiAny.offers.getActiveOffers);
   const flashSales = useQuery(apiAny.flashSales.list);
+  
+  const trendingInArea = useQuery(
+    apiAny.products.getTrendingInArea,
+    userLocation ? { userLat: userLocation.lat, userLng: userLocation.lng, radiusKm: 5, limit: 6 } : "skip"
+  );
   
   const recentOrders = useQuery(
     apiAny.orders.getRecentOrders,
@@ -136,6 +140,23 @@ export default function Landing() {
           />
 
           <QuickActions actions={quickActions} />
+
+          {trendingInArea && trendingInArea.length > 0 && (
+            <ProductSection
+              title="Trending Near You"
+              icon={<TrendingUp className="h-4 w-4 text-green-500" />}
+              badge="Local Favorites"
+              products={trendingInArea.filter((item: any) => 
+                item && 'image' in item && 'name' in item && 'price' in item && 'storeName' in item
+              ).map((item: any) => ({
+                _id: item._id as string,
+                image: item.image,
+                name: item.name,
+                price: item.price,
+                storeName: item.storeName,
+              }))}
+            />
+          )}
 
           {trendingProducts === undefined ? (
             <ProductSectionSkeleton />
