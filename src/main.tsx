@@ -32,6 +32,8 @@ const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const FlashSales = lazy(() => import("./pages/FlashSales.tsx"));
 const GiftCards = lazy(() => import("./pages/GiftCards.tsx"));
+const PriceDropAlerts = lazy(() => import("./pages/PriceDropAlerts.tsx"));
+const SubscriptionBoxes = lazy(() => import("./pages/SubscriptionBoxes.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -87,6 +89,8 @@ const router = createBrowserRouter([
   { path: "/dashboard", element: <Suspense fallback={<PageLoader />}><Dashboard /></Suspense> },
   { path: "/flash-sales", element: <Suspense fallback={<PageLoader />}><FlashSales /></Suspense> },
   { path: "/gift-cards", element: <Suspense fallback={<PageLoader />}><GiftCards /></Suspense> },
+  { path: "/price-alerts", element: <Suspense fallback={<PageLoader />}><PriceDropAlerts /></Suspense> },
+  { path: "/subscriptions", element: <Suspense fallback={<PageLoader />}><SubscriptionBoxes /></Suspense> },
   { path: "*", element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense> },
 ]);
 

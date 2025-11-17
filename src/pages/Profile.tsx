@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Gift, MessageSquare, Copy, BarChart3 } from "lucide-react";
+import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Gift, MessageSquare, Copy, BarChart3, Bell } from "lucide-react";
 import { UserDashboard } from "@/components/UserDashboard";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -298,6 +298,22 @@ export default function Profile() {
             >
               <Package className="h-4 w-4 mr-2" />
               My Orders
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/price-alerts")}
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              Price Drop Alerts
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/subscriptions")}
+            >
+              <Package className="h-4 w-4 mr-2" />
+              Subscription Boxes
             </Button>
             <Button
               variant="outline"

@@ -38,6 +38,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Id } from "@/convex/_generated/dataModel";
 import { ShareButton } from "@/components/ShareButton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 export default function ProductDetail() {
   const { productId } = useParams<{ productId: string }>();
@@ -61,17 +63,25 @@ export default function ProductDetail() {
     isAuthenticated && productId ? { productId: productId as Id<"products"> } : "skip"
   );
   const favorites = useQuery(apiAny.favorites.list);
+  const productQuestions = useQuery(apiAny.productQA.listByProduct, { productId: productId as Id<"products"> });
   
   const addToCart = useMutation(apiAny.cart.addItem);
   const toggleFavorite = useMutation(apiAny.favorites.toggle);
   const toggleStockAlert = useMutation(apiAny.stockAlerts.toggle);
   const createReview = useMutation(apiAny.reviews.create);
+  const askQuestion = useMutation(apiAny.productQA.askQuestion);
+  const answerQuestion = useMutation(apiAny.productQA.answerQuestion);
+  const createPriceAlert = useMutation(apiAny.priceDropAlerts.create);
   
   const [quantity, setQuantity] = useState(1);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [questionText, setQuestionText] = useState("");
+  const [showQuestionForm, setShowQuestionForm] = useState(false);
+  const [targetPrice, setTargetPrice] = useState("");
+  const [showPriceAlert, setShowPriceAlert] = useState(false);
   
   const isFavorited = favorites?.some((f: any) => f.productId === productId);
   const hasStockAlert = stockAlert?.hasAlert || false;
@@ -144,6 +154,45 @@ export default function ProductDetail() {
       setShowReviewForm(false);
     } catch (error) {
       toast.error("Failed to submit review");
+    }
+  };
+  
+  const handleAskQuestion = async () => {
+    if (!isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
+    if (!questionText.trim()) {
+      toast.error("Please enter a question");
+      return;
+    }
+    try {
+      await askQuestion({ productId: productId as Id<"products">, question: questionText });
+      toast.success("Question posted!");
+      setQuestionText("");
+      setShowQuestionForm(false);
+    } catch (error) {
+      toast.error("Failed to post question");
+    }
+  };
+
+  const handleSetPriceAlert = async () => {
+    if (!isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
+    const price = parseFloat(targetPrice);
+    if (!price || price <= 0 || price >= (product?.price || 0)) {
+      toast.error("Please enter a valid target price below current price");
+      return;
+    }
+    try {
+      await createPriceAlert({ productId: productId as Id<"products">, targetPrice: price });
+      toast.success("Price alert set!");
+      setTargetPrice("");
+      setShowPriceAlert(false);
+    } catch (error) {
+      toast.error("Failed to set price alert");
     }
   };
   
@@ -230,6 +279,16 @@ export default function ProductDetail() {
                   <div className="text-3xl font-bold text-primary">
                     ₹{product.price}
                   </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPriceAlert(true)}
+                    className="w-full"
+                  >
+                    <Bell className="h-4 w-4 mr-2" />
+                    Set Price Alert
+                  </Button>
                   
                   <p className="text-muted-foreground">{product.description}</p>
                   
@@ -347,15 +406,18 @@ export default function ProductDetail() {
             </CardContent>
           </Card>
           
-          {/* Tabs for Details, Specs, Reviews */}
+          {/* Tabs for Details, Specs, Reviews, Q&A */}
           <Card>
             <CardContent className="p-6">
               <Tabs defaultValue="details">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="details">Details</TabsTrigger>
                   <TabsTrigger value="specs">Specifications</TabsTrigger>
                   <TabsTrigger value="reviews">
                     Reviews {averageRating && `(${averageRating.count})`}
+                  </TabsTrigger>
+                  <TabsTrigger value="qa">
+                    Q&A {productQuestions && `(${productQuestions.length})`}
                   </TabsTrigger>
                 </TabsList>
                 
@@ -539,11 +601,106 @@ export default function ProductDetail() {
                     )}
                   </div>
                 </TabsContent>
+                
+                <TabsContent value="qa" className="space-y-4 mt-4">
+                  {!showQuestionForm && isAuthenticated && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => setShowQuestionForm(true)}
+                    >
+                      Ask a Question
+                    </Button>
+                  )}
+                  
+                  {showQuestionForm && (
+                    <Card>
+                      <CardContent className="p-4 space-y-4">
+                        <div>
+                          <Label>Your Question</Label>
+                          <Textarea
+                            placeholder="Ask anything about this product..."
+                            value={questionText}
+                            onChange={(e) => setQuestionText(e.target.value)}
+                            rows={3}
+                            className="mt-2"
+                          />
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Button onClick={handleAskQuestion} className="flex-1">
+                            Post Question
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setShowQuestionForm(false);
+                              setQuestionText("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                  
+                  <div className="space-y-4">
+                    {productQuestions && productQuestions.length > 0 ? (
+                      productQuestions.map((qa: any) => (
+                        <Card key={qa._id}>
+                          <CardContent className="p-4">
+                            <div className="mb-2">
+                              <div className="font-semibold text-sm">Q: {qa.question}</div>
+                              <div className="text-xs text-muted-foreground">by {qa.userName}</div>
+                            </div>
+                            {qa.isAnswered && qa.answer && (
+                              <div className="mt-3 pl-4 border-l-2 border-primary">
+                                <div className="font-semibold text-sm text-primary">A: {qa.answer}</div>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : (
+                      <p className="text-center text-muted-foreground py-8">
+                        No questions yet. Be the first to ask!
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
         </motion.div>
       </div>
+
+      {/* Price Alert Dialog */}
+      <Dialog open={showPriceAlert} onOpenChange={setShowPriceAlert}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Price Drop Alert</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label>Current Price: ₹{product.price}</Label>
+              <Input
+                type="number"
+                placeholder="Enter target price"
+                value={targetPrice}
+                onChange={(e) => setTargetPrice(e.target.value)}
+                className="mt-2"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                You'll be notified when the price drops to or below this amount
+              </p>
+            </div>
+            <Button onClick={handleSetPriceAlert} className="w-full">
+              Set Alert
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <MobileBottomNav isAuthenticated={isAuthenticated} />
     </div>
