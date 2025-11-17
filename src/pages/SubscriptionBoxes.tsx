@@ -43,7 +43,7 @@ export default function SubscriptionBoxes() {
 
   const searchResults = useQuery(
     apiAny.products.search,
-    searchQuery.trim() ? { term: searchQuery } : "skip"
+    searchQuery.trim() ? { query: searchQuery, limit: 20 } : "skip"
   );
 
   const handlePause = async (subId: string) => {

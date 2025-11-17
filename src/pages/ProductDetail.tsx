@@ -206,14 +206,15 @@ export default function ProductDetail() {
         <Button
           variant="outline"
           size="sm"
-  onClick={() => {
-    const currentParams = new URLSearchParams(window.location.search);
-    const existingProducts = currentParams.get("products")?.split(",") || [];
-    if (productId && !existingProducts.includes(productId)) {
-      existingProducts.push(productId);
-    }
-    navigate(`/compare?products=${existingProducts.join(",")}`);
-  }}
+          onClick={() => {
+            const currentParams = new URLSearchParams(window.location.search);
+            const existingProducts = currentParams.get("products")?.split(",") || [];
+            if (productId && !existingProducts.includes(productId)) {
+              existingProducts.push(productId);
+            }
+            navigate(`/compare?products=${existingProducts.join(",")}`);
+          }}
+          className="mb-4"
         >
           <Share2 className="h-4 w-4 mr-2" />
           Compare
