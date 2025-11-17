@@ -449,6 +449,31 @@ export default function Cart() {
               onSavePaymentMethodChange={setSavePaymentMethod}
             />
 
+            {/* Gift Card Redemption Section */}
+            <div className="border-t pt-4 mt-4">
+              <h3 className="font-semibold mb-3">Redeem Gift Card</h3>
+              <div className="flex gap-2 mb-4">
+                <Input
+                  placeholder="Enter gift card code"
+                  className="flex-1 uppercase"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const code = (e.target as HTMLInputElement).value.trim();
+                      if (code) {
+                        navigate(`/gift-cards?redeem=${code}`);
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/gift-cards')}
+                >
+                  Redeem
+                </Button>
+              </div>
+            </div>
+
             {/* Apply Coupon Section */}
             <div className="border-t pt-4 mt-4">
               <h3 className="font-semibold mb-3">Apply Coupon</h3>

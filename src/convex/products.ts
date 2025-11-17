@@ -134,7 +134,7 @@ export const getFeaturedProducts = query({
 
 export const search = query({
   args: { 
-    term: v.string(),
+    query: v.string(),
     filters: v.optional(v.object({
       minPrice: v.optional(v.number()),
       maxPrice: v.optional(v.number()),
@@ -151,7 +151,7 @@ export const search = query({
     )),
   },
   handler: async (ctx, args) => {
-    const searchLower = args.term.toLowerCase();
+    const searchLower = args.query.toLowerCase();
     const products = await ctx.db.query("products").collect();
     
     let matchingProducts = products.filter(product => 

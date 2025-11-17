@@ -32,7 +32,7 @@ export default function Search() {
   );
   const products = useQuery(
     apiAny.products.search, 
-    searchTerm ? { term: searchTerm, filters: productFilters, sortBy: productFilters.sortBy } : "skip"
+    searchTerm ? { query: searchTerm, filters: productFilters, sortBy: productFilters.sortBy } : "skip"
   );
 
   useEffect(() => {

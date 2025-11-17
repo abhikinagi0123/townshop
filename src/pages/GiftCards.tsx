@@ -7,7 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useAuth } from "@/hooks/use-auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +24,8 @@ export default function GiftCards() {
   const giftCards = useQuery(apiAny.giftCards.listByUser);
   const createGiftCard = useMutation(apiAny.giftCards.create);
   const redeemGiftCard = useMutation(apiAny.giftCards.redeem);
+  
+  const [searchParams] = useSearchParams();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
@@ -34,7 +37,7 @@ export default function GiftCards() {
   const [recipientName, setRecipientName] = useState("");
   const [message, setMessage] = useState("");
   
-  const [redeemCode, setRedeemCode] = useState("");
+  const [redeemCode, setRedeemCode] = useState(searchParams.get("redeem") || "");
   const [redeemAmount, setRedeemAmount] = useState("");
   
   const [balanceCheckCode, setBalanceCheckCode] = useState("");
@@ -105,6 +108,15 @@ export default function GiftCards() {
     navigator.clipboard.writeText(code);
     toast.success("Code copied to clipboard!");
   };
+
+  // Auto-open redeem dialog if code is in URL
+  useEffect(() => {
+    const redeemParam = searchParams.get("redeem");
+    if (redeemParam) {
+      setRedeemCode(redeemParam.toUpperCase());
+      setRedeemDialogOpen(true);
+    }
+  }, [searchParams]);
 
   if (!isAuthenticated) {
     return (
