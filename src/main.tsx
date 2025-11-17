@@ -30,6 +30,8 @@ const Loyalty = lazy(() => import("./pages/Loyalty"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const FlashSales = lazy(() => import("./pages/FlashSales.tsx"));
+const GiftCards = lazy(() => import("./pages/GiftCards.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -67,74 +69,25 @@ const PageLoader = () => (
 );
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Landing />,
-  },
-  {
-    path: "/auth",
-    element: <AuthPage redirectAfterAuth="/stores" />,
-  },
-  {
-    path: "/stores",
-    element: <Suspense fallback={<PageLoader />}><Stores /></Suspense>,
-  },
-  {
-    path: "/store/:storeId",
-    element: <Suspense fallback={<PageLoader />}><StoreDetail /></Suspense>,
-  },
-  {
-    path: "/product/:productId",
-    element: <Suspense fallback={<PageLoader />}><ProductDetail /></Suspense>,
-  },
-  {
-    path: "/cart",
-    element: <Suspense fallback={<PageLoader />}><Cart /></Suspense>,
-  },
-  {
-    path: "/orders",
-    element: <Suspense fallback={<PageLoader />}><Orders /></Suspense>,
-  },
-  {
-    path: "/order/:orderId",
-    element: <Suspense fallback={<PageLoader />}><OrderTracking /></Suspense>,
-  },
-  {
-    path: "/profile",
-    element: <Suspense fallback={<PageLoader />}><Profile /></Suspense>,
-  },
-  {
-    path: "/addresses",
-    element: <Suspense fallback={<PageLoader />}><Addresses /></Suspense>,
-  },
-  {
-    path: "/search",
-    element: <Suspense fallback={<PageLoader />}><Search /></Suspense>,
-  },
-  {
-    path: "/favorites",
-    element: <Suspense fallback={<PageLoader />}><Favorites /></Suspense>,
-  },
-  {
-    path: "/notifications",
-    element: <Suspense fallback={<PageLoader />}><Notifications /></Suspense>,
-  },
-  {
-    path: "/chat/:sessionId",
-    element: <Suspense fallback={<PageLoader />}><Chat /></Suspense>,
-  },
-  {
-    path: "/loyalty",
-    element: <Suspense fallback={<PageLoader />}><Loyalty /></Suspense>,
-  },
-  {
-    path: "/dashboard",
-    element: <Suspense fallback={<PageLoader />}><Dashboard /></Suspense>,
-  },
-  {
-    path: "*",
-    element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense>,
-  },
+  { path: "/", element: <Landing /> },
+  { path: "/auth", element: <AuthPage redirectAfterAuth="/stores" /> },
+  { path: "/stores", element: <Suspense fallback={<PageLoader />}><Stores /></Suspense> },
+  { path: "/store/:storeId", element: <Suspense fallback={<PageLoader />}><StoreDetail /></Suspense> },
+  { path: "/product/:productId", element: <Suspense fallback={<PageLoader />}><ProductDetail /></Suspense> },
+  { path: "/search", element: <Suspense fallback={<PageLoader />}><Search /></Suspense> },
+  { path: "/cart", element: <Suspense fallback={<PageLoader />}><Cart /></Suspense> },
+  { path: "/orders", element: <Suspense fallback={<PageLoader />}><Orders /></Suspense> },
+  { path: "/order/:orderId", element: <Suspense fallback={<PageLoader />}><OrderTracking /></Suspense> },
+  { path: "/profile", element: <Suspense fallback={<PageLoader />}><Profile /></Suspense> },
+  { path: "/addresses", element: <Suspense fallback={<PageLoader />}><Addresses /></Suspense> },
+  { path: "/favorites", element: <Suspense fallback={<PageLoader />}><Favorites /></Suspense> },
+  { path: "/loyalty", element: <Suspense fallback={<PageLoader />}><Loyalty /></Suspense> },
+  { path: "/notifications", element: <Suspense fallback={<PageLoader />}><Notifications /></Suspense> },
+  { path: "/chat/:sessionId", element: <Suspense fallback={<PageLoader />}><Chat /></Suspense> },
+  { path: "/dashboard", element: <Suspense fallback={<PageLoader />}><Dashboard /></Suspense> },
+  { path: "/flash-sales", element: <Suspense fallback={<PageLoader />}><FlashSales /></Suspense> },
+  { path: "/gift-cards", element: <Suspense fallback={<PageLoader />}><GiftCards /></Suspense> },
+  { path: "*", element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense> },
 ]);
 
 createRoot(document.getElementById("root")!).render(
