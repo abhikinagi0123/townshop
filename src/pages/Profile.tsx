@@ -221,36 +221,14 @@ export default function Profile() {
                   </div>
                 </div>
               )}
-              <Dialog open={showReferralDialog} onOpenChange={setShowReferralDialog}>
-                <DialogTrigger asChild>
-                  <Button className="w-full" variant="outline">
-                    <Gift className="h-4 w-4 mr-2" />
-                    Manage Referrals
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Referral Program</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div>
-                      <p className="text-sm font-medium mb-2">Your Referral Code</p>
-                      {referralCode ? (
-                        <div className="flex gap-2">
-                          <Input value={referralCode} readOnly />
-                          <Button size="sm" onClick={handleCopyReferralCode}>
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button onClick={handleGenerateReferralCode} className="w-full">
-                          Generate Code
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <Button 
+                className="w-full" 
+                variant="outline"
+                onClick={() => navigate("/referral")}
+              >
+                <Gift className="h-4 w-4 mr-2" />
+                View Referral Details
+              </Button>
             </CardContent>
           </Card>
 

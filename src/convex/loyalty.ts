@@ -229,3 +229,33 @@ export const getReferralStats = query({
     };
   },
 });
+
+export const getReferralsList = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return [];
+
+    const referrals = await ctx.db
+      .query("referrals")
+      .withIndex("by_referrer", (q) => q.eq("referrerId", user._id))
+      .order("desc")
+      .collect();
+
+    const referralsWithNames = await Promise.all(
+      referrals.map(async (referral) => {
+        let referredUserName = null;
+        if (referral.referredUserId) {
+          const referredUser = await ctx.db.get(referral.referredUserId);
+          referredUserName = referredUser?.name || null;
+        }
+        return {
+          ...referral,
+          referredUserName,
+        };
+      })
+    );
+
+    return referralsWithNames;
+  },
+});

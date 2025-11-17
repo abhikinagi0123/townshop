@@ -38,6 +38,7 @@ const GroupBuying = lazy(() => import("./pages/GroupBuying.tsx"));
 const Services = lazy(() => import("./pages/Services.tsx"));
 const ServiceDetail = lazy(() => import("./pages/ServiceDetail.tsx"));
 const Wallet = lazy(() => import("./pages/Wallet.tsx"));
+const Referral = lazy(() => import("./pages/Referral.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -90,6 +91,7 @@ const router = createBrowserRouter([
   { path: "/addresses", element: <Suspense fallback={<PageLoader />}><Addresses /></Suspense> },
   { path: "/favorites", element: <Suspense fallback={<PageLoader />}><Favorites /></Suspense> },
   { path: "/loyalty", element: <Suspense fallback={<PageLoader />}><Loyalty /></Suspense> },
+  { path: "/referral", element: <Suspense fallback={<PageLoader />}><Referral /></Suspense> },
   { path: "/notifications", element: <Suspense fallback={<PageLoader />}><Notifications /></Suspense> },
   { path: "/chat/:sessionId", element: <Suspense fallback={<PageLoader />}><Chat /></Suspense> },
   { path: "/dashboard", element: <Suspense fallback={<PageLoader />}><Dashboard /></Suspense> },
