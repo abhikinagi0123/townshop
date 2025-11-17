@@ -22,11 +22,11 @@ export function QuickActions({ actions }: QuickActionsProps) {
             transition={{ duration: 0.3, delay: 0.05 * index }}
             whileHover={{ scale: 1.05, y: -4 }}
             whileTap={{ scale: 0.95 }}
-            className="text-center"
+            className="text-center cursor-pointer"
           >
-            <div className="bg-gradient-to-br from-card via-card to-primary/5 border-2 border-border/50 rounded-2xl p-5 shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-300 cursor-pointer">
-              <div className="text-4xl mb-3">{action.icon}</div>
-              <p className="text-xs font-bold leading-tight text-foreground/90">{action.title}</p>
+            <div className="bg-gradient-to-br from-card via-card to-primary/5 border-2 border-border/50 rounded-2xl p-6 shadow-md active:shadow-xl active:border-primary/30 active:scale-[0.98] transition-all duration-200 min-h-[120px] flex flex-col items-center justify-center">
+              <div className="text-5xl mb-3">{action.icon}</div>
+              <p className="text-sm font-bold leading-tight text-foreground">{action.title}</p>
             </div>
           </motion.div>
         ))}

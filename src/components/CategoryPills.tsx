@@ -22,10 +22,10 @@ export function CategoryPills({ categories, selectedCategory, onCategoryChange }
             variant={selectedCategory === cat.id ? "default" : "outline"}
             size="sm"
             onClick={() => onCategoryChange(cat.id)}
-            className={`gap-2 rounded-full px-5 h-10 whitespace-nowrap flex-shrink-0 font-semibold transition-all duration-200 ${
+            className={`gap-2 rounded-full px-6 h-12 whitespace-nowrap flex-shrink-0 font-bold transition-all duration-200 min-w-[56px] ${
               selectedCategory === cat.id 
                 ? "shadow-lg scale-105" 
-                : "shadow-sm hover:shadow-md hover:scale-102 border-2"
+                : "shadow-sm active:shadow-md active:scale-[0.98] border-2"
             }`}
           >
             <span className="text-base">{cat.emoji}</span>

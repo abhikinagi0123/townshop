@@ -63,22 +63,22 @@ export function MobileHeader({
             </div>
           </motion.div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <AccessibilityControls />
             {isAuthenticated ? (
               <>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="relative h-9 w-9 p-0"
+                  className="relative min-h-[44px] min-w-[44px] p-0"
                   onClick={() => navigate("/favorites")}
                   aria-label={`Favorites${favoritesCount ? ` (${favoritesCount} items)` : ""}`}
                 >
-                  <Heart className="h-5 w-5" aria-hidden="true" />
+                  <Heart className="h-6 w-6" aria-hidden="true" />
                   {favoritesCount > 0 && (
                     <Badge
                       variant="secondary"
-                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+                      className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 text-xs font-bold"
                     >
                       {favoritesCount > 9 ? "9+" : favoritesCount}
                     </Badge>
@@ -87,15 +87,15 @@ export function MobileHeader({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="relative h-9 w-9 p-0"
+                  className="relative min-h-[44px] min-w-[44px] p-0"
                   onClick={() => navigate("/cart")}
                   aria-label={`Cart${cartCount ? ` (${cartCount} items)` : ""}`}
                 >
-                  <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+                  <ShoppingCart className="h-6 w-6" aria-hidden="true" />
                   {cartCount > 0 && (
                     <Badge
                       variant="default"
-                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+                      className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 text-xs font-bold"
                     >
                       {cartCount > 9 ? "9+" : cartCount}
                     </Badge>
@@ -104,15 +104,15 @@ export function MobileHeader({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="relative h-9 w-9 p-0"
+                  className="relative min-h-[44px] min-w-[44px] p-0"
                   onClick={() => navigate("/notifications")}
                   aria-label={`Notifications${unreadCount ? ` (${unreadCount} unread)` : ""}`}
                 >
-                  <Bell className="h-5 w-5" aria-hidden="true" />
+                  <Bell className="h-6 w-6" aria-hidden="true" />
                   {unreadCount && unreadCount > 0 ? (
                     <Badge
                       variant="destructive"
-                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+                      className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 text-xs font-bold"
                     >
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </Badge>
@@ -124,7 +124,7 @@ export function MobileHeader({
                 variant="default"
                 size="sm"
                 onClick={() => navigate("/auth")}
-                className="h-9"
+                className="min-h-[44px] px-6 text-base font-semibold"
                 aria-label="Login"
               >
                 Login
@@ -140,10 +140,10 @@ export function MobileHeader({
             transition={{ delay: 0.2 }}
           >
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
               <Input
                 placeholder="Search stores, products..."
-                className="pl-10 h-10 bg-muted/50"
+                className="pl-12 h-12 bg-muted/50 text-base rounded-xl"
                 readOnly
                 onClick={() => navigate("/search")}
                 aria-label="Search for stores and products"
