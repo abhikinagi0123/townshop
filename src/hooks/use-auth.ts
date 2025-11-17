@@ -1,19 +1,13 @@
 import { api } from "@/convex/_generated/api";
 import { useConvexAuth, useQuery } from "convex/react";
+import { useAuthActions as useConvexAuthActions } from "@convex-dev/auth/react";
 import { useEffect, useState } from "react";
-
-// Type assertion to avoid deep type instantiation with React 19
-const useAuthActions = (): any => {
-  const authModule = require("@convex-dev/auth/react");
-  return authModule.useAuthActions();
-};
 
 export function useAuth() {
   const { isLoading: isAuthLoading, isAuthenticated } = useConvexAuth();
   const apiAny: any = api;
   const user = useQuery(apiAny.users.currentUser) as any;
-  const authActions = useAuthActions();
-  const { signIn, signOut } = authActions;
+  const { signIn, signOut } = useConvexAuthActions();
 
   const [isLoading, setIsLoading] = useState(true);
 
