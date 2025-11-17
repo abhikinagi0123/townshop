@@ -31,24 +31,79 @@ export const create = mutation({
   },
 });
 
-export const listActive = query({
+export const listByUser = query({
   args: {},
   handler: async (ctx) => {
     const user = await getCurrentUser(ctx);
     if (!user) return [];
     
-    return await ctx.db
+    const subscriptions = await ctx.db
       .query("subscriptionBoxes")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
-      .filter((q) => q.eq(q.field("isActive"), true))
       .collect();
+    
+    return await Promise.all(
+      subscriptions.map(async (sub) => {
+        const products = await Promise.all(
+          sub.productIds.map(id => ctx.db.get(id))
+        );
+        return {
+          ...sub,
+          products: products.filter(p => p !== null),
+          status: sub.isActive ? "active" : "cancelled",
+        };
+      })
+    );
+  },
+});
+
+export const pause = mutation({
+  args: { subscriptionId: v.id("subscriptionBoxes") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.subscriptionId, { isActive: false });
+  },
+});
+
+export const resume = mutation({
+  args: { subscriptionId: v.id("subscriptionBoxes") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.subscriptionId, { isActive: true });
   },
 });
 
 export const cancel = mutation({
   args: { subscriptionId: v.id("subscriptionBoxes") },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.subscriptionId, { isActive: false });
+    await ctx.db.delete(args.subscriptionId);
+  },
+});
+
+export const updateFrequency = mutation({
+  args: {
+    subscriptionId: v.id("subscriptionBoxes"),
+    frequency: v.union(
+      v.literal("weekly"),
+      v.literal("biweekly"),
+      v.literal("monthly")
+    ),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.subscriptionId, {
+      frequency: args.frequency,
+      nextDelivery: calculateNextDelivery(args.frequency),
+    });
+  },
+});
+
+export const updateProducts = mutation({
+  args: {
+    subscriptionId: v.id("subscriptionBoxes"),
+    productIds: v.array(v.id("products")),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.subscriptionId, {
+      productIds: args.productIds,
+    });
   },
 });
 
