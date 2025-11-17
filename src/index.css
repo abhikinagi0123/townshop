@@ -168,12 +168,33 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
+  html {
+    /* Mobile-first: Prevent text size adjustment on orientation change */
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Smooth scrolling for better UX */
+    scroll-behavior: smooth;
+  }
+  
   body {
     @apply bg-background text-foreground;
+    /* Mobile-first: Better font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Mobile-first: Prevent pull-to-refresh on mobile */
+    overscroll-behavior-y: contain;
+    /* Mobile-first: Optimize for touch */
+    touch-action: manipulation;
   }
+  
   button:not([disabled]),
   [role="button"]:not([disabled]) {
     cursor: pointer;
+    /* Mobile-first: Larger touch targets */
+    min-height: 44px;
+    min-width: 44px;
   }
   
   /* Skip to main content link */
@@ -187,5 +208,72 @@
   
   *:focus-visible {
     @apply outline-2 outline-offset-2 outline-ring;
+  }
+  
+  /* Mobile-first: Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Mobile-first: Optimize images */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  /* Mobile-first: Better tap highlight */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Mobile-first: Prevent text selection on UI elements */
+  button, [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Mobile-first utility classes */
+@layer utilities {
+  /* Safe area insets for notched devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Mobile-optimized spacing */
+  .mobile-container {
+    @apply px-4 mx-auto max-w-lg;
+  }
+  
+  /* Touch-friendly spacing */
+  .touch-spacing {
+    @apply p-4 gap-4;
+  }
+  
+  /* App-like card styling */
+  .app-card {
+    @apply rounded-2xl shadow-lg border-2 transition-all duration-200;
+  }
+  
+  .app-card:active {
+    @apply scale-[0.98] shadow-xl;
   }
 }
