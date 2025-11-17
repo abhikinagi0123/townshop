@@ -85,6 +85,16 @@ export default function Landing() {
     userLocation ? { userLat: userLocation.lat, userLng: userLocation.lng, category, search, radius: 10 } : "skip"
   );
 
+  // Calculate distance for nearby shops
+  const nearbyShopsWithDistance = nearbyShops?.map((shop: any) => {
+    if (!userLocation) return shop;
+    const distance = Math.sqrt(
+      Math.pow(shop.lat - userLocation.lat, 2) + 
+      Math.pow(shop.lng - userLocation.lng, 2)
+    ) * 111; // Convert to km
+    return { ...shop, distance };
+  });
+
   const trendingProducts = useQuery(apiAny.products.getTrendingProducts, { limit: 6 });
   const topRatedProducts = useQuery(apiAny.products.getTopRatedProducts, { limit: 4 });
   const featuredProducts = useQuery(apiAny.products.getFeaturedProducts, { limit: 8 });
@@ -366,16 +376,16 @@ export default function Landing() {
             </div>
           )}
 
-          {nearbyShops && nearbyShops.length > 0 && (
+          {nearbyShopsWithDistance && nearbyShopsWithDistance.length > 0 && (
             <div className="py-3" id="nearby-stores">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h2 className="text-base font-bold">Stores Near You</h2>
                   <p className="text-xs text-muted-foreground">
-                    {nearbyShops.length} {nearbyShops.length === 1 ? "store" : "stores"}
+                    {nearbyShopsWithDistance.length} {nearbyShopsWithDistance.length === 1 ? "store" : "stores"}
                   </p>
                 </div>
-                {nearbyShops.length > 6 && (
+                {nearbyShopsWithDistance.length > 6 && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -389,7 +399,7 @@ export default function Landing() {
               </div>
 
               <div className="grid grid-cols-1 gap-3">
-                {nearbyShops.slice(0, 6).map((shop: any, index: number) => (
+                {nearbyShopsWithDistance.slice(0, 6).map((shop: any, index: number) => (
                   <motion.div
                     key={shop._id}
                     initial={{ opacity: 0, y: 10 }}
