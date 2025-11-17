@@ -30,7 +30,7 @@ export function StoreCard({ store }: StoreCardProps) {
       transition={{ duration: 0.2 }}
     >
       <Card 
-        className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 border bg-card"
+        className="overflow-hidden cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border-2 hover:border-primary/30 bg-card"
         onClick={() => navigate(`/store/${store._id}`)}
         role="button"
         tabIndex={0}
@@ -42,8 +42,8 @@ export function StoreCard({ store }: StoreCardProps) {
         }}
         aria-label={`View ${store.name} store details`}
       >
-        <div className="flex gap-3 p-3">
-          <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+        <div className="flex gap-4 p-4">
+          <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-muted shadow-md">
             <img
               src={store.image}
               alt={store.name}
@@ -58,8 +58,8 @@ export function StoreCard({ store }: StoreCardProps) {
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2 mb-1">
-              <h3 className="font-bold text-sm leading-tight truncate">
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <h3 className="font-bold text-base leading-tight truncate">
                 {store.name}
               </h3>
               {store.isOpen !== undefined && (
@@ -76,11 +76,11 @@ export function StoreCard({ store }: StoreCardProps) {
               )}
             </div>
             
-            <p className="text-[11px] text-muted-foreground line-clamp-1 mb-2">
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
               {store.description}
             </p>
             
-            <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium">
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 <span>{store.deliveryTime}</span>

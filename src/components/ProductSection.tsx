@@ -23,26 +23,26 @@ interface ProductSectionProps {
 
 export function ProductSection({ title, icon, badge, products, showRating = false }: ProductSectionProps) {
   return (
-    <section className="py-3" aria-labelledby={`section-${title.replace(/\s+/g, '-').toLowerCase()}`}>
-      <div className="flex items-center justify-between mb-3">
+    <section className="py-4" aria-labelledby={`section-${title.replace(/\s+/g, '-').toLowerCase()}`}>
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           {icon}
-          <h2 id={`section-${title.replace(/\s+/g, '-').toLowerCase()}`} className="text-base font-bold">{title}</h2>
+          <h2 id={`section-${title.replace(/\s+/g, '-').toLowerCase()}`} className="text-lg font-bold">{title}</h2>
         </div>
-        <Badge variant="secondary" className="text-[10px]">{badge}</Badge>
+        <Badge variant="secondary" className="text-[10px] shadow-sm">{badge}</Badge>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4" role="list">
+      <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide -mx-4 px-4" role="list">
         {products.map((item, index) => (
           <motion.div
             key={item._id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.2, delay: Math.min(0.03 * index, 0.3) }}
-            className="flex-shrink-0 w-28 cursor-pointer"
+            className="flex-shrink-0 w-32 cursor-pointer"
             role="listitem"
             onClick={() => window.location.href = `/product/${item._id}`}
           >
-            <Card className="overflow-hidden hover:shadow-md transition-shadow">
+            <Card className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-200 border-2 hover:border-primary/20">
               <div className="relative">
                 <picture>
                   <source 
@@ -52,7 +52,7 @@ export function ProductSection({ title, icon, badge, products, showRating = fals
                   <img 
                     src={item.image} 
                     alt={item.name} 
-                    className="w-full h-24 object-cover" 
+                    className="w-full h-28 object-cover" 
                     loading="lazy"
                     decoding="async"
                     width="112"
@@ -66,10 +66,10 @@ export function ProductSection({ title, icon, badge, products, showRating = fals
                   </div>
                 )}
               </div>
-              <CardContent className="p-2">
-                <p className="text-[11px] font-semibold line-clamp-1">{item.name}</p>
-                <p className="text-[9px] text-muted-foreground line-clamp-1">{item.storeName}</p>
-                <p className="text-[10px] text-primary font-bold">₹{item.price}</p>
+              <CardContent className="p-3">
+                <p className="text-xs font-bold line-clamp-1 mb-1">{item.name}</p>
+                <p className="text-[10px] text-muted-foreground line-clamp-1 mb-1">{item.storeName}</p>
+                <p className="text-sm text-primary font-extrabold">₹{item.price}</p>
               </CardContent>
             </Card>
           </motion.div>

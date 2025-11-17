@@ -14,25 +14,25 @@ export function HeroSection({ isAuthenticated, nearbyShopsCount = 0 }: HeroSecti
 
   return (
     <section 
-      className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background"
+      className="relative overflow-hidden bg-gradient-to-br from-primary/15 via-secondary/10 to-background"
       aria-labelledby="hero-heading"
     >
-      <div className="px-4 py-8">
+      <div className="px-4 py-12 md:py-16">
         <div className="max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Badge className="mb-3 bg-primary text-primary-foreground">
-              🚀 Fast Delivery
+            <Badge className="mb-4 bg-gradient-to-r from-primary to-secondary text-white shadow-lg">
+              🚀 Fast Delivery • Same Day Available
             </Badge>
-            <h1 id="hero-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight">
+            <h1 id="hero-heading" className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
               Your Local Marketplace
               <br />
               <span className="text-primary">All Services & Products in One Place</span>
             </h1>
-            <p className="text-muted-foreground text-sm md:text-base mb-6 leading-relaxed">
+            <p className="text-muted-foreground text-base md:text-lg mb-8 leading-relaxed max-w-xl">
               From groceries to home repairs, electronics to beauty services - discover and book everything your town offers. Support local businesses with every purchase and booking.
             </p>
           </motion.div>
