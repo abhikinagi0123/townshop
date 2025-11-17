@@ -28,12 +28,12 @@ export function HeroSection({ isAuthenticated, nearbyShopsCount = 0 }: HeroSecti
               🚀 Fast Delivery
             </Badge>
             <h1 id="hero-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight">
-              Get Everything
+              Your Town's Marketplace
               <br />
-              <span className="text-primary">Delivered in Minutes</span>
+              <span className="text-primary">Everything You Need, Locally</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mb-6 leading-relaxed">
-              Order from local stores and get your favorites delivered to your doorstep in 10-30 minutes. Fresh, fast, and reliable.
+              Shop from local stores, book services, and get everything delivered to your doorstep. Supporting your community, one order at a time.
             </p>
           </motion.div>
           
@@ -75,16 +75,16 @@ export function HeroSection({ isAuthenticated, nearbyShopsCount = 0 }: HeroSecti
             aria-label="Service highlights"
           >
             <div role="listitem">
-              <p className="text-2xl md:text-3xl font-bold text-primary" aria-label="10 to 30 minutes delivery">10-30</p>
-              <p className="text-xs md:text-sm text-muted-foreground">Min Delivery</p>
+              <p className="text-2xl md:text-3xl font-bold text-primary" aria-label="10 to 30 minutes delivery">Fast</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Quick Delivery</p>
             </div>
             <div role="listitem">
-              <p className="text-2xl md:text-3xl font-bold text-primary" aria-label={`${nearbyShopsCount} plus local stores`}>{nearbyShopsCount}+</p>
-              <p className="text-xs md:text-sm text-muted-foreground">Local Stores</p>
+              <p className="text-2xl md:text-3xl font-bold text-primary" aria-label={`${nearbyShopsCount} plus local businesses`}>{nearbyShopsCount}+</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Local Businesses</p>
             </div>
             <div role="listitem">
-              <p className="text-2xl md:text-3xl font-bold text-primary" aria-label="100 percent fresh products">100%</p>
-              <p className="text-xs md:text-sm text-muted-foreground">Fresh Products</p>
+              <p className="text-2xl md:text-3xl font-bold text-primary" aria-label="100 percent local">100%</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Local & Trusted</p>
             </div>
           </motion.div>
         </div>

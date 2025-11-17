@@ -32,21 +32,21 @@ const categories = [
 ];
 
 const featuredCategories = [
-  { name: "Vegetables & Fruits", emoji: "🥬", color: "from-green-500 to-green-400" },
-  { name: "Dairy & Breakfast", emoji: "🥛", color: "from-blue-500 to-blue-400" },
-  { name: "Munchies", emoji: "🍿", color: "from-orange-500 to-orange-400" },
-  { name: "Cold Drinks", emoji: "🥤", color: "from-red-500 to-red-400" },
-  { name: "Instant Food", emoji: "🍜", color: "from-yellow-500 to-yellow-400" },
-  { name: "Tea & Coffee", emoji: "☕", color: "from-purple-500 to-purple-400" },
-  { name: "Bakery & Biscuits", emoji: "🍪", color: "from-pink-500 to-pink-400" },
-  { name: "Sauces & Spreads", emoji: "🍯", color: "from-amber-500 to-amber-400" },
+  { name: "Groceries", emoji: "🛒", color: "from-green-500 to-green-400" },
+  { name: "Food & Dining", emoji: "🍕", color: "from-orange-500 to-orange-400" },
+  { name: "Electronics", emoji: "📱", color: "from-blue-500 to-blue-400" },
+  { name: "Pharmacy", emoji: "💊", color: "from-red-500 to-red-400" },
+  { name: "Home Services", emoji: "🔧", color: "from-purple-500 to-purple-400" },
+  { name: "Fashion", emoji: "👕", color: "from-pink-500 to-pink-400" },
+  { name: "Beauty & Spa", emoji: "💅", color: "from-amber-500 to-amber-400" },
+  { name: "Pet Care", emoji: "🐾", color: "from-yellow-500 to-yellow-400" },
 ];
 
 const quickActions = [
-  { title: "10-Min Delivery", icon: "⚡", desc: "Lightning fast" },
-  { title: "Fresh Produce", icon: "🌿", desc: "Farm to home" },
-  { title: "Best Prices", icon: "💰", desc: "Save more" },
-  { title: "24/7 Available", icon: "🌙", desc: "Always open" },
+  { title: "Fast Service", icon: "⚡", desc: "Quick delivery" },
+  { title: "Local Shops", icon: "🏪", desc: "Support local" },
+  { title: "Best Prices", icon: "💰", desc: "Great deals" },
+  { title: "All Services", icon: "🌟", desc: "Everything" },
 ];
 
 export default function Landing() {

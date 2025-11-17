@@ -9,16 +9,16 @@ export function WhyChooseUs() {
           <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mb-2 mx-auto shadow-md">
             <Zap className="h-6 w-6 text-white" />
           </div>
-          <p className="text-xs font-semibold mb-1">Lightning Fast</p>
-          <p className="text-[10px] text-muted-foreground leading-tight">10-30 min delivery</p>
+          <p className="text-xs font-semibold mb-1">Fast Service</p>
+          <p className="text-[10px] text-muted-foreground leading-tight">Quick & reliable</p>
         </div>
 
         <div className="text-center">
           <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center mb-2 mx-auto shadow-md">
             <MapPin className="h-6 w-6 text-white" />
           </div>
-          <p className="text-xs font-semibold mb-1">Local Stores</p>
-          <p className="text-[10px] text-muted-foreground leading-tight">Support local</p>
+          <p className="text-xs font-semibold mb-1">Local Businesses</p>
+          <p className="text-[10px] text-muted-foreground leading-tight">Support community</p>
         </div>
 
         <div className="text-center">
@@ -26,7 +26,7 @@ export function WhyChooseUs() {
             <Star className="h-6 w-6 text-white" />
           </div>
           <p className="text-xs font-semibold mb-1">Quality</p>
-          <p className="text-[10px] text-muted-foreground leading-tight">Fresh products</p>
+          <p className="text-[10px] text-muted-foreground leading-tight">Trusted services</p>
         </div>
       </div>
     </div>
