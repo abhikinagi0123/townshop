@@ -213,9 +213,9 @@ export default function StoreDetail() {
           {storeOffers && storeOffers.length > 0 && (
             <div className="mb-6">
               <h2 className="text-lg font-bold mb-3">Available Offers</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
                 {storeOffers.map((offer: any) => (
-                  <OfferCard key={offer._id} offer={offer} />
+                  <OfferCard key={offer._id} offer={offer} compact />
                 ))}
               </div>
             </div>

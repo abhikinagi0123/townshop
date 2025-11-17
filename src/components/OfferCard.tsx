@@ -20,7 +20,7 @@ interface OfferCardProps {
   compact?: boolean;
 }
 
-export function OfferCard({ offer, compact = false }: OfferCardProps) {
+export function OfferCard({ offer, compact = true }: OfferCardProps) {
   const getIcon = () => {
     switch (offer.type) {
       case "shop_discount":
