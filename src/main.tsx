@@ -36,6 +36,7 @@ const PriceDropAlerts = lazy(() => import("./pages/PriceDropAlerts.tsx"));
 const SubscriptionBoxes = lazy(() => import("./pages/SubscriptionBoxes.tsx"));
 const GroupBuying = lazy(() => import("./pages/GroupBuying.tsx"));
 const Services = lazy(() => import("./pages/Services.tsx"));
+const ServiceDetail = lazy(() => import("./pages/ServiceDetail.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -78,6 +79,7 @@ const router = createBrowserRouter([
   { path: "/stores", element: <Suspense fallback={<PageLoader />}><Stores /></Suspense> },
   { path: "/store/:storeId", element: <Suspense fallback={<PageLoader />}><StoreDetail /></Suspense> },
   { path: "/services", element: <Suspense fallback={<PageLoader />}><Services /></Suspense> },
+  { path: "/service/:serviceId", element: <Suspense fallback={<PageLoader />}><ServiceDetail /></Suspense> },
   { path: "/product/:productId", element: <Suspense fallback={<PageLoader />}><ProductDetail /></Suspense> },
   { path: "/search", element: <Suspense fallback={<PageLoader />}><Search /></Suspense> },
   { path: "/cart", element: <Suspense fallback={<PageLoader />}><Cart /></Suspense> },

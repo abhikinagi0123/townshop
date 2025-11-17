@@ -297,7 +297,15 @@ export default function Profile() {
               onClick={() => navigate("/orders")}
             >
               <Package className="h-4 w-4 mr-2" />
-              My Orders
+              My Orders & Bookings
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/services")}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Browse Services
             </Button>
             <Button
               variant="outline"
