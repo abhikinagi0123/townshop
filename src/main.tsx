@@ -9,6 +9,7 @@ import { createBrowserRouter, RouterProvider, useLocation } from "react-router";
 import "./index.css";
 import { Loader2 } from "lucide-react";
 import "./types/global.d.ts";
+import { initializeApp } from "@/lib/capacitor";
 
 // Eager load critical pages
 import Landing from "./pages/Landing.tsx";
@@ -43,6 +44,9 @@ const ProductComparison = lazy(() => import("./pages/ProductComparison.tsx"));
 const OrderSplitting = lazy(() => import("./pages/OrderSplitting.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
+
+// Initialize Capacitor
+initializeApp();
 
 function RouteSyncer() {
   const location = useLocation();
