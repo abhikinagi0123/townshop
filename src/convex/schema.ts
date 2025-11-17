@@ -356,6 +356,8 @@ const schema = defineSchema(
         v.object({
           userId: v.id("users"),
           userName: v.string(),
+          hasPaid: v.boolean(),
+          joinedAt: v.number(),
         })
       ),
       maxParticipants: v.number(),
@@ -366,6 +368,8 @@ const schema = defineSchema(
       ),
       expiresAt: v.number(),
       description: v.optional(v.string()),
+      discountPercent: v.number(),
+      totalPrice: v.number(),
     }).index("by_store", ["storeId"]).index("by_creator", ["creatorId"]),
 
     inventoryHistory: defineTable({
