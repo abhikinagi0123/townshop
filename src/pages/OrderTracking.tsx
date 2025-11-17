@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams, useNavigate } from "react-router";
-import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, CheckCircle2, Clock, Truck, Phone, IndianRupee, MessageSquare, Navigation } from "lucide-react";
+import { ShoppingBag, Search, Star, MapPin, ArrowLeft, Package, CheckCircle2, Clock, Truck, Phone, IndianRupee, MessageSquare, Navigation, Share2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -280,8 +280,8 @@ export default function OrderTracking() {
                     <div className="mt-4 border-t pt-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <Navigation className="h-4 w-4 text-primary" />
-                          <span className="font-semibold text-sm">Live Location</span>
+                          <Navigation className="h-4 w-4 text-primary animate-pulse" />
+                          <span className="font-semibold text-sm">Live Tracking</span>
                         </div>
                         {deliveryLocation.lastLocationUpdate && (
                           <span className="text-xs text-muted-foreground">
@@ -289,27 +289,48 @@ export default function OrderTracking() {
                           </span>
                         )}
                       </div>
-                      <div className="bg-muted rounded-lg overflow-hidden h-48 relative">
+                      <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg overflow-hidden h-64 relative border-2 border-primary/20">
                         <div ref={mapRef} className="w-full h-full flex items-center justify-center">
-                          <div className="text-center">
-                            <MapPin className="h-8 w-8 mx-auto mb-2 text-primary animate-bounce" />
-                            <p className="text-sm font-medium">Delivery Partner Location</p>
-                            <p className="text-xs text-muted-foreground mt-1">
+                          <div className="text-center relative z-10">
+                            <div className="relative inline-block mb-3">
+                              <MapPin className="h-12 w-12 text-primary animate-bounce" />
+                              <div className="absolute inset-0 h-12 w-12 bg-primary/20 rounded-full animate-ping" />
+                            </div>
+                            <p className="text-sm font-medium mb-1">Delivery Partner En Route</p>
+                            <p className="text-xs text-muted-foreground mb-3">
                               Lat: {deliveryLocation.currentLat.toFixed(4)}, Lng: {deliveryLocation.currentLng.toFixed(4)}
                             </p>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="mt-3"
-                              onClick={() => {
-                                window.open(
-                                  `https://www.google.com/maps/dir/?api=1&destination=${deliveryLocation.currentLat},${deliveryLocation.currentLng}`,
-                                  '_blank'
-                                );
-                              }}
-                            >
-                              Open in Maps
-                            </Button>
+                            <div className="flex gap-2 justify-center">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => {
+                                  window.open(
+                                    `https://www.google.com/maps/dir/?api=1&destination=${deliveryLocation.currentLat},${deliveryLocation.currentLng}`,
+                                    '_blank'
+                                  );
+                                }}
+                              >
+                                <Navigation className="h-3 w-3 mr-1" />
+                                Open in Maps
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  if (navigator.share) {
+                                    navigator.share({
+                                      title: 'Track My Delivery',
+                                      text: 'Follow my delivery in real-time',
+                                      url: window.location.href,
+                                    });
+                                  }
+                                }}
+                              >
+                                <Share2 className="h-3 w-3 mr-1" />
+                                Share
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>

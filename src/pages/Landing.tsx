@@ -21,6 +21,7 @@ import { FeaturedCategories } from "@/components/FeaturedCategories";
 import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { StoreCard } from "@/components/StoreCard";
 import { OfferCard } from "@/components/OfferCard";
+import { FlashSaleCard } from "@/components/FlashSaleCard";
 
 const categories = [
   { id: "all", label: "All", emoji: "🏪" },
@@ -88,6 +89,7 @@ export default function Landing() {
   const topRatedProducts = useQuery(apiAny.products.getTopRatedProducts, { limit: 4 });
   const featuredProducts = useQuery(apiAny.products.getFeaturedProducts, { limit: 8 });
   const activeOffers = useQuery(apiAny.offers.getActiveOffers);
+  const flashSales = useQuery(apiAny.flashSales.list);
   
   const recentOrders = useQuery(
     apiAny.orders.getRecentOrders,
@@ -261,6 +263,21 @@ export default function Landing() {
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
                 {activeOffers.slice(0, 5).map((offer: any) => (
                   <OfferCard key={offer._id} offer={offer} compact />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {flashSales && flashSales.length > 0 && (
+            <div className="py-3">
+              <div className="flex items-center gap-2 mb-3">
+                <Flame className="h-4 w-4 text-orange-500" />
+                <h2 className="text-base font-bold">⚡ Flash Sales</h2>
+                <Badge variant="destructive" className="text-[10px]">Limited Time</Badge>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                {flashSales.slice(0, 3).map((sale: any) => (
+                  <FlashSaleCard key={sale._id} sale={sale} />
                 ))}
               </div>
             </div>

@@ -419,6 +419,99 @@ const schema = defineSchema(
       productIds: v.array(v.id("products")),
       name: v.optional(v.string()),
     }).index("by_user", ["userId"]),
+
+    flashSales: defineTable({
+      productId: v.id("products"),
+      discountPercent: v.number(),
+      startTime: v.number(),
+      endTime: v.number(),
+      maxQuantity: v.number(),
+      soldQuantity: v.number(),
+      isActive: v.boolean(),
+    }).index("by_product", ["productId"]),
+
+    giftCards: defineTable({
+      code: v.string(),
+      amount: v.number(),
+      balance: v.number(),
+      purchasedBy: v.id("users"),
+      recipientEmail: v.optional(v.string()),
+      recipientName: v.optional(v.string()),
+      message: v.optional(v.string()),
+      status: v.union(
+        v.literal("active"),
+        v.literal("redeemed"),
+        v.literal("expired")
+      ),
+      redeemedBy: v.optional(v.id("users")),
+      redeemedAt: v.optional(v.number()),
+      expiresAt: v.number(),
+    }).index("by_code", ["code"])
+      .index("by_purchaser", ["purchasedBy"]),
+
+    priceDropAlerts: defineTable({
+      userId: v.id("users"),
+      productId: v.id("products"),
+      targetPrice: v.number(),
+      isNotified: v.boolean(),
+    }).index("by_user", ["userId"])
+      .index("by_product", ["productId"])
+      .index("by_user_and_product", ["userId", "productId"]),
+
+    productQuestions: defineTable({
+      productId: v.id("products"),
+      userId: v.id("users"),
+      userName: v.string(),
+      question: v.string(),
+      answer: v.optional(v.string()),
+      answeredBy: v.optional(v.id("users")),
+      answeredAt: v.optional(v.number()),
+      isAnswered: v.boolean(),
+    }).index("by_product", ["productId"])
+      .index("by_user", ["userId"]),
+
+    sharedWishlists: defineTable({
+      userId: v.id("users"),
+      userName: v.string(),
+      name: v.string(),
+      description: v.optional(v.string()),
+      productIds: v.array(v.id("products")),
+      shareCode: v.string(),
+      isPublic: v.boolean(),
+    }).index("by_user", ["userId"])
+      .index("by_share_code", ["shareCode"]),
+
+    subscriptionBoxes: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      description: v.string(),
+      price: v.number(),
+      frequency: v.union(
+        v.literal("weekly"),
+        v.literal("biweekly"),
+        v.literal("monthly")
+      ),
+      productIds: v.array(v.id("products")),
+      isActive: v.boolean(),
+      nextDelivery: v.number(),
+    }).index("by_user", ["userId"]),
+
+    orderSplits: defineTable({
+      orderId: v.id("orders"),
+      participants: v.array(v.object({
+        userId: v.id("users"),
+        userName: v.string(),
+        amount: v.number(),
+        isPaid: v.boolean(),
+      })),
+      createdBy: v.id("users"),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("partial"),
+        v.literal("completed")
+      ),
+    }).index("by_order", ["orderId"])
+      .index("by_creator", ["createdBy"]),
   },
   {
     schemaValidation: false,
