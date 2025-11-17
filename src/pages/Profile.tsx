@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Award, Gift, MessageSquare, Copy, Trophy, Wallet, Plus, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
+import { User as UserIcon, Package, MapPin, LogOut, Phone, Mail, Edit, Gift, MessageSquare, Copy, BarChart3 } from "lucide-react";
 import { UserDashboard } from "@/components/UserDashboard";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -13,8 +13,9 @@ import { MobileHeader } from "@/components/MobileHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { WalletCard } from "@/components/profile/WalletCard";
+import { LoyaltyCard } from "@/components/profile/LoyaltyCard";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -180,115 +181,20 @@ export default function Profile() {
 
           {/* Wallet Card */}
           {walletData && (
-            <Card className="mb-6 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Wallet className="h-6 w-6" />
-                    <h3 className="text-lg font-bold">My Wallet</h3>
-                  </div>
-                  <div className="text-3xl font-bold">₹{walletData.balance.toFixed(2)}</div>
-                </div>
-                <p className="text-sm opacity-90">Available balance for orders</p>
-              </div>
-              <CardContent className="p-4">
-                <div className="space-y-4">
-                  <Button 
-                    className="w-full" 
-                    onClick={() => setShowWalletDialog(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Money
-                  </Button>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Recent Transactions</span>
-                    <Button variant="ghost" size="sm" onClick={() => navigate("/wallet")}>
-                      View All
-                    </Button>
-                  </div>
-                  {walletTransactions && walletTransactions.length > 0 ? (
-                    <div className="space-y-2">
-                      {walletTransactions.slice(0, 3).map((transaction: any) => (
-                        <div key={transaction._id} className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                            {transaction.type === "credit" ? (
-                              <TrendingUp className="h-4 w-4 text-green-600" />
-                            ) : (
-                              <TrendingDown className="h-4 w-4 text-red-600" />
-                            )}
-                            <span className="text-muted-foreground">{transaction.description}</span>
-                          </div>
-                          <span className={transaction.type === "credit" ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
-                            {transaction.type === "credit" ? "+" : ""}₹{Math.abs(transaction.amount)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No transactions yet</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <WalletCard
+              balance={walletData.balance}
+              transactions={walletTransactions || []}
+              onAddMoney={() => setShowWalletDialog(true)}
+            />
           )}
 
-          {/* Loyalty Program Card with Redeemable Money */}
+          {/* Loyalty Program Card */}
           {loyaltyData && (
-            <Card className="mb-6 overflow-hidden">
-              <div className={`${getTierColor(loyaltyData.tier)} p-6 text-white`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Trophy className="h-6 w-6" />
-                    <h3 className="text-lg font-bold capitalize">{loyaltyData.tier} Member</h3>
-                  </div>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                    {loyaltyData.points} Points
-                  </Badge>
-                </div>
-                <p className="text-sm opacity-90">Keep earning to unlock more rewards!</p>
-              </div>
-              <CardContent className="p-4">
-                <div className="space-y-4">
-                  {/* Redeemable Money Section */}
-                  <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Award className="h-5 w-5 text-green-600 dark:text-green-400" />
-                        <span className="font-semibold text-green-900 dark:text-green-100">Redeemable Balance</span>
-                      </div>
-                      <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        ₹{redeemableMoney}
-                      </div>
-                    </div>
-                    <p className="text-xs text-green-700 dark:text-green-300">
-                      Use your points at checkout (100 points = ₹1)
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Recent Transactions</span>
-                    <Button variant="ghost" size="sm" onClick={() => navigate("/loyalty")}>
-                      View All
-                    </Button>
-                  </div>
-                  {loyaltyTransactions && loyaltyTransactions.length > 0 ? (
-                    <div className="space-y-2">
-                      {loyaltyTransactions.slice(0, 3).map((transaction: any) => (
-                        <div key={transaction._id} className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">{transaction.description}</span>
-                          <span className={transaction.points > 0 ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
-                            {transaction.points > 0 ? "+" : ""}{transaction.points}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No transactions yet</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <LoyaltyCard
+              tier={loyaltyData.tier}
+              points={loyaltyData.points}
+              transactions={loyaltyTransactions || []}
+            />
           )}
 
           {/* Referral Program Card */}

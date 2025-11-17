@@ -2,29 +2,25 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Minus, Trash2, IndianRupee, ShoppingBag, Calendar, Clock, CreditCard, Smartphone, Wallet, Award } from "lucide-react";
+import { ShoppingBag, Award, Clock, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { MobileHeader } from "@/components/MobileHeader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { CartItem } from "@/components/cart/CartItem";
+import { BillSummary } from "@/components/cart/BillSummary";
+import { PaymentMethodSelector } from "@/components/cart/PaymentMethodSelector";
 import { Separator } from "@/components/ui/separator";
 import { DeliverySlotSelector } from "@/components/DeliverySlotSelector";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -41,6 +37,10 @@ export default function Cart() {
   const createAddress = useMutation(apiAny.addresses.create);
   const createPayment = useMutation(apiAny.payments.create);
   const addSavedPaymentMethod = useMutation(apiAny.payments.addSavedPaymentMethod);
+  const moveToFavorites = useMutation(apiAny.cart.moveToFavorites);
+  const redeemPoints = useMutation(apiAny.loyalty.redeemPoints);
+  const recordRedemption = useMutation(apiAny.loyalty.recordRedemption);
+  const deductWalletMoney = useMutation(apiAny.wallet.deductMoney);
 
   const [showCheckout, setShowCheckout] = useState(false);
   const [showAddAddress, setShowAddAddress] = useState(false);
@@ -81,9 +81,6 @@ export default function Cart() {
   const [pointsToRedeem, setPointsToRedeem] = useState(0);
   const loyaltyData = useQuery(apiAny.loyalty.getPoints);
   const walletData = useQuery(apiAny.wallet.getBalance);
-  const redeemPoints = useMutation(apiAny.loyalty.redeemPoints);
-  const recordRedemption = useMutation(apiAny.loyalty.recordRedemption);
-  const deductWalletMoney = useMutation(apiAny.wallet.deductMoney);
   
   // Coupon states
   const [couponCode, setCouponCode] = useState("");
@@ -93,9 +90,6 @@ export default function Cart() {
   const [deliveryTip, setDeliveryTip] = useState(0);
   const [orderNotes, setOrderNotes] = useState("");
   
-  // Move to favorites mutation
-  const moveToFavorites = useMutation(apiAny.cart.moveToFavorites);
-
   const subtotal = cartItems?.reduce((sum: number, item: any) => 
     sum + (item.product?.price || 0) * item.quantity, 0
   ) || 0;
@@ -106,19 +100,12 @@ export default function Cart() {
       ? { code: couponCode, storeId: cartItems[0].product.storeId, orderAmount: subtotal }
       : "skip"
   );
+  
   const deliveryFee = subtotal > 0 ? 40 : 0;
-  
-  // Calculate loyalty discount
   const maxRedeemablePoints = loyaltyData?.points || 0;
-  const maxDiscount = Math.floor(maxRedeemablePoints / 100);
   const loyaltyDiscount = usePoints ? Math.min(Math.floor(pointsToRedeem / 100), subtotal + deliveryFee) : 0;
-  
-  // Calculate coupon discount
   const couponDiscount = appliedCoupon?.discountAmount || 0;
-  
-  // Calculate wallet balance available
   const walletBalance = walletData?.balance || 0;
-  
   const total = Math.max(0, subtotal + deliveryFee + deliveryTip - loyaltyDiscount - couponDiscount);
 
   const handleUpdateQuantity = async (cartItemId: string, newQuantity: number) => {
@@ -381,137 +368,27 @@ export default function Cart() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                 >
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex gap-4">
-                        <img
-                          src={item.product?.image}
-                          alt={item.product?.name}
-                          className="w-20 h-20 object-cover rounded-lg"
-                        />
-                        <div className="flex-1">
-                          <h3 className="font-semibold mb-1">{item.product?.name}</h3>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {item.store?.name}
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1 font-bold">
-                              <IndianRupee className="h-4 w-4" />
-                              <span>{item.product?.price}</span>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
-                                <span className="font-semibold min-w-[20px] text-center">
-                                  {item.quantity}
-                                </span>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleRemove(item._id)}
-                                  className="h-8 w-8 p-0 text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleSaveForLater(item._id)}
-                                className="text-xs"
-                              >
-                                Save for Later
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <CartItem
+                    item={item}
+                    onUpdateQuantity={handleUpdateQuantity}
+                    onRemove={handleRemove}
+                    onSaveForLater={handleSaveForLater}
+                  />
                 </motion.div>
               ))}
             </div>
 
             <div className="lg:col-span-1">
-              <Card className="sticky top-20">
-                <CardContent className="p-6">
-                  <h2 className="font-bold text-lg mb-4">Bill Details</h2>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-sm">
-                      <span>Subtotal</span>
-                      <div className="flex items-center gap-1">
-                        <IndianRupee className="h-3 w-3" />
-                        <span>{subtotal}</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Delivery Fee</span>
-                      <div className="flex items-center gap-1">
-                        <IndianRupee className="h-3 w-3" />
-                        <span>{deliveryFee}</span>
-                      </div>
-                    </div>
-                    {deliveryTip > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span>Delivery Tip</span>
-                        <div className="flex items-center gap-1">
-                          <IndianRupee className="h-3 w-3" />
-                          <span>{deliveryTip}</span>
-                        </div>
-                      </div>
-                    )}
-                    {loyaltyDiscount > 0 && (
-                      <div className="flex justify-between text-sm text-green-600">
-                        <span>Loyalty Discount</span>
-                        <div className="flex items-center gap-1">
-                          <span>-</span>
-                          <IndianRupee className="h-3 w-3" />
-                          <span>{loyaltyDiscount}</span>
-                        </div>
-                      </div>
-                    )}
-                    {couponDiscount > 0 && (
-                      <div className="flex justify-between text-sm text-green-600">
-                        <span>Coupon Discount ({appliedCoupon?.code})</span>
-                        <div className="flex items-center gap-1">
-                          <span>-</span>
-                          <IndianRupee className="h-3 w-3" />
-                          <span>{couponDiscount}</span>
-                        </div>
-                      </div>
-                    )}
-                    <div className="border-t pt-2 flex justify-between font-bold">
-                      <span>Total</span>
-                      <div className="flex items-center gap-1">
-                        <IndianRupee className="h-4 w-4" />
-                        <span>{total}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <Button 
-                    className="w-full" 
-                    size="lg"
-                    onClick={() => setShowCheckout(true)}
-                  >
-                    Proceed to Checkout
-                  </Button>
-                </CardContent>
-              </Card>
+              <BillSummary
+                subtotal={subtotal}
+                deliveryFee={deliveryFee}
+                deliveryTip={deliveryTip}
+                loyaltyDiscount={loyaltyDiscount}
+                couponDiscount={couponDiscount}
+                appliedCoupon={appliedCoupon}
+                total={total}
+                onCheckout={() => setShowCheckout(true)}
+              />
             </div>
           </div>
         )}
@@ -554,191 +431,23 @@ export default function Cart() {
               </div>
             </div>
 
-            {/* Payment Method Selection */}
-            <div className="border-t pt-4">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-primary" />
-                Payment Method
-              </h3>
-              
-              <RadioGroup value={paymentMethod} onValueChange={(value: any) => setPaymentMethod(value)}>
-                <div className="space-y-3">
-                  {/* Saved Payment Methods */}
-                  {savedPaymentMethods && savedPaymentMethods.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-sm font-medium mb-2">Saved Methods</p>
-                      {savedPaymentMethods.map((method: any) => (
-                        <Card key={method._id} className="mb-2 cursor-pointer hover:border-primary">
-                          <CardContent className="p-3">
-                            <div className="flex items-center gap-3">
-                              <RadioGroupItem value={method.type} id={method._id} />
-                              <Label htmlFor={method._id} className="flex-1 cursor-pointer">
-                                <div className="flex items-center gap-2">
-                                  {method.type === "card" && <CreditCard className="h-4 w-4" />}
-                                  {method.type === "upi" && <Smartphone className="h-4 w-4" />}
-                                  {method.type === "wallet" && <Wallet className="h-4 w-4" />}
-                                  <span className="text-sm">
-                                    {method.type === "card" && `${method.cardBrand} •••• ${method.cardLast4}`}
-                                    {method.type === "upi" && method.upiId}
-                                    {method.type === "wallet" && method.walletProvider}
-                                  </span>
-                                </div>
-                              </Label>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                      <Separator className="my-3" />
-                    </div>
-                  )}
-
-                  {/* Card Payment */}
-                  <Card className={paymentMethod === "card" ? "border-primary" : ""}>
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
-                        <RadioGroupItem value="card" id="card" />
-                        <Label htmlFor="card" className="flex-1 cursor-pointer">
-                          <div className="flex items-center gap-2">
-                            <CreditCard className="h-4 w-4" />
-                            <span>Credit/Debit Card</span>
-                          </div>
-                        </Label>
-                      </div>
-                      {paymentMethod === "card" && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          className="mt-3 space-y-2"
-                        >
-                          <Input
-                            placeholder="Card Number"
-                            value={cardNumber}
-                            onChange={(e) => {
-                              const value = e.target.value.replace(/\D/g, "").slice(0, 16);
-                              setCardNumber(value);
-                              setCardLast4(value.slice(-4));
-                            }}
-                            maxLength={16}
-                          />
-                          <div className="grid grid-cols-2 gap-2">
-                            <Input placeholder="MM/YY" maxLength={5} />
-                            <Input placeholder="CVV" maxLength={3} type="password" />
-                          </div>
-                        </motion.div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* UPI Payment */}
-                  <Card className={paymentMethod === "upi" ? "border-primary" : ""}>
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
-                        <RadioGroupItem value="upi" id="upi" />
-                        <Label htmlFor="upi" className="flex-1 cursor-pointer">
-                          <div className="flex items-center gap-2">
-                            <Smartphone className="h-4 w-4" />
-                            <span>UPI</span>
-                          </div>
-                        </Label>
-                      </div>
-                      {paymentMethod === "upi" && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          className="mt-3"
-                        >
-                          <Input
-                            placeholder="UPI ID (e.g., user@paytm)"
-                            value={upiId}
-                            onChange={(e) => setUpiId(e.target.value)}
-                          />
-                        </motion.div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Wallet Payment */}
-                  <Card className={paymentMethod === "wallet" ? "border-primary" : ""}>
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
-                        <RadioGroupItem value="wallet" id="wallet" />
-                        <Label htmlFor="wallet" className="flex-1 cursor-pointer">
-                          <div className="flex items-center gap-2">
-                            <Wallet className="h-4 w-4" />
-                            <span>Wallet</span>
-                          </div>
-                        </Label>
-                      </div>
-                      {paymentMethod === "wallet" && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          className="mt-3"
-                        >
-                          <Select value={walletProvider} onValueChange={setWalletProvider}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Wallet" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="paytm">Paytm</SelectItem>
-                              <SelectItem value="phonepe">PhonePe</SelectItem>
-                              <SelectItem value="googlepay">Google Pay</SelectItem>
-                              <SelectItem value="amazonpay">Amazon Pay</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </motion.div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* App Wallet */}
-                  <Card className={paymentMethod === "app_wallet" ? "border-primary" : ""}>
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
-                        <RadioGroupItem value="app_wallet" id="app_wallet" />
-                        <Label htmlFor="app_wallet" className="flex-1 cursor-pointer">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Wallet className="h-4 w-4" />
-                              <span>App Wallet</span>
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                              Balance: ₹{walletBalance.toFixed(2)}
-                            </span>
-                          </div>
-                        </Label>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Cash on Delivery */}
-                  <Card className={paymentMethod === "cod" ? "border-primary" : ""}>
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
-                        <RadioGroupItem value="cod" id="cod" />
-                        <Label htmlFor="cod" className="flex-1 cursor-pointer">
-                          <div className="flex items-center gap-2">
-                            <IndianRupee className="h-4 w-4" />
-                            <span>Cash on Delivery</span>
-                          </div>
-                        </Label>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </RadioGroup>
-
-              {/* Save Payment Method Option */}
-              {paymentMethod !== "cod" && (
-                <div className="flex items-center justify-between mt-3 p-3 bg-muted rounded-lg">
-                  <span className="text-sm">Save this payment method</span>
-                  <Switch
-                    checked={savePaymentMethod}
-                    onCheckedChange={setSavePaymentMethod}
-                  />
-                </div>
-              )}
-            </div>
+            <PaymentMethodSelector
+              paymentMethod={paymentMethod}
+              onPaymentMethodChange={setPaymentMethod}
+              cardNumber={cardNumber}
+              onCardNumberChange={(value) => {
+                setCardNumber(value);
+                setCardLast4(value.slice(-4));
+              }}
+              upiId={upiId}
+              onUpiIdChange={setUpiId}
+              walletProvider={walletProvider}
+              onWalletProviderChange={setWalletProvider}
+              walletBalance={walletBalance}
+              savedPaymentMethods={savedPaymentMethods}
+              savePaymentMethod={savePaymentMethod}
+              onSavePaymentMethodChange={setSavePaymentMethod}
+            />
 
             {/* Apply Coupon Section */}
             <div className="border-t pt-4 mt-4">
