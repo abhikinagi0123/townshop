@@ -28,12 +28,12 @@ export function HeroSection({ isAuthenticated, nearbyShopsCount = 0 }: HeroSecti
               🚀 Fast Delivery
             </Badge>
             <h1 id="hero-heading" className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight">
-              Your Town's Marketplace
+              Your Local Marketplace
               <br />
-              <span className="text-primary">Everything You Need, Locally</span>
+              <span className="text-primary">All Services & Products in One Place</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mb-6 leading-relaxed">
-              Shop from local stores, book services, and get everything delivered to your doorstep. Supporting your community, one order at a time.
+              From groceries to home repairs, electronics to beauty services - discover and book everything your town offers. Support local businesses with every purchase and booking.
             </p>
           </motion.div>
           

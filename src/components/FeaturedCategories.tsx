@@ -14,7 +14,7 @@ export function FeaturedCategories({ categories }: FeaturedCategoriesProps) {
   return (
     <div className="py-3">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-bold">Shop by Category</h2>
+        <h2 className="text-base font-bold">Browse Services & Products</h2>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
         {categories.map((cat, index) => (

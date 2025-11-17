@@ -3,14 +3,14 @@ import { Zap, MapPin, Star } from "lucide-react";
 export function WhyChooseUs() {
   return (
     <div className="py-6 mt-4">
-      <h2 className="text-base font-bold mb-4 text-center">Why Choose Us?</h2>
+      <h2 className="text-base font-bold mb-4 text-center">Why Choose TownShop?</h2>
       <div className="grid grid-cols-3 gap-3">
         <div className="text-center">
           <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mb-2 mx-auto shadow-md">
             <Zap className="h-6 w-6 text-white" />
           </div>
-          <p className="text-xs font-semibold mb-1">Fast Service</p>
-          <p className="text-[10px] text-muted-foreground leading-tight">Quick & reliable</p>
+          <p className="text-xs font-semibold mb-1">All-in-One</p>
+          <p className="text-[10px] text-muted-foreground leading-tight">Products & services</p>
         </div>
 
         <div className="text-center">
