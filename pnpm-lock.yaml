@@ -95,6 +95,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.0.0-beta.7
         version: 4.1.17(vite@6.4.1(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2))
+      '@zumer/snapdom':
+        specifier: ^1.9.14
+        version: 1.9.14
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1905,6 +1908,9 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+
+  '@zumer/snapdom@1.9.14':
+    resolution: {integrity: sha512-kQARFS/jf+fsIFv9qxfNp8YMeun5tTyhFDk3iv47Lywk5YRldhINWicEZI15fP3FDUCeo8ok+BP0CtnDRFMFRg==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -4576,6 +4582,8 @@ snapshots:
       vite: 6.4.1(@types/node@22.19.1)(jiti@2.6.1)(lightningcss@1.30.2)
     transitivePeerDependencies:
       - supports-color
+
+  '@zumer/snapdom@1.9.14': {}
 
   acorn-jsx@5.3.2(acorn@8.15.0):
     dependencies:
