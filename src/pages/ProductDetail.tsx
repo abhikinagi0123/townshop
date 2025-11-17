@@ -32,9 +32,10 @@ export default function ProductDetail() {
   const product = useQuery(apiAny.products.getById, {
     productId: productId as Id<"products">,
   });
-  const store = product
-    ? useQuery(apiAny.stores.getById, { storeId: product.storeId })
-    : undefined;
+  const store = useQuery(
+    apiAny.stores.getById,
+    product ? { storeId: product.storeId } : "skip"
+  );
   const reviews = useQuery(apiAny.reviews.listByProduct, {
     productId: productId as Id<"products">,
   });
