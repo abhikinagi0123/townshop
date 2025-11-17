@@ -38,6 +38,7 @@ import type * as razorpay from "../razorpay.js";
 import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
 import type * as seedOffers from "../seedOffers.js";
+import type * as services from "../services.js";
 import type * as stockAlerts from "../stockAlerts.js";
 import type * as storeSubscriptions from "../storeSubscriptions.js";
 import type * as stores from "../stores.js";
@@ -83,6 +84,7 @@ declare const fullApi: ApiFromModules<{
   reviews: typeof reviews;
   seed: typeof seed;
   seedOffers: typeof seedOffers;
+  services: typeof services;
   stockAlerts: typeof stockAlerts;
   storeSubscriptions: typeof storeSubscriptions;
   stores: typeof stores;

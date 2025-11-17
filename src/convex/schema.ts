@@ -512,6 +512,131 @@ const schema = defineSchema(
       ),
     }).index("by_order", ["orderId"])
       .index("by_creator", ["createdBy"]),
+
+    serviceCategories: defineTable({
+      name: v.string(),
+      description: v.string(),
+      icon: v.string(),
+      isActive: v.boolean(),
+    }),
+
+    serviceProviders: defineTable({
+      userId: v.id("users"),
+      businessName: v.string(),
+      description: v.string(),
+      profileImage: v.optional(v.string()),
+      categories: v.array(v.string()),
+      serviceArea: v.object({
+        lat: v.number(),
+        lng: v.number(),
+        radius: v.number(),
+      }),
+      rating: v.optional(v.number()),
+      totalReviews: v.optional(v.number()),
+      isVerified: v.boolean(),
+      verificationDocuments: v.optional(v.array(v.string())),
+      availability: v.object({
+        monday: v.optional(v.array(v.object({ start: v.string(), end: v.string() }))),
+        tuesday: v.optional(v.array(v.object({ start: v.string(), end: v.string() }))),
+        wednesday: v.optional(v.array(v.object({ start: v.string(), end: v.string() }))),
+        thursday: v.optional(v.array(v.object({ start: v.string(), end: v.string() }))),
+        friday: v.optional(v.array(v.object({ start: v.string(), end: v.string() }))),
+        saturday: v.optional(v.array(v.object({ start: v.string(), end: v.string() }))),
+        sunday: v.optional(v.array(v.object({ start: v.string(), end: v.string() }))),
+      }),
+      phone: v.string(),
+      email: v.optional(v.string()),
+      yearsOfExperience: v.optional(v.number()),
+      certifications: v.optional(v.array(v.string())),
+    }).index("by_user", ["userId"]),
+
+    services: defineTable({
+      providerId: v.id("serviceProviders"),
+      name: v.string(),
+      description: v.string(),
+      category: v.string(),
+      images: v.array(v.string()),
+      basePrice: v.number(),
+      duration: v.number(), // in minutes
+      isActive: v.boolean(),
+      tags: v.optional(v.array(v.string())),
+      requirements: v.optional(v.array(v.string())),
+    }).index("by_provider", ["providerId"])
+      .index("by_category", ["category"]),
+
+    serviceBookings: defineTable({
+      userId: v.id("users"),
+      serviceId: v.id("services"),
+      providerId: v.id("serviceProviders"),
+      scheduledDate: v.string(), // YYYY-MM-DD
+      scheduledTime: v.string(), // HH:MM
+      duration: v.number(),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("confirmed"),
+        v.literal("in_progress"),
+        v.literal("completed"),
+        v.literal("cancelled")
+      ),
+      address: v.string(),
+      lat: v.number(),
+      lng: v.number(),
+      totalAmount: v.number(),
+      notes: v.optional(v.string()),
+      beforePhotos: v.optional(v.array(v.string())),
+      afterPhotos: v.optional(v.array(v.string())),
+      isRecurring: v.optional(v.boolean()),
+      recurringFrequency: v.optional(v.union(
+        v.literal("daily"),
+        v.literal("weekly"),
+        v.literal("biweekly"),
+        v.literal("monthly")
+      )),
+      nextRecurringDate: v.optional(v.string()),
+      paymentStatus: v.optional(v.union(
+        v.literal("pending"),
+        v.literal("completed"),
+        v.literal("failed"),
+        v.literal("refunded")
+      )),
+    }).index("by_user", ["userId"])
+      .index("by_provider", ["providerId"])
+      .index("by_service", ["serviceId"])
+      .index("by_status", ["status"]),
+
+    serviceReviews: defineTable({
+      bookingId: v.id("serviceBookings"),
+      userId: v.id("users"),
+      userName: v.string(),
+      providerId: v.id("serviceProviders"),
+      serviceId: v.id("services"),
+      rating: v.number(),
+      comment: v.string(),
+      beforePhotos: v.optional(v.array(v.string())),
+      afterPhotos: v.optional(v.array(v.string())),
+      isVerified: v.boolean(),
+    }).index("by_provider", ["providerId"])
+      .index("by_service", ["serviceId"])
+      .index("by_user", ["userId"])
+      .index("by_booking", ["bookingId"]),
+
+    serviceQuotations: defineTable({
+      userId: v.id("users"),
+      providerId: v.id("serviceProviders"),
+      serviceId: v.optional(v.id("services")),
+      description: v.string(),
+      estimatedPrice: v.optional(v.number()),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("quoted"),
+        v.literal("accepted"),
+        v.literal("rejected")
+      ),
+      quotedAmount: v.optional(v.number()),
+      quotedDuration: v.optional(v.number()),
+      providerNotes: v.optional(v.string()),
+    }).index("by_user", ["userId"])
+      .index("by_provider", ["providerId"]),
   },
   {
     schemaValidation: false,
