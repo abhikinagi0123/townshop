@@ -1,1 +1,2 @@
-npx convex run seedOffers:seedOffers
+   npx convex deploy --cmd 'npm run build'
+   
