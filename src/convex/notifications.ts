@@ -10,16 +10,58 @@ export const create = mutation({
     type: v.union(
       v.literal("order_update"),
       v.literal("promotion"),
-      v.literal("system")
+      v.literal("system"),
+      v.literal("delivery_update"),
+      v.literal("service_update")
     ),
     orderId: v.optional(v.id("orders")),
+    metadata: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("notifications", {
+    const notificationId = await ctx.db.insert("notifications", {
       userId: args.userId,
       title: args.title,
       message: args.message,
       type: args.type,
+      orderId: args.orderId,
+      isRead: false,
+    });
+
+    const subscriptions = await ctx.db
+      .query("pushSubscriptions")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .collect();
+
+    if (subscriptions.length > 0) {
+      await ctx.scheduler.runAfter(0, "pushNotifications:sendToUser" as any, {
+        userId: args.userId,
+        title: args.title,
+        message: args.message,
+        data: args.metadata,
+      });
+    }
+
+    return notificationId;
+  },
+});
+
+export const createForDeliveryPartner = mutation({
+  args: {
+    partnerId: v.id("deliveryPartners"),
+    title: v.string(),
+    message: v.string(),
+    orderId: v.optional(v.id("orders")),
+    metadata: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    const partner = await ctx.db.get(args.partnerId);
+    if (!partner) throw new Error("Partner not found");
+
+    return await ctx.db.insert("notifications", {
+      userId: partner.userId,
+      title: args.title,
+      message: args.message,
+      type: "delivery_update",
       orderId: args.orderId,
       isRead: false,
     });

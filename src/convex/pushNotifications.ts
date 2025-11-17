@@ -64,3 +64,26 @@ export const getUserSubscriptions = query({
       .collect();
   },
 });
+
+export const sendToUser = mutation({
+  args: {
+    userId: v.id("users"),
+    title: v.string(),
+    message: v.string(),
+    data: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    const subscriptions = await ctx.db
+      .query("pushSubscriptions")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .collect();
+
+    console.log(`Sending push notification to ${subscriptions.length} devices for user ${args.userId}`);
+    
+    return {
+      sent: subscriptions.length,
+      title: args.title,
+      message: args.message,
+    };
+  },
+});

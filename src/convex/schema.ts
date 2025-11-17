@@ -223,7 +223,9 @@ const schema = defineSchema(
       type: v.union(
         v.literal("order_update"),
         v.literal("promotion"),
-        v.literal("system")
+        v.literal("system"),
+        v.literal("delivery_update"),
+        v.literal("service_update")
       ),
       orderId: v.optional(v.id("orders")),
       isRead: v.boolean(),
@@ -637,6 +639,61 @@ const schema = defineSchema(
       providerNotes: v.optional(v.string()),
     }).index("by_user", ["userId"])
       .index("by_provider", ["providerId"]),
+
+    deliveryPartners: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      phone: v.string(),
+      email: v.optional(v.string()),
+      vehicleType: v.union(
+        v.literal("bike"),
+        v.literal("scooter"),
+        v.literal("car"),
+        v.literal("bicycle")
+      ),
+      vehicleNumber: v.string(),
+      licenseNumber: v.optional(v.string()),
+      profileImage: v.optional(v.string()),
+      isActive: v.boolean(),
+      isAvailable: v.boolean(),
+      currentLat: v.optional(v.number()),
+      currentLng: v.optional(v.number()),
+      lastLocationUpdate: v.optional(v.number()),
+      rating: v.optional(v.number()),
+      totalDeliveries: v.optional(v.number()),
+      verificationStatus: v.union(
+        v.literal("pending"),
+        v.literal("verified"),
+        v.literal("rejected")
+      ),
+      verificationDocuments: v.optional(v.array(v.string())),
+      earnings: v.optional(v.number()),
+      bankDetails: v.optional(v.object({
+        accountNumber: v.string(),
+        ifscCode: v.string(),
+        accountHolderName: v.string(),
+      })),
+    }).index("by_user", ["userId"])
+      .index("by_availability", ["isAvailable"])
+      .index("by_status", ["verificationStatus"]),
+
+    deliveryTracking: defineTable({
+      orderId: v.id("orders"),
+      deliveryPartnerId: v.id("deliveryPartners"),
+      status: v.union(
+        v.literal("assigned"),
+        v.literal("picked_up"),
+        v.literal("in_transit"),
+        v.literal("nearby"),
+        v.literal("delivered")
+      ),
+      currentLat: v.number(),
+      currentLng: v.number(),
+      estimatedArrival: v.optional(v.number()),
+      distanceRemaining: v.optional(v.number()),
+      lastUpdated: v.number(),
+    }).index("by_order", ["orderId"])
+      .index("by_partner", ["deliveryPartnerId"]),
   },
   {
     schemaValidation: false,
