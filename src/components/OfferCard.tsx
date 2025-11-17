@@ -64,31 +64,30 @@ export function OfferCard({ offer, compact = false }: OfferCardProps) {
   if (compact) {
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex-shrink-0 w-64"
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="flex-shrink-0"
       >
-        <Card className={`bg-gradient-to-r ${getGradient()} text-white border-0`}>
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2">
-              <Badge variant="secondary" className="text-xs">
-                {getTypeLabel()}
-              </Badge>
+        <div className={`bg-gradient-to-r ${getGradient()} text-white rounded-lg px-4 py-2 flex items-center gap-3 min-w-[280px] shadow-sm`}>
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
               {getIcon()}
             </div>
-            <h3 className="font-bold text-lg mb-1">{offer.title}</h3>
-            <p className="text-xs opacity-90 mb-3">{offer.description}</p>
-            {offer.code && (
-              <div 
-                className="bg-white/20 backdrop-blur-sm rounded px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-white/30 transition-colors"
-                onClick={handleCopyCode}
-              >
-                <span className="font-mono font-bold text-sm">{offer.code}</span>
-                <Copy className="h-3 w-3" />
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-sm leading-tight mb-0.5">{offer.title}</h3>
+              <p className="text-[10px] opacity-90 line-clamp-1">{offer.description}</p>
+            </div>
+          </div>
+          {offer.code && (
+            <div 
+              className="bg-white/20 backdrop-blur-sm rounded px-2 py-1 flex items-center gap-1.5 cursor-pointer hover:bg-white/30 transition-colors flex-shrink-0"
+              onClick={handleCopyCode}
+            >
+              <span className="font-mono font-bold text-xs">{offer.code}</span>
+              <Copy className="h-3 w-3" />
+            </div>
+          )}
+        </div>
       </motion.div>
     );
   }
