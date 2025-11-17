@@ -30,7 +30,7 @@ export function StoreCard({ store }: StoreCardProps) {
       transition={{ duration: 0.2 }}
     >
       <Card 
-        className="overflow-hidden cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border-2 hover:border-primary/40 bg-card"
+        className="overflow-hidden cursor-pointer active:shadow-xl active:scale-[0.98] transition-all duration-200 border-2 hover:border-primary/30 bg-card"
         onClick={() => navigate(`/store/${store._id}`)}
         role="button"
         tabIndex={0}
@@ -43,7 +43,7 @@ export function StoreCard({ store }: StoreCardProps) {
         aria-label={`View ${store.name} store details`}
       >
         <div className="flex gap-4 p-5">
-          <div className="relative w-28 h-28 flex-shrink-0 rounded-xl overflow-hidden bg-muted shadow-lg">
+          <div className="relative w-32 h-32 flex-shrink-0 rounded-2xl overflow-hidden bg-muted shadow-md">
             <img
               src={store.image}
               alt={store.name}

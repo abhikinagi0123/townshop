@@ -111,16 +111,16 @@ export function FlashSaleCard({ sale }: FlashSaleCardProps) {
 
   return (
     <Card 
-      className={`overflow-hidden border-2 ${isSoldOut ? 'border-gray-300 bg-gray-50 opacity-75' : 'border-orange-500 bg-gradient-to-br from-orange-50 to-red-50'} cursor-pointer transition-all hover:shadow-lg`}
+      className={`overflow-hidden border-2 ${isSoldOut ? 'border-gray-300 bg-gray-50 opacity-75' : 'border-orange-500 bg-gradient-to-br from-orange-50 to-red-50'} cursor-pointer transition-all active:shadow-xl active:scale-[0.98]`}
       onClick={() => navigate(`/product/${sale.productId}`)}
     >
-      <CardContent className="p-4">
-        <div className="flex gap-3">
+      <CardContent className="p-5">
+        <div className="flex gap-4">
           <div className="relative">
             <img
               src={sale.product?.image}
               alt={sale.product?.name}
-              className={`w-20 h-20 object-cover rounded-lg ${isSoldOut ? 'grayscale' : ''}`}
+              className={`w-28 h-28 object-cover rounded-xl shadow-sm ${isSoldOut ? 'grayscale' : ''}`}
             />
             {isSoldOut && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
@@ -129,14 +129,14 @@ export function FlashSaleCard({ sale }: FlashSaleCardProps) {
             )}
           </div>
           <div className="flex-1">
-            <div className="flex items-start justify-between mb-1">
-              <h3 className="font-bold text-sm line-clamp-1">{sale.product?.name}</h3>
-              <Badge className={`gap-1 ${isSoldOut ? 'bg-gray-500' : 'bg-orange-500'}`}>
+            <div className="flex items-start justify-between mb-2">
+              <h3 className="font-bold text-base line-clamp-2 leading-tight flex-1 mr-2">{sale.product?.name}</h3>
+              <Badge className={`gap-1 px-2 py-1 font-bold text-xs ${isSoldOut ? 'bg-gray-500' : 'bg-orange-500'}`}>
                 <Zap className="h-3 w-3" />
-                {sale.discountPercent}% OFF
+                {sale.discountPercent}%
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground mb-2">{sale.storeName}</p>
+            <p className="text-xs text-muted-foreground mb-3">{sale.storeName}</p>
             
             <div className="flex items-center gap-2 mb-2">
               <Clock className={`h-3 w-3 ${isSoldOut ? 'text-gray-500' : 'text-orange-600'}`} />
@@ -162,33 +162,33 @@ export function FlashSaleCard({ sale }: FlashSaleCardProps) {
             
             {quantity === 0 ? (
               <Button
-                size="sm"
-                className={`w-full ${isSoldOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}
+                size="lg"
+                className={`w-full h-11 font-semibold text-base shadow-sm ${isSoldOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'}`}
                 onClick={handleAddToCart}
                 disabled={isSoldOut}
               >
-                <ShoppingCart className="h-4 w-4 mr-2" />
+                <ShoppingCart className="h-5 w-5 mr-2" />
                 {isSoldOut ? 'Sold Out' : 'Add to Cart'}
               </Button>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 bg-white/50 rounded-lg p-2">
                 <Button
-                  size="sm"
+                  size="lg"
                   variant="outline"
                   onClick={handleDecrease}
-                  className="h-8 w-8 p-0"
+                  className="h-10 w-10 p-0 rounded-lg"
                 >
-                  <Minus className="h-4 w-4" />
+                  <Minus className="h-5 w-5" />
                 </Button>
-                <span className="flex-1 text-center font-semibold">{quantity}</span>
+                <span className="flex-1 text-center font-bold text-lg">{quantity}</span>
                 <Button
-                  size="sm"
+                  size="lg"
                   variant="outline"
                   onClick={handleIncrease}
-                  className="h-8 w-8 p-0"
+                  className="h-10 w-10 p-0 rounded-lg"
                   disabled={quantity >= remainingStock}
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-5 w-5" />
                 </Button>
               </div>
             )}

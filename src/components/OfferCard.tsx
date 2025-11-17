@@ -66,25 +66,26 @@ export function OfferCard({ offer, compact = true }: OfferCardProps) {
       <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
+        whileTap={{ scale: 0.98 }}
         className="flex-shrink-0"
       >
-        <div className={`bg-gradient-to-r ${getGradient()} text-white rounded-lg px-4 py-2 flex items-center gap-3 min-w-[280px] shadow-sm`}>
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+        <div className={`bg-gradient-to-r ${getGradient()} text-white rounded-xl px-5 py-3 flex items-center gap-3 min-w-[300px] shadow-md active:shadow-lg transition-all`}>
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
               {getIcon()}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-sm leading-tight mb-0.5">{offer.title}</h3>
-              <p className="text-[10px] opacity-90 line-clamp-1">{offer.description}</p>
+              <h3 className="font-bold text-base leading-tight mb-1">{offer.title}</h3>
+              <p className="text-xs opacity-90 line-clamp-1">{offer.description}</p>
             </div>
           </div>
           {offer.code && (
             <div 
-              className="bg-white/20 backdrop-blur-sm rounded px-2 py-1 flex items-center gap-1.5 cursor-pointer hover:bg-white/30 transition-colors flex-shrink-0"
+              className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2 cursor-pointer active:bg-white/30 transition-colors flex-shrink-0"
               onClick={handleCopyCode}
             >
-              <span className="font-mono font-bold text-xs">{offer.code}</span>
-              <Copy className="h-3 w-3" />
+              <span className="font-mono font-bold text-sm">{offer.code}</span>
+              <Copy className="h-4 w-4" />
             </div>
           )}
         </div>
