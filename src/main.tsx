@@ -37,6 +37,7 @@ const SubscriptionBoxes = lazy(() => import("./pages/SubscriptionBoxes.tsx"));
 const GroupBuying = lazy(() => import("./pages/GroupBuying.tsx"));
 const Services = lazy(() => import("./pages/Services.tsx"));
 const ServiceDetail = lazy(() => import("./pages/ServiceDetail.tsx"));
+const Wallet = lazy(() => import("./pages/Wallet.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -97,6 +98,7 @@ const router = createBrowserRouter([
   { path: "/price-alerts", element: <Suspense fallback={<PageLoader />}><PriceDropAlerts /></Suspense> },
   { path: "/subscriptions", element: <Suspense fallback={<PageLoader />}><SubscriptionBoxes /></Suspense> },
   { path: "/group-buying", element: <Suspense fallback={<PageLoader />}><GroupBuying /></Suspense> },
+  { path: "/wallet", element: <Suspense fallback={<PageLoader />}><Wallet /></Suspense> },
   { path: "*", element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense> },
 ]);
 
