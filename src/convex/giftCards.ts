@@ -32,7 +32,7 @@ export const create = mutation({
 export const redeem = mutation({
   args: {
     code: v.string(),
-    amount: v.number(),
+    amount: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
@@ -45,10 +45,14 @@ export const redeem = mutation({
     
     if (!giftCard) throw new Error("Gift card not found");
     if (giftCard.status !== "active") throw new Error("Gift card is not active");
-    if (giftCard.balance < args.amount) throw new Error("Insufficient balance");
     if (giftCard.expiresAt < Date.now()) throw new Error("Gift card expired");
     
-    const newBalance = giftCard.balance - args.amount;
+    // If no amount specified, redeem full balance to wallet
+    const redeemAmount = args.amount || giftCard.balance;
+    
+    if (giftCard.balance < redeemAmount) throw new Error("Insufficient balance");
+    
+    const newBalance = giftCard.balance - redeemAmount;
     
     await ctx.db.patch(giftCard._id, {
       balance: newBalance,
@@ -57,7 +61,42 @@ export const redeem = mutation({
       redeemedAt: Date.now(),
     });
     
-    return { success: true, remainingBalance: newBalance };
+    // Add to wallet
+    const currentWalletBalance = user.walletBalance || 0;
+    await ctx.db.patch(user._id, {
+      walletBalance: currentWalletBalance + redeemAmount,
+    });
+    
+    // Record wallet transaction
+    await ctx.db.insert("walletTransactions", {
+      userId: user._id,
+      amount: redeemAmount,
+      type: "credit",
+      description: `Redeemed gift card ${giftCard.code}`,
+    });
+    
+    return { success: true, remainingBalance: newBalance, redeemedAmount: redeemAmount };
+  },
+});
+
+export const checkBalance = query({
+  args: { code: v.string() },
+  handler: async (ctx, args) => {
+    const giftCard = await ctx.db
+      .query("giftCards")
+      .withIndex("by_code", (q) => q.eq("code", args.code))
+      .first();
+    
+    if (!giftCard) return null;
+    
+    return {
+      code: giftCard.code,
+      balance: giftCard.balance,
+      originalAmount: giftCard.amount,
+      status: giftCard.status,
+      expiresAt: giftCard.expiresAt,
+      isExpired: giftCard.expiresAt < Date.now(),
+    };
   },
 });
 
@@ -71,5 +110,24 @@ export const listByUser = query({
       .query("giftCards")
       .withIndex("by_purchaser", (q) => q.eq("purchasedBy", user._id))
       .collect();
+  },
+});
+
+export const getUsageHistory = query({
+  args: { giftCardId: v.id("giftCards") },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return [];
+    
+    const giftCard = await ctx.db.get(args.giftCardId);
+    if (!giftCard || giftCard.purchasedBy !== user._id) return [];
+    
+    // Get wallet transactions related to this gift card
+    const transactions = await ctx.db
+      .query("walletTransactions")
+      .filter((q) => q.eq(q.field("description"), `Redeemed gift card ${giftCard.code}`))
+      .collect();
+    
+    return transactions;
   },
 });
