@@ -23,15 +23,15 @@ interface ProductSectionProps {
 
 export function ProductSection({ title, icon, badge, products, showRating = false }: ProductSectionProps) {
   return (
-    <section className="py-4" aria-labelledby={`section-${title.replace(/\s+/g, '-').toLowerCase()}`}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
+    <section className="py-6" aria-labelledby={`section-${title.replace(/\s+/g, '-').toLowerCase()}`}>
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
           {icon}
-          <h2 id={`section-${title.replace(/\s+/g, '-').toLowerCase()}`} className="text-lg font-bold">{title}</h2>
+          <h2 id={`section-${title.replace(/\s+/g, '-').toLowerCase()}`} className="text-xl font-extrabold">{title}</h2>
         </div>
-        <Badge variant="secondary" className="text-[10px] shadow-sm">{badge}</Badge>
+        <Badge variant="secondary" className="text-xs px-3 py-1 shadow-md font-semibold">{badge}</Badge>
       </div>
-      <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide -mx-4 px-4" role="list">
+      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4" role="list">
         {products.map((item, index) => (
           <motion.div
             key={item._id}
@@ -42,7 +42,7 @@ export function ProductSection({ title, icon, badge, products, showRating = fals
             role="listitem"
             onClick={() => window.location.href = `/product/${item._id}`}
           >
-            <Card className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-200 border-2 hover:border-primary/20">
+            <Card className="overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300 border-2 hover:border-primary/40 bg-card">
               <div className="relative">
                 <picture>
                   <source 
@@ -52,24 +52,24 @@ export function ProductSection({ title, icon, badge, products, showRating = fals
                   <img 
                     src={item.image} 
                     alt={item.name} 
-                    className="w-full h-28 object-cover" 
+                    className="w-full h-32 object-cover" 
                     loading="lazy"
                     decoding="async"
-                    width="112"
-                    height="96"
+                    width="128"
+                    height="128"
                   />
                 </picture>
                 {showRating && item.storeRating && (
-                  <div className="absolute top-1 left-1 flex items-center gap-0.5 bg-background/95 backdrop-blur-sm px-1.5 py-0.5 rounded-md">
-                    <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />
-                    <span className="text-[9px] font-bold" aria-label={`Rating ${item.storeRating}`}>{item.storeRating}</span>
+                  <div className="absolute top-2 left-2 flex items-center gap-1 bg-background/95 backdrop-blur-sm px-2 py-1 rounded-lg shadow-md">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" aria-hidden="true" />
+                    <span className="text-xs font-bold" aria-label={`Rating ${item.storeRating}`}>{item.storeRating}</span>
                   </div>
                 )}
               </div>
-              <CardContent className="p-3">
-                <p className="text-xs font-bold line-clamp-1 mb-1">{item.name}</p>
-                <p className="text-[10px] text-muted-foreground line-clamp-1 mb-1">{item.storeName}</p>
-                <p className="text-sm text-primary font-extrabold">₹{item.price}</p>
+              <CardContent className="p-4">
+                <p className="text-sm font-bold line-clamp-1 mb-2">{item.name}</p>
+                <p className="text-xs text-muted-foreground line-clamp-1 mb-2">{item.storeName}</p>
+                <p className="text-base text-primary font-extrabold">₹{item.price}</p>
               </CardContent>
             </Card>
           </motion.div>
