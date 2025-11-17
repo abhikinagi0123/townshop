@@ -350,10 +350,10 @@ export default function Profile() {
             <Button
               variant="outline"
               className="w-full justify-start"
-              onClick={handleStartChat}
+              onClick={() => navigate("/help")}
             >
               <MessageSquare className="h-4 w-4 mr-2" />
-              Customer Support
+              Help Center
             </Button>
           </div>
         </motion.div>

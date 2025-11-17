@@ -23,6 +23,7 @@ export default function OrderTracking() {
     orderId: orderId as Id<"orders"> 
   });
   const createReview = useMutation(apiAny.reviews.create);
+  const createChatSession = useMutation(apiAny.chat.createSession);
   const mapRef = useRef<HTMLDivElement>(null);
 
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
@@ -340,6 +341,44 @@ export default function OrderTracking() {
               </CardContent>
             </Card>
           )}
+
+          {/* Quick Actions */}
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <h2 className="font-bold text-lg mb-4">Need Help?</h2>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={async () => {
+                    try {
+                      const sessionId = await createChatSession({ orderId: order._id });
+                      navigate(`/chat/${sessionId}`);
+                    } catch (error) {
+                      toast.error("Failed to start chat");
+                    }
+                  }}
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Chat Support
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    if (order.deliveryPartner?.phone) {
+                      window.location.href = `tel:${order.deliveryPartner.phone}`;
+                    } else {
+                      toast.error("Delivery partner contact not available");
+                    }
+                  }}
+                >
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call Driver
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Order Details */}
           <Card className="mb-6">

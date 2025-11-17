@@ -22,6 +22,7 @@ export default function Chat() {
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
+  const session = sessionId ? useQuery(apiAny.chat.getSessionById, { sessionId: sessionId as Id<"chatSessions"> }) : undefined;
   const messages = useQuery(apiAny.chat.getMessages, { limit: 50 });
   const sendMessage = useMutation(apiAny.chat.sendMessage);
   const markAsRead = useMutation(apiAny.chat.markMessagesAsRead);
@@ -77,8 +78,12 @@ export default function Chat() {
             <MessageSquare className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Customer Support</h1>
-            <p className="text-sm text-muted-foreground">We're here to help!</p>
+            <h1 className="text-2xl font-bold">
+              {session?.orderId ? "Order Support" : "Customer Support"}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {session?.orderId ? "Chat about your order" : "We're here to help!"}
+            </p>
           </div>
         </div>
 

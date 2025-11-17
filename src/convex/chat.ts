@@ -89,6 +89,21 @@ export const getMessages = query({
   },
 });
 
+export const getSessionById = query({
+  args: { sessionId: v.id("chatSessions") },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) return null;
+
+    const session = await ctx.db.get(args.sessionId);
+    if (!session || session.userId !== user._id) {
+      return null;
+    }
+
+    return session;
+  },
+});
+
 export const getSessions = query({
   args: {},
   handler: async (ctx) => {
