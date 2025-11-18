@@ -85,9 +85,15 @@ export default function Landing() {
     userLocation ? { userLat: userLocation.lat, userLng: userLocation.lng, category, search, radius: 10 } : "skip"
   );
 
+  // Fallback: Get all stores if location-based query fails or returns empty
+  const allStores = useQuery(
+    apiAny.stores.list,
+    !nearbyShops || nearbyShops.length === 0 ? { category, search, limit: 20 } : "skip"
+  );
+
   // Calculate distance for nearby shops
   const nearbyShopsWithDistance = nearbyShops?.map((shop: any) => {
-    if (!userLocation) return shop;
+    if (!userLocation || !shop.lat || !shop.lng) return shop;
     const distance = Math.sqrt(
       Math.pow(shop.lat - userLocation.lat, 2) + 
       Math.pow(shop.lng - userLocation.lng, 2)
@@ -95,12 +101,18 @@ export default function Landing() {
     return { ...shop, distance };
   });
 
+  // Use nearby shops if available, otherwise use all stores
+  const displayStores = nearbyShopsWithDistance && nearbyShopsWithDistance.length > 0 
+    ? nearbyShopsWithDistance 
+    : allStores?.stores || [];
+
   const trendingProducts = useQuery(apiAny.products.getTrendingProducts, { limit: 6 });
   const topRatedProducts = useQuery(apiAny.products.getTopRatedProducts, { limit: 4 });
   const featuredProducts = useQuery(apiAny.products.getFeaturedProducts, { limit: 8 });
   const activeOffers = useQuery(apiAny.offers.getActiveOffers);
   const flashSales = useQuery(apiAny.flashSales.list);
   
+  // Trending in area - skip if no location, will show general trending instead
   const trendingInArea = useQuery(
     apiAny.products.getTrendingInArea,
     userLocation ? { userLat: userLocation.lat, userLng: userLocation.lng, radiusKm: 5, limit: 6 } : "skip"
@@ -140,7 +152,7 @@ export default function Landing() {
       <main id="main-content" role="main">
         <HeroSection 
           isAuthenticated={isAuthenticated}
-          nearbyShopsCount={nearbyShops?.length || 0}
+          nearbyShopsCount={displayStores?.length || 0}
         />
 
         <div className="px-4">
@@ -376,16 +388,18 @@ export default function Landing() {
             </div>
           )}
 
-          {nearbyShopsWithDistance && nearbyShopsWithDistance.length > 0 && (
+          {displayStores && displayStores.length > 0 && (
             <div className="py-3" id="nearby-stores">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h2 className="text-base font-bold">Stores Near You</h2>
+                  <h2 className="text-base font-bold">
+                    {nearbyShopsWithDistance && nearbyShopsWithDistance.length > 0 ? "Stores Near You" : "Available Stores"}
+                  </h2>
                   <p className="text-xs text-muted-foreground">
-                    {nearbyShopsWithDistance.length} {nearbyShopsWithDistance.length === 1 ? "store" : "stores"}
+                    {displayStores.length} {displayStores.length === 1 ? "store" : "stores"}
                   </p>
                 </div>
-                {nearbyShopsWithDistance.length > 6 && (
+                {displayStores.length > 6 && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -399,7 +413,7 @@ export default function Landing() {
               </div>
 
               <div className="grid grid-cols-1 gap-3">
-                {nearbyShopsWithDistance.slice(0, 6).map((shop: any, index: number) => (
+                {displayStores.slice(0, 6).map((shop: any, index: number) => (
                   <motion.div
                     key={shop._id}
                     initial={{ opacity: 0, y: 10 }}
