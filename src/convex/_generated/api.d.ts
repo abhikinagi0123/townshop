@@ -14,6 +14,7 @@ import type * as auth from "../auth.js";
 import type * as auth_emailOtp from "../auth/emailOtp.js";
 import type * as cart from "../cart.js";
 import type * as chat from "../chat.js";
+import type * as cleanup from "../cleanup.js";
 import type * as deliveryPartners from "../deliveryPartners.js";
 import type * as deliveryTracking from "../deliveryTracking.js";
 import type * as favorites from "../favorites.js";
@@ -61,6 +62,7 @@ declare const fullApi: ApiFromModules<{
   "auth/emailOtp": typeof auth_emailOtp;
   cart: typeof cart;
   chat: typeof chat;
+  cleanup: typeof cleanup;
   deliveryPartners: typeof deliveryPartners;
   deliveryTracking: typeof deliveryTracking;
   favorites: typeof favorites;
