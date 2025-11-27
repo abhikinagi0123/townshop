@@ -69,23 +69,23 @@ export function OfferCard({ offer, compact = true }: OfferCardProps) {
         whileTap={{ scale: 0.98 }}
         className="flex-shrink-0"
       >
-        <div className={`bg-gradient-to-r ${getGradient()} text-white rounded-2xl px-6 py-4 flex items-center gap-4 min-w-[320px] shadow-lg active:shadow-xl transition-all`}>
-          <div className="flex items-center gap-4 flex-1 min-w-0">
-            <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+        <div className={`bg-gradient-to-r ${getGradient()} text-white rounded-xl px-5 py-3 flex items-center gap-3 min-w-[300px] shadow-md active:shadow-lg transition-all`}>
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
               {getIcon()}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-extrabold text-lg leading-tight mb-1.5">{offer.title}</h3>
-              <p className="text-sm opacity-90 line-clamp-1">{offer.description}</p>
+              <h3 className="font-bold text-base leading-tight mb-1">{offer.title}</h3>
+              <p className="text-xs opacity-90 line-clamp-1">{offer.description}</p>
             </div>
           </div>
           {offer.code && (
             <div 
-              className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2.5 flex items-center gap-2 cursor-pointer active:bg-white/30 transition-colors flex-shrink-0"
+              className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2 cursor-pointer active:bg-white/30 transition-colors flex-shrink-0"
               onClick={handleCopyCode}
             >
-              <span className="font-mono font-bold text-base">{offer.code}</span>
-              <Copy className="h-5 w-5" />
+              <span className="font-mono font-bold text-sm">{offer.code}</span>
+              <Copy className="h-4 w-4" />
             </div>
           )}
         </div>

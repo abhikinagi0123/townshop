@@ -9,7 +9,6 @@ import { createBrowserRouter, RouterProvider, useLocation } from "react-router";
 import "./index.css";
 import { Loader2 } from "lucide-react";
 import "./types/global.d.ts";
-import { initializeApp } from "@/lib/capacitor";
 
 // Eager load critical pages
 import Landing from "./pages/Landing.tsx";
@@ -42,13 +41,8 @@ const Wallet = lazy(() => import("./pages/Wallet.tsx"));
 const Referral = lazy(() => import("./pages/Referral.tsx"));
 const ProductComparison = lazy(() => import("./pages/ProductComparison.tsx"));
 const OrderSplitting = lazy(() => import("./pages/OrderSplitting.tsx"));
-const DeliveryDashboard = lazy(() => import("./pages/DeliveryDashboard.tsx"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard.tsx"));
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
-
-// Initialize Capacitor
-initializeApp();
 
 function RouteSyncer() {
   const location = useLocation();
@@ -103,8 +97,6 @@ const router = createBrowserRouter([
   { path: "/notifications", element: <Suspense fallback={<PageLoader />}><Notifications /></Suspense> },
   { path: "/chat/:sessionId", element: <Suspense fallback={<PageLoader />}><Chat /></Suspense> },
   { path: "/dashboard", element: <Suspense fallback={<PageLoader />}><Dashboard /></Suspense> },
-  { path: "/delivery-dashboard", element: <Suspense fallback={<PageLoader />}><DeliveryDashboard /></Suspense> },
-  { path: "/admin-dashboard", element: <Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense> },
   { path: "/flash-sales", element: <Suspense fallback={<PageLoader />}><FlashSales /></Suspense> },
   { path: "/gift-cards", element: <Suspense fallback={<PageLoader />}><GiftCards /></Suspense> },
   { path: "/price-alerts", element: <Suspense fallback={<PageLoader />}><PriceDropAlerts /></Suspense> },

@@ -57,8 +57,8 @@ export function ProductCard({
       whileTap={{ scale: 0.98 }}
     >
       <Card className="overflow-hidden active:shadow-lg transition-all border-2 hover:border-primary/20">
-        <div className="flex gap-4 p-5">
-          <div className="relative w-32 h-32 flex-shrink-0 rounded-2xl overflow-hidden bg-muted shadow-md">
+        <div className="flex gap-4 p-4">
+          <div className="relative w-28 h-28 flex-shrink-0 rounded-xl overflow-hidden bg-muted shadow-sm">
             <img
               src={product.image}
               alt={product.name}
@@ -101,19 +101,19 @@ export function ProductCard({
               </Badge>
             )}
           </div>
-          <CardContent className="flex-1 p-0 flex flex-col justify-between min-h-[128px]">
+          <CardContent className="flex-1 p-0 flex flex-col justify-between min-h-[112px]">
             <div>
-              <h4 className="font-extrabold text-lg mb-2 line-clamp-2 leading-tight">{product.name}</h4>
-              <p className="text-sm text-muted-foreground line-clamp-1 mb-3">
+              <h4 className="font-bold text-base mb-2 line-clamp-2 leading-tight">{product.name}</h4>
+              <p className="text-xs text-muted-foreground line-clamp-1 mb-3">
                 {product.description}
               </p>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex items-center gap-1 font-extrabold text-xl text-primary">
-                  <IndianRupee className="h-5 w-5" />
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-1 font-extrabold text-lg text-primary">
+                  <IndianRupee className="h-4 w-4" />
                   <span>{displayPrice}</span>
                 </div>
                 {hasSavings && (
-                  <span className="text-sm text-muted-foreground line-through">
+                  <span className="text-xs text-muted-foreground line-through">
                     ₹{product.price}
                   </span>
                 )}

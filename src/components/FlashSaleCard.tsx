@@ -114,13 +114,13 @@ export function FlashSaleCard({ sale }: FlashSaleCardProps) {
       className={`overflow-hidden border-2 ${isSoldOut ? 'border-gray-300 bg-gray-50 opacity-75' : 'border-orange-500 bg-gradient-to-br from-orange-50 to-red-50'} cursor-pointer transition-all active:shadow-xl active:scale-[0.98]`}
       onClick={() => navigate(`/product/${sale.productId}`)}
     >
-      <CardContent className="p-6">
-        <div className="flex gap-5">
+      <CardContent className="p-5">
+        <div className="flex gap-4">
           <div className="relative">
             <img
               src={sale.product?.image}
               alt={sale.product?.name}
-              className={`w-32 h-32 object-cover rounded-2xl shadow-md ${isSoldOut ? 'grayscale' : ''}`}
+              className={`w-28 h-28 object-cover rounded-xl shadow-sm ${isSoldOut ? 'grayscale' : ''}`}
             />
             {isSoldOut && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
@@ -129,32 +129,32 @@ export function FlashSaleCard({ sale }: FlashSaleCardProps) {
             )}
           </div>
           <div className="flex-1">
-            <div className="flex items-start justify-between mb-3">
-              <h3 className="font-extrabold text-lg line-clamp-2 leading-tight flex-1 mr-2">{sale.product?.name}</h3>
-              <Badge className={`gap-1 px-3 py-1.5 font-bold text-sm ${isSoldOut ? 'bg-gray-500' : 'bg-orange-500'}`}>
-                <Zap className="h-4 w-4" />
+            <div className="flex items-start justify-between mb-2">
+              <h3 className="font-bold text-base line-clamp-2 leading-tight flex-1 mr-2">{sale.product?.name}</h3>
+              <Badge className={`gap-1 px-2 py-1 font-bold text-xs ${isSoldOut ? 'bg-gray-500' : 'bg-orange-500'}`}>
+                <Zap className="h-3 w-3" />
                 {sale.discountPercent}%
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground mb-4">{sale.storeName}</p>
+            <p className="text-xs text-muted-foreground mb-3">{sale.storeName}</p>
             
-            <div className="flex items-center gap-2 mb-3">
-              <Clock className={`h-4 w-4 ${isSoldOut ? 'text-gray-500' : 'text-orange-600'}`} />
-              <span className={`text-sm font-semibold ${isSoldOut ? 'text-gray-500' : 'text-orange-600'}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className={`h-3 w-3 ${isSoldOut ? 'text-gray-500' : 'text-orange-600'}`} />
+              <span className={`text-xs font-semibold ${isSoldOut ? 'text-gray-500' : 'text-orange-600'}`}>
                 {timeLeft}
               </span>
             </div>
             
-            <div className="mb-3">
-              <div className="flex justify-between text-sm mb-1.5">
+            <div className="mb-2">
+              <div className="flex justify-between text-xs mb-1">
                 <span className="font-semibold">{sale.soldQuantity} sold</span>
                 <span className={`font-semibold ${isLowStock && !isSoldOut ? 'text-red-600' : ''}`}>
                   {remainingStock} left {isLowStock && !isSoldOut && '🔥'}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className={`h-2.5 rounded-full transition-all ${isSoldOut ? 'bg-gray-400' : 'bg-orange-500'}`}
+                  className={`h-2 rounded-full transition-all ${isSoldOut ? 'bg-gray-400' : 'bg-orange-500'}`}
                   style={{ width: `${percentSold}%` }}
                 />
               </div>

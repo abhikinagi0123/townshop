@@ -42,8 +42,8 @@ export function StoreCard({ store }: StoreCardProps) {
         }}
         aria-label={`View ${store.name} store details`}
       >
-        <div className="flex gap-5 p-6">
-          <div className="relative w-36 h-36 flex-shrink-0 rounded-2xl overflow-hidden bg-muted shadow-lg">
+        <div className="flex gap-4 p-5">
+          <div className="relative w-32 h-32 flex-shrink-0 rounded-2xl overflow-hidden bg-muted shadow-md">
             <img
               src={store.image}
               alt={store.name}
@@ -58,8 +58,8 @@ export function StoreCard({ store }: StoreCardProps) {
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2 mb-4">
-              <h3 className="font-extrabold text-xl leading-tight truncate">
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <h3 className="font-extrabold text-lg leading-tight truncate">
                 {store.name}
               </h3>
               {store.isOpen !== undefined && (
@@ -76,18 +76,18 @@ export function StoreCard({ store }: StoreCardProps) {
               )}
             </div>
             
-            <p className="text-base text-muted-foreground line-clamp-2 mb-5 leading-relaxed">
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
               {store.description}
             </p>
             
-            <div className="flex items-center gap-5 text-base text-muted-foreground font-semibold">
-              <div className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
+            <div className="flex items-center gap-4 text-sm text-muted-foreground font-semibold">
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
                 <span>{store.deliveryTime}</span>
               </div>
               {store.distance !== undefined && (
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4" />
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
                   <span>{store.distance.toFixed(1)} km</span>
                 </div>
               )}

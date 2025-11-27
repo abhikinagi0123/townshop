@@ -53,7 +53,6 @@ const schema = defineSchema(
       lat: v.number(),
       lng: v.number(),
       isOpen: v.optional(v.boolean()),
-      ownerId: v.optional(v.id("users")),
       hours: v.optional(v.object({
         monday: v.optional(v.string()),
         tuesday: v.optional(v.string()),
@@ -69,7 +68,7 @@ const schema = defineSchema(
         deliveryAreas: v.optional(v.array(v.string())),
         deliveryRadius: v.optional(v.number()),
       })),
-    }).index("by_owner", ["ownerId"]),
+    }),
 
     products: defineTable({
       storeId: v.id("stores"),

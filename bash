@@ -1,1 +1,1 @@
-ls -R partner_app_temp
+npx convex run seedOffers:seedOffers
