@@ -1,1 +1,1 @@
-cat .env.local | grep VITE_CONVEX_URL
+ls -R partner_app_temp
