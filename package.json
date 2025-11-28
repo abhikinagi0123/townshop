@@ -5,7 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:customer": "vite --mode customer",
+    "dev:shop": "vite --mode shop --port 5174",
+    "dev:worker": "vite --mode worker --port 5175",
+    "dev:admin": "vite --mode admin --port 5176",
     "build": "tsc -b && vite build",
+    "build:customer": "tsc -b && vite build --mode customer",
+    "build:shop": "tsc -b && vite build --mode shop",
+    "build:worker": "tsc -b && vite build --mode worker",
+    "build:admin": "tsc -b && vite build --mode admin",
     "lint": "eslint .",
     "preview": "vite preview"
   },
